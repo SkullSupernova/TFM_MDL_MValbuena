@@ -16,69 +16,105 @@ la literatura existente.
 \section{El aprendizaje profundo en el diagnóstico por imagen}
 \label{sec::ec_dl_imagen}
 
-El aprendizaje profundo ha transformado el análisis de imágenes médicas durante
-la última década, desplazando a los métodos clásicos basados en la extracción
-manual de características en favor de modelos capaces de aprender
-representaciones jerárquicas directamente a partir de los
-datos~\cite{litjensSurveyDeepLearning2017, caiReviewApplicationDeep2020}. El
-punto de inflexión llegó con el éxito de las redes neuronales convolucionales
-(CNN) en la competición ImageNet~\cite{krizhevskyImageNetClassification2012,
-dengImageNet2009}, cuya capacidad para el reconocimiento de patrones espaciales
-se trasladó rápidamente al dominio biomédico.
+Antes de la consolidación del aprendizaje profundo, la clasificación automática
+de imágenes médicas se abordaba mediante el paradigma clásico del aprendizaje
+automático: un experto diseñaba manualmente un conjunto de características
+(\textit{handcrafted features}) —descriptores de textura, forma o bordes— que
+posteriormente alimentaban a un clasificador como las máquinas de vectores de
+soporte o los bosques aleatorios. Este enfoque adolecía de una limitación
+fundamental: la calidad del resultado dependía de la pericia con que se diseñaran
+las características, un proceso laborioso, específico de cada problema y que rara
+vez capturaba la complejidad de las imágenes médicas~\cite{litjensSurveyDeepLearning2017}.
 
-La versatilidad de las CNN en tareas de clasificación de imágenes se ha
-demostrado en dominios muy diversos, desde el diagnóstico de enfermedades de
-plantas~\cite{sharmaPlantDiseaseDiagnosis2022} o la clasificación de imágenes
-minerales~\cite{liuEfficientImageSegmentation2021} hasta la categorización de
-resonancias magnéticas cerebrales~\cite{krishnapriyaPretrainedDeepLearning2023}.
-En el ámbito médico, diversos estudios comparativos confirman que los enfoques
-de aprendizaje profundo superan de forma consistente a los algoritmos clásicos
-de aprendizaje automático cuando se dispone de volúmenes de datos
+El punto de inflexión llegó en 2012, cuando una red neuronal convolucional
+(CNN) ganó con amplio margen la competición
+ImageNet~\cite{krizhevskyImageNetClassification2012, dengImageNet2009}. Las CNN
+sustituyen el diseño manual de características por su \textbf{aprendizaje
+automático y jerárquico} directamente a partir de los datos: las primeras capas
+detectan bordes y texturas elementales, y las profundas combinan esa información
+en conceptos cada vez más abstractos. Esta capacidad para aprender
+representaciones de extremo a extremo, unida a su invarianza ante traslaciones,
+las hizo idóneas para el reconocimiento de imágenes y se trasladó con rapidez al
+dominio biomédico~\cite{caiReviewApplicationDeep2020}.
+
+La versatilidad de las CNN ha quedado patente en dominios muy diversos, desde el
+diagnóstico de enfermedades de plantas~\cite{sharmaPlantDiseaseDiagnosis2022} o
+la clasificación de imágenes minerales~\cite{liuEfficientImageSegmentation2021}
+hasta la categorización de resonancias magnéticas
+cerebrales~\cite{krishnapriyaPretrainedDeepLearning2023}, lo que evidencia la
+generalidad del enfoque. En el ámbito médico, múltiples estudios comparativos
+confirman que el aprendizaje profundo supera de forma consistente a los
+algoritmos clásicos cuando se dispone de volúmenes de datos
 suficientes~\cite{wangComparativeAnalysisImage2021, sharmaDeepLearningModels2022,
 bharadiyaConvolutionalNeuralNetworks2023}.
 
-Un factor determinante para esta adopción ha sido el \textit{aprendizaje por
-transferencia} (\textit{transfer learning}): la reutilización de modelos
-preentrenados sobre grandes repositorios de imágenes naturales como punto de
-partida para tareas médicas con datos
-limitados~\cite{plestedDeepTransferLearning2026}. Esta estrategia acelera la
-convergencia y mejora la generalización, y constituye una práctica habitual en
-el diagnóstico por imagen, incluida la radiografía de
-tórax~\cite{jenaArtificialIntelligenceBased2021, kermanyIdentifyingMedical2018}.
+Precisamente la dependencia de grandes volúmenes de datos constituye el principal
+escollo en medicina, donde los conjuntos etiquetados son costosos y escasos. La
+respuesta habitual es el \textbf{aprendizaje por transferencia} (\textit{transfer
+learning}): reutilizar un modelo preentrenado sobre un gran repositorio de
+imágenes naturales —como ImageNet— y adaptarlo a la tarea médica. Esta estrategia
+puede aplicarse congelando el modelo preentrenado y entrenando solo la capa de
+salida (\textit{feature extraction}) o reajustando también sus pesos
+(\textit{fine-tuning}); en ambos casos acelera la convergencia y mejora la
+generalización con menos datos~\cite{plestedDeepTransferLearning2026}. Se ha
+convertido en una práctica estándar en el diagnóstico por imagen, incluida la
+radiografía de tórax~\cite{jenaArtificialIntelligenceBased2021, kermanyIdentifyingMedical2018}.
+No obstante, el aprendizaje profundo arrastra dos limitaciones que condicionan su
+aplicación clínica y que vertebran este trabajo: su sensibilidad a las
+particularidades de los datos médicos —desbalanceo, multietiqueta e
+incertidumbre— y su naturaleza opaca, abordadas en las secciones siguientes.
 
 
 \section{Conjuntos de datos de radiografía de tórax}
 \label{sec::ec_datasets}
 
-La disponibilidad de grandes repositorios públicos de radiografías de tórax
-anotadas ha sido el principal motor del progreso en este campo. El primero de
-gran escala fue \textbf{ChestX-ray8} (posteriormente ampliado a 14 patologías y
-conocido como \textit{ChestX-ray14}), publicado por el \textit{National
-Institutes of Health} (NIH) con más de 100.000 imágenes frontales etiquetadas
-mediante procesamiento del lenguaje natural (NLP) a partir de los informes
-radiológicos~\cite{wangChestXray8Hospital2017}. Le siguieron repositorios de
-mayor tamaño y calidad de anotación:
-\textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, de la Universidad de
-Stanford, con 224.316 imágenes y 14 observaciones clínicas;
-\textbf{MIMIC-CXR}~\cite{johnsonMIMICCXR2019}, con 377.110 imágenes e informes
-de texto libre; y \textbf{PadChest}~\cite{bustosPadChest2020}, con más de
-160.000 imágenes anotadas en español con una taxonomía jerárquica de 174
-hallazgos.
+El rendimiento del aprendizaje profundo supervisado es directamente proporcional
+a la cantidad y la calidad de los datos etiquetados disponibles. La disponibilidad
+de grandes repositorios públicos de radiografías de tórax anotadas ha sido, por
+tanto, el principal motor del progreso en este campo. El reto, sin embargo, es
+mayúsculo: anotar manualmente cientos de miles de imágenes por parte de
+radiólogos resulta inviable en coste y tiempo, lo que ha obligado a recurrir a la
+extracción automática de etiquetas a partir de los informes radiológicos mediante
+procesamiento del lenguaje natural (NLP), con la consiguiente introducción de
+ruido.
 
-Una limitación común a estos repositorios es que sus etiquetas se extraen de
-forma automática mediante NLP aplicado a los informes radiológicos, un proceso
-que introduce ruido e incertidumbre. Para mitigarlo se han desarrollado
-etiquetadores especializados como \textbf{CheXbert}~\cite{smitCheXbertCombining2020},
-que combina reglas automáticas con anotaciones de expertos mediante un modelo
-basado en BERT. Frente a este paradigma, conjuntos como
-\textbf{VinDr-CXR}~\cite{nguyenVinDrCXR2022} aportan anotaciones realizadas
-directamente por radiólogos, lo que permite contrastar la calidad del etiquetado
-automático con el consenso de expertos.
+El primer repositorio de gran escala fue \textbf{ChestX-ray14} —inicialmente
+publicado como ChestX-ray8—, del \textit{National Institutes of Health} (NIH),
+con más de cien mil imágenes frontales etiquetadas automáticamente para catorce
+patologías~\cite{wangChestXray8Hospital2017}. Pese a su impacto, estudios
+posteriores señalaron la limitada fiabilidad de sus etiquetas, derivada del
+proceso automático. Le siguieron repositorios que mejoraron el tamaño o la
+calidad de la anotación. \textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, de
+la Universidad de Stanford, aporta 224.316 imágenes y catorce observaciones, e
+introduce como rasgo distintivo el \textbf{tratamiento explícito de la
+incertidumbre} en el etiquetado. \textbf{MIMIC-CXR}~\cite{johnsonMIMICCXR2019},
+del Instituto Tecnológico de Massachusetts, es aún mayor (377.110 imágenes) e
+incorpora los informes de texto libre completos. \textbf{PadChest}~\cite{bustosPadChest2020},
+de origen español, ofrece más de 160.000 imágenes con una taxonomía jerárquica de
+174 hallazgos y la particularidad de que una cuarta parte fue anotada manualmente
+por médicos.
 
-En este trabajo se ha seleccionado CheXpert como base empírica por su tamaño, su
-adopción como referencia en la comunidad y, especialmente, por incorporar de
-forma explícita el problema de las etiquetas inciertas, que constituye uno de los
-ejes metodológicos del proyecto.
+La calidad de la anotación es, de hecho, el principal eje diferenciador entre
+estos conjuntos, y admite distintos niveles. En un extremo se sitúa el etiquetado
+\textbf{automático} por NLP, escalable pero ruidoso; para mejorarlo se han
+desarrollado etiquetadores más sofisticados como
+\textbf{CheXbert}~\cite{smitCheXbertCombining2020}, que sustituye las reglas por
+un modelo de lenguaje basado en BERT combinando anotaciones automáticas y de
+expertos. En el extremo opuesto se encuentra la anotación \textbf{directa por
+radiólogos}, como en \textbf{VinDr-CXR}~\cite{nguyenVinDrCXR2022}, cuyas imágenes
+fueron etiquetadas y localizadas mediante recuadros por radiólogos
+experimentados. Esta distinción da lugar a los conceptos de referencia
+\textit{silver} y \textit{gold standard} que se detallarán en el
+Capítulo~\ref{sec::capitulo3}.
+
+La elección del conjunto de datos implica, pues, un compromiso entre escala,
+calidad de anotación y riqueza de las patologías. En este trabajo se ha
+seleccionado CheXpert por reunir un equilibrio favorable: un tamaño que favorece
+el aprendizaje de representaciones robustas, su consolidación como banco de
+pruebas de referencia en la comunidad —lo que facilita la comparación con la
+literatura— y, de forma determinante, la incorporación explícita del problema de
+las etiquetas inciertas, que constituye uno de los ejes metodológicos del
+proyecto.
 
 
 \section{Arquitecturas para la clasificación de patologías torácicas}
