@@ -14,24 +14,109 @@ implementación desarrollada en el repositorio del proyecto.
 \section{Conjunto de datos: CheXpert}
 \label{sec::mm_dataset}
 
-El trabajo se basa en \textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, un
-conjunto de datos público de la Universidad de Stanford que contiene 224.316
-radiografías de tórax de 65.240 pacientes, recogidas de forma retrospectiva. Cada
-estudio está etiquetado con 14 observaciones clínicas extraídas automáticamente
-de los informes radiológicos mediante procesamiento del lenguaje natural. Para
-cada observación, la etiqueta puede tomar el valor positivo (1), negativo (0),
-ausente (sin mención) o incierto ($-1$), siendo este último uno de los rasgos
-distintivos del conjunto.
+\subsection{Origen y propósito}
 
-En este trabajo se emplean \textbf{13 de las 14 observaciones}, excluyendo
-\textit{Pleural Other} por su muy baja prevalencia en el conjunto de
-entrenamiento, que no aporta señal estadística suficiente. La clase
-\textit{No Finding} se conserva para que el modelo pueda indicar explícitamente
-la ausencia de hallazgos. Como conjunto de prueba se utiliza el conjunto de
-validación oficial de CheXpert, anotado por consenso de radiólogos de Stanford;
-al estar verificado por expertos, actúa como referencia \textit{silver-standard}
-y es independiente del entrenamiento (pacientes disjuntos), por lo que no
-participa en la selección del modelo.
+La elección del conjunto de datos es una de las decisiones más determinantes en
+un proyecto de aprendizaje profundo aplicado a imagen médica, pues condiciona el
+alcance de las patologías detectables, la calidad de la supervisión y la validez
+de las conclusiones. Como se expuso en el Capítulo~\ref{ch::capitulo2}, existen
+varios repositorios públicos de radiografía de tórax a gran escala
+—ChestX-ray14~\cite{wangChestXray8Hospital2017},
+MIMIC-CXR~\cite{johnsonMIMICCXR2019} y
+PadChest~\cite{bustosPadChest2020}, entre otros—, cada uno con compromisos
+distintos entre tamaño, número de patologías y calidad de anotación. Este trabajo
+emplea \textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, publicado por la
+Universidad de Stanford, por tres motivos: su gran tamaño, su adopción como banco
+de pruebas de referencia en la literatura y, de forma distintiva, el tratamiento
+explícito de la incertidumbre en el etiquetado, que constituye uno de los ejes
+metodológicos de este proyecto.
+
+CheXpert se construyó con el objetivo de servir como banco de pruebas público
+para la interpretación automatizada de radiografías de tórax, y dio lugar a una
+competición abierta para comparar algoritmos. El conjunto contiene
+\textbf{224.316 radiografías} de \textbf{65.240 pacientes} atendidos en Stanford
+Health Care entre octubre de 2002 y julio de 2017, tanto en régimen de
+hospitalización como ambulatorio, lo que aporta una notable variabilidad de
+condiciones de adquisición.
+
+\subsection{Patologías y sistema de etiquetado}
+
+Cada estudio se etiqueta con \textbf{14 observaciones clínicas} —trece patologías
+o hallazgos más la categoría \textit{No Finding}— seleccionadas por su prevalencia
+y relevancia clínica, siguiendo en lo posible el glosario de la Fleischner
+Society. Dado que anotar manualmente más de doscientas mil imágenes es inviable,
+las etiquetas se obtienen de forma automática a partir del texto libre de los
+informes radiológicos mediante un \textit{etiquetador} basado en reglas de
+procesamiento del lenguaje natural, que opera en tres fases: extracción de las
+menciones, clasificación de su polaridad y agregación. Trabajos posteriores
+mejoraron este proceso sustituyendo las reglas por modelos de lenguaje, como
+CheXbert~\cite{smitCheXbertCombining2020}.
+
+Como resultado, cada observación toma uno de cuatro valores: \textbf{positivo}
+(1), \textbf{negativo} (0), \textbf{ausente} (sin mención en el informe) o
+\textbf{incierto} ($-1$). Este último, que recoge expresiones dubitativas del
+radiólogo (``posible'', ``no se puede descartar''), es un rasgo distintivo de
+CheXpert y plantea el problema de cómo tratar la ambigüedad durante el
+entrenamiento, que se aborda en la Sección~\ref{sec::mm_clases}.
+
+\subsection{Niveles de calidad de la anotación}
+
+No todas las etiquetas de CheXpert tienen la misma fiabilidad, una distinción
+fundamental para interpretar correctamente los resultados. Conviene diferenciar
+tres niveles de calidad de anotación:
+
+\begin{itemize}
+  \item \textbf{Etiquetas automáticas (entrenamiento).} Las del conjunto de
+        entrenamiento se generan con el etiquetador de NLP. Permiten escalar la
+        supervisión a cientos de miles de imágenes, pero introducen ruido: el
+        sistema puede malinterpretar negaciones, incertidumbre o referencias a
+        estudios previos.
+  \item \textbf{Referencia \textit{silver standard}.} El conjunto de validación
+        oficial está formado por 200 estudios anotados manualmente por tres
+        radiólogos certificados, tomándose como verdad de referencia el voto
+        mayoritario. Su calidad es muy superior a la de las etiquetas
+        automáticas.
+  \item \textbf{Referencia \textit{gold standard}.} El conjunto de prueba de la
+        competición (500 estudios anotados por ocho radiólogos, con verdad de
+        referencia por mayoría de cinco) representa el máximo nivel de consenso
+        experto. Sin embargo, no es de acceso público, ya que se reservó para la
+        evaluación de la competición.
+\end{itemize}
+
+En general, se denomina \textit{gold standard} a la anotación de máxima calidad,
+obtenida por consenso de múltiples expertos, y \textit{silver standard} a una
+referencia de alta calidad pero con menores garantías (menos anotadores o
+verificación menos exhaustiva). Al no estar disponible el conjunto de prueba
+\textit{gold}, en este trabajo se utiliza el conjunto de validación oficial como
+conjunto de prueba, y se denomina \textit{silver standard} para reflejar
+explícitamente esta limitación.
+
+\subsection{Ventajas y limitaciones}
+
+Las principales \textbf{ventajas} de CheXpert son su gran escala —que favorece el
+aprendizaje de representaciones robustas—, la cobertura de catorce hallazgos
+clínicamente relevantes, el tratamiento explícito de la incertidumbre y la
+existencia de un conjunto de validación anotado por radiólogos. Entre sus
+\textbf{limitaciones} destacan el ruido inherente al etiquetado automático del
+entrenamiento, el sesgo de proceder de una única institución (lo que puede
+comprometer la generalización a otras poblaciones y equipos), y el fuerte
+desbalanceo de clases, con patologías que aparecen en una fracción muy pequeña de
+los estudios. Estas limitaciones se retoman en el análisis ético del
+Capítulo~\ref{sec::capitulo6}.
+
+\subsection{Selección para este trabajo}
+
+A partir del conjunto original se adoptan dos decisiones. En primer lugar, se
+emplean \textbf{13 de las 14 observaciones}, excluyendo \textit{Pleural Other}
+por su prevalencia extremadamente baja, que no aporta señal estadística
+suficiente para un aprendizaje fiable; la categoría \textit{No Finding} se
+conserva para que el modelo pueda indicar explícitamente la ausencia de
+hallazgos. En segundo lugar, se utiliza el conjunto de validación oficial como
+conjunto de prueba \textit{silver standard}: al estar anotado por radiólogos y
+ser independiente del entrenamiento (pacientes disjuntos), proporciona una
+estimación realista del rendimiento sin contaminar la selección del modelo. El
+tratamiento concreto aplicado sobre los datos se detalla en la
+Sección~\ref{sec::mm_etl}.
 
 
 \section{Procesamiento de datos (ETL)}
