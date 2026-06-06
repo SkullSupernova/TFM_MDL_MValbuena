@@ -222,22 +222,45 @@ inferencia del modelo y la visualización de las explicaciones, descrita en el
 Capítulo~\ref{sec::capitulo5}.
 
 
-\section{Síntesis y posicionamiento del trabajo}
+\section{Limitaciones de la literatura actual}
+\label{sec::ec_limitaciones}
+
+Pese a los avances descritos, la revisión pone de manifiesto varias limitaciones
+y retos abiertos. En primer lugar, existe una amplia variedad de arquitecturas
+aplicables a la radiografía de tórax —CNN clásicas, transformers y modelos
+híbridos— sin que ninguna se imponga de forma concluyente; las comparativas
+publicadas emplean además protocolos y métricas heterogéneos, lo que dificulta
+la reproducibilidad y la comparación
+directa~\cite{bressemComparingDeepLearning2020, liuComprehensiveStudyRobustness2025}.
+
+En segundo lugar, el desbalanceo de clases y, en particular, la distribución de
+cola larga de las patologías poco frecuentes siguen penalizando el rendimiento
+sobre las clases minoritarias, que son a menudo las de mayor relevancia
+clínica~\cite{lizDeepLearningMultilabel2023, holsteCXRLT2024}. A ello se suma la
+incertidumbre inherente al etiquetado automático por NLP: las distintas
+estrategias para tratar las etiquetas inciertas no presentan un ganador claro y
+su efecto depende del conjunto de datos y de la
+patología~\cite{irvinCheXpertLargeChest2019, phamInterpretingChestXrays2021}.
+
+En tercer lugar, la explicabilidad, imprescindible para la adopción clínica,
+no debe asumirse como fiable por defecto: estudios recientes muestran que los
+mapas de saliencia pueden ser poco robustos y no siempre coinciden con la
+evidencia clínica~\cite{zhangRevisitingTrustworthiness2024}. Por último, persiste
+una brecha entre la investigación y la práctica: son escasos los trabajos que
+abordan el despliegue \textit{de extremo a extremo} en un entorno usable,
+integrando inferencia y explicabilidad, y que consideran los sesgos demográficos
+de los conjuntos de datos —de origen institucional único— que limitan la
+generalización del modelo~\cite{korfiatisImplementingArtificial2025,
+bustosPadChest2020}.
+
+
+\section{Posicionamiento del trabajo}
 \label{sec::ec_sintesis}
 
-La revisión anterior pone de manifiesto tres líneas de trabajo consolidadas pero
-con retos abiertos. En primer lugar, existe una amplia variedad de arquitecturas
-de aprendizaje profundo aplicables a la radiografía de tórax, sin que una sola
-domine de forma concluyente, lo que justifica una evaluación comparativa. En
-segundo lugar, el desbalanceo de clases y la incertidumbre del etiquetado siguen
-siendo problemas centrales que condicionan el rendimiento y requieren
-estrategias explícitas. En tercer lugar, la explicabilidad es imprescindible
-para la adopción clínica, pero su fiabilidad debe evaluarse con rigor y no
-asumirse.
-
-Este Trabajo Fin de Máster se posiciona en la intersección de estas tres líneas:
-propone una evaluación comparativa de arquitecturas para la clasificación
-multietiqueta sobre CheXpert, con tratamiento explícito del desbalanceo y de la
-incertidumbre, e integra la explicabilidad mediante Grad-CAM en una plataforma
-web desplegable. La metodología y los recursos empleados para ello se detallan
-en el Capítulo~\ref{sec::capitulo3}.
+Este Trabajo Fin de Máster se posiciona en la intersección de las limitaciones
+anteriores: propone una evaluación comparativa y reproducible de arquitecturas
+para la clasificación multietiqueta sobre CheXpert, con tratamiento explícito del
+desbalanceo de clases y de la incertidumbre del etiquetado, e integra la
+explicabilidad mediante Grad-CAM en una plataforma web desplegable que aproxima
+el modelo a un uso real. La metodología y los recursos empleados para ello se
+detallan en el Capítulo~\ref{sec::capitulo3}.
