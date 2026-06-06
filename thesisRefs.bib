@@ -1,73 +1,165 @@
 % =============================================================
 % Referencias del TFM
-% Clasificación multietiqueta de radiografías de tórax con DL
+% Clasificación multietiqueta de signos radiológicos torácicos
 % Estilo BibLaTeX / biber / APA
+%
+% NOTA: Las entradas de la SECCIÓN 1 proceden del anteproyecto del
+% TFM y están verificadas. Las de las secciones siguientes son
+% referencias técnicas estándar; sus DOI/páginas deben confirmarse
+% con la fuente original antes del depósito final.
 % =============================================================
 
-% ----------------------------------------------------------------
-% Conjuntos de datos de referencia
-% ----------------------------------------------------------------
+
+% =============================================================
+% SECCIÓN 1 — Referencias del anteproyecto (núcleo del TFM)
+% =============================================================
 
 @inproceedings{irvinCheXpertLargeChest2019,
-  title     = {CheXpert: A Large Chest Radiograph Dataset with Uncertainty
+  title     = {{CheXpert}: A Large Chest Radiograph Dataset with Uncertainty
                Labels and Expert Comparison},
-  author    = {Irvin, Jeremy and Rajpurkar, Pranav and Ko, Michael and
-               Yu, Yifan and Ciosi, Silviana and Chute, Curt and
-               Lungren, Matthew P.},
+  author    = {Irvin, Jeremy and Rajpurkar, Pranav and Ko, Michael and Yu,
+               Yifan and Ciurea-Ilcus, Silviana and Chute, Chris and
+               Marklund, Henrik and Haghgoo, Behzad and Ball, Robyn and
+               Shpanskaya, Katie and Seekins, Jayne and Mong, David A. and
+               Halabi, Safwan S. and Sandberg, Jesse K. and Jones, Ricky and
+               Larson, David B. and Langlotz, Curtis P. and Patel, Bhavik N.
+               and Lungren, Matthew P. and Ng, Andrew Y.},
   booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
-  year      = {2019},
+  date      = {2019},
   volume    = {33},
   number    = {01},
   pages     = {590--597},
   doi       = {10.1609/aaai.v33i01.3301590},
 }
 
-@inproceedings{wangChestXRay8HospitalScale2017,
-  title     = {ChestX-ray8: Hospital-Scale Chest X-Ray Database and Benchmarks},
-  author    = {Wang, Xiaosong and Peng, Yifan and Lu, Le and Lu, Zhiyong and
-               Bagheri, Mohammadhadi and Summers, Ronald M.},
-  booktitle = {Proceedings of the IEEE Conference on Computer Vision and
-               Pattern Recognition},
-  year      = {2017},
-  pages     = {2097--2106},
-  doi       = {10.1109/CVPR.2017.369},
-}
-
-@article{bustosPadChestLargeChest2020,
-  title        = {PadChest: A Large Chest X-Ray Image Dataset with
-                  Multi-Label Annotated Reports},
-  author       = {Bustos, Aurelia and Pertusa, Antonio and Salinas,
-                  Jose-Maria and de la Iglesia-Vay{\'a}, Maria},
-  journaltitle = {Medical Image Analysis},
-  year         = {2020},
-  volume       = {66},
-  pages        = {101797},
-  doi          = {10.1016/j.media.2020.101797},
+@article{lizDeepLearningMultilabel2023,
+  title        = {Deep Learning for Understanding Multilabel Imbalanced Chest
+                  {X}-ray Datasets},
+  author       = {Liz, Helena and Huertas-Tato, Javier and
+                  S{\'a}nchez-Monta{\~n}{\'e}s, Manuel and Del Ser, Javier and
+                  Camacho, David},
+  journaltitle = {Future Generation Computer Systems},
+  date         = {2023},
+  volume       = {144},
+  pages        = {291--306},
+  doi          = {10.1016/j.future.2023.03.005},
 }
 
 @article{rajpurkarCheXNetRadiologistLevel2017,
-  title        = {CheXNet: Radiologist-Level Pneumonia Detection on Chest
-                  X-Rays with Deep Learning},
+  title        = {{CheXNet}: Radiologist-Level Pneumonia Detection on Chest
+                  {X}-rays with Deep Learning},
   author       = {Rajpurkar, Pranav and Irvin, Jeremy and Zhu, Kaylie and
-                  Yang, Brandon and Mehta, Hershel and Duan, Tony and
-                  Ding, Daisy and Bagul, Aarti and Langlotz, Curtis and
-                  Shpanskaya, Katie and Ng, Andrew Y.},
+                  Yang, Brandon and Mehta, Hershel and Duan, Tony and Ding,
+                  Daisy and Bagul, Aarti and Langlotz, Curtis and Shpanskaya,
+                  Katie and Lungren, Matthew P. and Ng, Andrew Y.},
   journaltitle = {arXiv preprint arXiv:1711.05225},
-  year         = {2017},
+  date         = {2017},
   eprint       = {1711.05225},
   eprinttype   = {arxiv},
 }
 
-% ----------------------------------------------------------------
-% Arquitecturas CNN
-% ----------------------------------------------------------------
+@article{lizEnsemblesConvolutional2021,
+  title        = {Ensembles of Convolutional Neural Network Models for Pediatric
+                  Pneumonia Diagnosis},
+  author       = {Liz, Helena and S{\'a}nchez-Monta{\~n}{\'e}s, Manuel and
+                  Tagarro, Alfredo and Dom{\'i}nguez-Rodr{\'i}guez, Sara and
+                  Dagan, Ron and Camacho, David},
+  journaltitle = {Future Generation Computer Systems},
+  date         = {2021},
+  volume       = {122},
+  pages        = {220--233},
+  doi          = {10.1016/j.future.2021.04.007},
+}
+
+@article{kermanyIdentifyingMedical2018,
+  title        = {Identifying Medical Diagnoses and Treatable Diseases by
+                  Image-Based Deep Learning},
+  author       = {Kermany, Daniel S. and Goldbaum, Michael and Cai, Wenjia and
+                  Valentim, Carolina C. S. and Liang, Huiying and Baxter,
+                  Sally L. and McKeown, Alex and Yang, Ge and Wu, Xiaokang and
+                  Yan, Fangbing and others},
+  journaltitle = {Cell},
+  date         = {2018},
+  volume       = {172},
+  number       = {5},
+  pages        = {1122--1131.e9},
+  doi          = {10.1016/j.cell.2018.02.010},
+}
+
+@article{lizlopezDeepLearningInnovations2025,
+  title        = {Deep Learning Innovations in the Detection of Lung Cancer:
+                  Advances, Trends, and Open Challenges},
+  author       = {Liz-L{\'o}pez, Helena and {Anguera de Sojo-Hern{\'a}ndez},
+                  {\'A}urea A. and D'Antonio-Maceiras, Sergio and
+                  D{\'i}az-Mart{\'i}nez, Miguel {\'A}ngel and Camacho, David},
+  journaltitle = {Cognitive Computation},
+  date         = {2025},
+  volume       = {17},
+  number       = {2},
+  pages        = {67},
+  doi          = {10.1007/s12559-025-10408-2},
+}
+
+@online{stanfordCheXpertCompetition,
+  title        = {{CheXpert}: A Large Chest {X}-Ray Dataset and Competition},
+  author       = {{Stanford ML Group}},
+  organization = {Stanford University},
+  url          = {https://stanfordmlgroup.github.io/competitions/chexpert/},
+  urldate      = {2026-02-22},
+}
+
+@article{lizlopezGenerationDetection2024,
+  title        = {Generation and Detection of Manipulated Multimodal
+                  Audiovisual Content: Advances, Trends and Open Challenges},
+  author       = {Liz-L{\'o}pez, Helena and Keita, Madeleine and
+                  Taleb-Ahmed, Abdelmalik and Hadid, Abdenour and
+                  Huertas-Tato, Javier and Camacho, David},
+  journaltitle = {Information Fusion},
+  date         = {2024},
+  volume       = {103},
+  pages        = {102103},
+  doi          = {10.1016/j.inffus.2023.102103},
+}
+
+
+% =============================================================
+% SECCIÓN 1b — Trabajos adicionales relevantes (aportados por el autor)
+% =============================================================
+
+@article{phamInterpretingChestXrays2021,
+  title        = {Interpreting Chest {X}-rays via {CNNs} that Exploit
+                  Hierarchical Disease Dependencies and Uncertainty Labels},
+  author       = {Pham, Hieu H. and Le, Tung T. and Tran, Dat Q. and Ngo,
+                  Dat T. and Nguyen, Ha Q.},
+  journaltitle = {Neurocomputing},
+  date         = {2021},
+  volume       = {437},
+  pages        = {186--194},
+  doi          = {10.1016/j.neucom.2020.03.127},
+}
+
+@inproceedings{yuanLargeScaleRobustDeepAUC2021,
+  title     = {Large-Scale Robust Deep {AUC} Maximization: A New Surrogate Loss
+               and Empirical Studies on Medical Image Classification},
+  author    = {Yuan, Zhuoning and Yan, Yan and Sonka, Milan and Yang, Tianbao},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer
+               Vision (ICCV)},
+  date      = {2021},
+  pages     = {3040--3049},
+  doi       = {10.1109/ICCV48922.2021.00303},
+}
+
+
+% =============================================================
+% SECCIÓN 2 — Arquitecturas CNN  (verificar DOI/páginas)
+% =============================================================
 
 @inproceedings{heDeepResidualLearning2016,
   title     = {Deep Residual Learning for Image Recognition},
   author    = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
   booktitle = {Proceedings of the IEEE Conference on Computer Vision and
-               Pattern Recognition},
-  year      = {2016},
+               Pattern Recognition (CVPR)},
+  date      = {2016},
   pages     = {770--778},
   doi       = {10.1109/CVPR.2016.90},
 }
@@ -77,234 +169,496 @@
   author    = {Huang, Gao and Liu, Zhuang and van der Maaten, Laurens and
                Weinberger, Kilian Q.},
   booktitle = {Proceedings of the IEEE Conference on Computer Vision and
-               Pattern Recognition},
-  year      = {2017},
-  pages     = {4700--4708},
+               Pattern Recognition (CVPR)},
+  date      = {2017},
+  pages     = {2261--2269},
   doi       = {10.1109/CVPR.2017.243},
 }
 
-@article{simonyanVeryDeepConvolutional2015,
+@inproceedings{simonyanVeryDeepConvolutional2015,
   title        = {Very Deep Convolutional Networks for Large-Scale Image
                   Recognition},
   author       = {Simonyan, Karen and Zisserman, Andrew},
-  journaltitle = {arXiv preprint arXiv:1409.1556},
-  year         = {2015},
+  booktitle    = {International Conference on Learning Representations (ICLR)},
+  date         = {2015},
   eprint       = {1409.1556},
   eprinttype   = {arxiv},
 }
 
-@inproceedings{liuConvNetFor2020s2022,
-  title     = {A ConvNet for the 2020s},
+@inproceedings{liuConvNet2020s2022,
+  title     = {A {ConvNet} for the 2020s},
   author    = {Liu, Zhuang and Mao, Hanzi and Wu, Chao-Yuan and
                Feichtenhofer, Christoph and Darrell, Trevor and Xie, Saining},
-  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision
-               and Pattern Recognition},
-  year      = {2022},
-  pages     = {11976--11986},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and
+               Pattern Recognition (CVPR)},
+  date      = {2022},
+  pages     = {11966--11976},
   doi       = {10.1109/CVPR52688.2022.01167},
 }
 
-@inproceedings{liuSwinTransformerHierarchical2021,
-  title     = {Swin Transformer: Hierarchical Vision Transformer using
-               Shifted Windows},
-  author    = {Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and
-               Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
-  booktitle = {Proceedings of the IEEE/CVF International Conference on
-               Computer Vision},
-  year      = {2021},
-  pages     = {10012--10022},
+@inproceedings{liuSwinTransformer2021,
+  title     = {Swin Transformer: Hierarchical Vision Transformer Using Shifted
+               Windows},
+  author    = {Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and Wei,
+               Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer
+               Vision (ICCV)},
+  date      = {2021},
+  pages     = {9992--10002},
   doi       = {10.1109/ICCV48922.2021.00986},
 }
 
-@inproceedings{krizhevskyImageNetClassificationDeep2012,
-  title     = {ImageNet Classification with Deep Convolutional Neural
+@inproceedings{krizhevskyImageNetClassification2012,
+  title     = {{ImageNet} Classification with Deep Convolutional Neural
                Networks},
   author    = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E.},
-  booktitle = {Advances in Neural Information Processing Systems},
-  year      = {2012},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  date      = {2012},
   volume    = {25},
 }
 
-% ----------------------------------------------------------------
-% Explicabilidad (XAI)
-% ----------------------------------------------------------------
+
+% =============================================================
+% SECCIÓN 3 — Explicabilidad (XAI)  (verificar DOI/páginas)
+% =============================================================
 
 @inproceedings{selvarajuGradCAMVisualExplanations2017,
-  title     = {Grad-CAM: Visual Explanations from Deep Networks via
+  title     = {{Grad-CAM}: Visual Explanations from Deep Networks via
                Gradient-Based Localization},
-  author    = {Selvaraju, Ramprasaath R. and Cogswell, Michael and
-               Das, Abhishek and Vedantam, Ramakrishna and Parikh, Devi
-               and Batra, Dhruv},
-  booktitle = {Proceedings of the IEEE International Conference on
-               Computer Vision},
-  year      = {2017},
+  author    = {Selvaraju, Ramprasaath R. and Cogswell, Michael and Das,
+               Abhishek and Vedantam, Ramakrishna and Parikh, Devi and Batra,
+               Dhruv},
+  booktitle = {Proceedings of the IEEE International Conference on Computer
+               Vision (ICCV)},
+  date      = {2017},
   pages     = {618--626},
   doi       = {10.1109/ICCV.2017.74},
 }
 
 @inproceedings{zhouLearningDeepFeatures2016,
   title     = {Learning Deep Features for Discriminative Localization},
-  author    = {Zhou, Bolei and Khosla, Aditya and Lapedriza, Agata and
-               Oliva, Aude and Torralba, Antonio},
+  author    = {Zhou, Bolei and Khosla, Aditya and Lapedriza, Agata and Oliva,
+               Aude and Torralba, Antonio},
   booktitle = {Proceedings of the IEEE Conference on Computer Vision and
-               Pattern Recognition},
-  year      = {2016},
+               Pattern Recognition (CVPR)},
+  date      = {2016},
   pages     = {2921--2929},
   doi       = {10.1109/CVPR.2016.319},
 }
 
-@article{rudinStopExplainingBlack2019,
-  title        = {Stop Explaining Black Box Machine Learning Models for High
-                  Stakes Decisions and Use Interpretable Models Instead},
-  author       = {Rudin, Cynthia},
-  journaltitle = {Nature Machine Intelligence},
-  year         = {2019},
-  volume       = {1},
-  number       = {5},
-  pages        = {206--215},
-  doi          = {10.1038/s42256-019-0048-x},
-}
 
-% ----------------------------------------------------------------
-% Clasificación multietiqueta y funciones de pérdida
-% ----------------------------------------------------------------
+% =============================================================
+% SECCIÓN 4 — Fundamentos y técnicas de DL  (verificar DOI/páginas)
+% =============================================================
 
-@article{zhangReviewMultiLabelLearning2014,
+@article{zhangReviewMultiLabel2014,
   title        = {A Review on Multi-Label Learning Algorithms},
   author       = {Zhang, Min-Ling and Zhou, Zhi-Hua},
   journaltitle = {IEEE Transactions on Knowledge and Data Engineering},
-  year         = {2014},
+  date         = {2014},
   volume       = {26},
   number       = {8},
   pages        = {1819--1837},
   doi          = {10.1109/TKDE.2013.39},
 }
 
-% ----------------------------------------------------------------
-% Transfer learning e imagen médica
-% ----------------------------------------------------------------
-
-@inproceedings{raghuTransfusionUnderstandingTransfer2019,
-  title     = {Transfusion: Understanding Transfer Learning for Medical
-               Imaging},
-  author    = {Raghu, Maithra and Zhang, Chiyuan and Kleinberg, Jon and
-               Bengio, Samy},
-  booktitle = {Advances in Neural Information Processing Systems},
-  year      = {2019},
-  volume    = {32},
-}
-
-@article{tajbakhshConvolutionalNeuralNetworks2016,
-  title        = {Convolutional Neural Networks for Medical Image Analysis:
-                  Full Training or Fine Tuning?},
-  author       = {Tajbakhsh, Nima and Shin, Jae Y. and Gurudu, Suryakanth R.
-                  and Hurst, R. Todd and Kendall, Christopher B. and Gotway,
-                  Michael B. and Liang, Jianming},
-  journaltitle = {IEEE Transactions on Medical Imaging},
-  year         = {2016},
-  volume       = {35},
-  number       = {5},
-  pages        = {1299--1312},
-  doi          = {10.1109/TMI.2016.2535302},
-}
-
 @article{litjensSurveyDeepLearning2017,
   title        = {A Survey on Deep Learning in Medical Image Analysis},
-  author       = {Litjens, Geert and Kooi, Thijs and Bejnordi, Babak
-                  Ehteshami and Setio, Arnaud Arindra Adiyoso and Ciompi,
-                  Francesco and Ghafoorian, Mohsen and van der Laak, Jeroen
-                  A.W.M. and van Ginneken, Bram and
-                  S{\'a}nchez, Clara I.},
+  author       = {Litjens, Geert and Kooi, Thijs and Bejnordi, Babak Ehteshami
+                  and Setio, Arnaud Arindra Adiyoso and Ciompi, Francesco and
+                  Ghafoorian, Mohsen and van der Laak, Jeroen A. W. M. and van
+                  Ginneken, Bram and S{\'a}nchez, Clara I.},
   journaltitle = {Medical Image Analysis},
-  year         = {2017},
+  date         = {2017},
   volume       = {42},
   pages        = {60--88},
   doi          = {10.1016/j.media.2017.07.005},
 }
 
-% ----------------------------------------------------------------
-% ImageNet y fundamentos DL
-% ----------------------------------------------------------------
-
-@inproceedings{dengImageNetLargeScaleHierarchical2009,
-  title     = {ImageNet: A Large-Scale Hierarchical Image Database},
-  author    = {Deng, Jia and Dong, Wei and Socher, Richard and Li, Li-Jia
-               and Li, Kai and Fei-Fei, Li},
+@inproceedings{dengImageNet2009,
+  title     = {{ImageNet}: A Large-Scale Hierarchical Image Database},
+  author    = {Deng, Jia and Dong, Wei and Socher, Richard and Li, Li-Jia and
+               Li, Kai and Fei-Fei, Li},
   booktitle = {Proceedings of the IEEE Conference on Computer Vision and
-               Pattern Recognition},
-  year      = {2009},
+               Pattern Recognition (CVPR)},
+  date      = {2009},
   pages     = {248--255},
   doi       = {10.1109/CVPR.2009.5206848},
 }
 
-@article{lecunDeepLearning2015,
-  title        = {Deep Learning},
-  author       = {LeCun, Yann and Bengio, Yoshua and Hinton, Geoffrey},
-  journaltitle = {Nature},
-  year         = {2015},
-  volume       = {521},
-  number       = {7553},
-  pages        = {436--444},
-  doi          = {10.1038/nature14539},
-}
-
-@book{goodfellowDeepLearning2016,
-  title     = {Deep Learning},
-  author    = {Goodfellow, Ian and Bengio, Yoshua and Courville, Aaron},
-  year      = {2016},
-  publisher = {MIT Press},
-}
-
-% ----------------------------------------------------------------
-% Técnicas de entrenamiento
-% ----------------------------------------------------------------
-
-@inproceedings{ioffeBatchNormalizationAccelerating2015,
-  title     = {Batch Normalization: Accelerating Deep Network Training by
-               Reducing Internal Covariate Shift},
-  author    = {Ioffe, Sergey and Szegedy, Christian},
-  booktitle = {Proceedings of the 32nd International Conference on Machine
-               Learning},
-  year      = {2015},
-  pages     = {448--456},
-}
-
-@article{kingmaAdamMethodStochastic2015,
-  title        = {Adam: A Method for Stochastic Optimization},
+@inproceedings{kingmaAdamMethod2015,
+  title        = {{Adam}: A Method for Stochastic Optimization},
   author       = {Kingma, Diederik P. and Ba, Jimmy},
-  journaltitle = {arXiv preprint arXiv:1412.6980},
-  year         = {2015},
+  booktitle    = {International Conference on Learning Representations (ICLR)},
+  date         = {2015},
   eprint       = {1412.6980},
   eprinttype   = {arxiv},
 }
 
-@article{srivastavaDropoutSimpleWay2014,
+@article{srivastavaDropout2014,
   title        = {Dropout: A Simple Way to Prevent Neural Networks from
                   Overfitting},
-  author       = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky,
-                  Alex and Sutskever, Ilya and Salakhutdinov, Ruslan},
+  author       = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex
+                  and Sutskever, Ilya and Salakhutdinov, Ruslan},
   journaltitle = {Journal of Machine Learning Research},
-  year         = {2014},
+  date         = {2014},
   volume       = {15},
   number       = {1},
   pages        = {1929--1958},
 }
 
-% ----------------------------------------------------------------
-% Framework y herramientas
-% ----------------------------------------------------------------
-
-@inproceedings{paszkeAutomaticDifferentiationPyTorch2019,
-  title     = {PyTorch: An Imperative Style, High-Performance Deep Learning
+@inproceedings{paszkePyTorch2019,
+  title     = {{PyTorch}: An Imperative Style, High-Performance Deep Learning
                Library},
-  author    = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer,
-               Adam and Bradbury, James and Chanan, Gregory and Killeen,
-               Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga,
-               Luca and Desmaison, Alban and Kopf, Andreas and Yang, Edward
-               and DeVito, Zachary and Raison, Martin and Tejani, Alykhan
-               and Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and
-               Bai, Junjie and Chintala, Soumith},
-  booktitle = {Advances in Neural Information Processing Systems},
-  year      = {2019},
+  author    = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam
+               and Bradbury, James and Chanan, Gregory and Killeen, Trevor and
+               Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and others},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  date      = {2019},
   volume    = {32},
 }
+
+
+% =============================================================
+% SECCIÓN 5 — Literatura consultada (carpeta auxiliar/bibliografia)
+% Todas verificadas por búsqueda web. Se incluyen vía \nocite{*}
+% aunque no se citen directamente en el texto.
+% =============================================================
+
+@article{caiReviewApplicationDeep2020,
+  title        = {A Review of the Application of Deep Learning in Medical Image
+                  Classification and Segmentation},
+  author       = {Cai, Lei and Gao, Jingyang and Zhao, Di},
+  journaltitle = {Annals of Translational Medicine},
+  date         = {2020},
+  volume       = {8},
+  number       = {11},
+  pages        = {713},
+  doi          = {10.21037/atm.2020.02.44},
+}
+
+@inproceedings{smitCheXbertCombining2020,
+  title      = {{CheXbert}: Combining Automatic Labelers and Expert Annotations
+                for Accurate Radiology Report Labeling Using {BERT}},
+  author     = {Smit, Akshay and Jain, Saahil and Rajpurkar, Pranav and Pareek,
+                Anuj and Ng, Andrew Y. and Lungren, Matthew P.},
+  booktitle  = {Proceedings of the 2020 Conference on Empirical Methods in
+                Natural Language Processing (EMNLP)},
+  date       = {2020},
+  pages      = {1500--1519},
+  doi        = {10.18653/v1/2020.emnlp-main.117},
+  eprint     = {2004.09167},
+  eprinttype = {arxiv},
+}
+
+@article{usharubyBinaryCrossEntropy2020,
+  title        = {Binary Cross Entropy with Deep Learning Technique for Image
+                  Classification},
+  author       = {Usha Ruby, A. and Theerthagiri, P. and Jacob, I. Jeena and
+                  Vamsidhar, Y.},
+  journaltitle = {International Journal of Advanced Trends in Computer Science
+                  and Engineering},
+  date         = {2020},
+  volume       = {9},
+  number       = {4},
+  pages        = {5393--5397},
+  doi          = {10.30534/ijatcse/2020/175942020},
+}
+
+@article{kufelMultiLabelClassification2023,
+  title        = {Multi-Label Classification of Chest {X}-ray Abnormalities
+                  Using Transfer Learning Techniques},
+  author       = {Kufel, Jakub and Bielówka, Michał and Rojek, Marcin and
+                  Mitręga, Adam and Lewandowski, Piotr and Cebula, Maciej and
+                  others},
+  journaltitle = {Journal of Personalized Medicine},
+  date         = {2023},
+  volume       = {13},
+  number       = {10},
+  pages        = {1426},
+  doi          = {10.3390/jpm13101426},
+}
+
+@online{singhComputerAidedDiagnosis2024,
+  title      = {Computer-Aided Diagnosis of Thoracic Diseases in Chest {X}-rays
+                Using Hybrid {CNN}-Transformer Architecture},
+  author     = {Singh, Sonit},
+  date       = {2024},
+  doi        = {10.48550/arXiv.2404.11843},
+  eprint     = {2404.11843},
+  eprinttype = {arxiv},
+}
+
+@article{jenaArtificialIntelligenceBased2021,
+  title        = {Artificial Intelligence-Based Hybrid Deep Learning Models for
+                  Image Classification: The First Narrative Review},
+  author       = {Jena, Biswajit and Saxena, Sanjay and Nayak, Gopal K. and
+                  Saba, Luca and Sharma, Neeraj and Suri, Jasjit S.},
+  journaltitle = {Computers in Biology and Medicine},
+  date         = {2021},
+  volume       = {137},
+  pages        = {104803},
+  doi          = {10.1016/j.compbiomed.2021.104803},
+}
+
+@article{wangComparativeAnalysisImage2021,
+  title        = {Comparative Analysis of Image Classification Algorithms Based
+                  on Traditional Machine Learning and Deep Learning},
+  author       = {Wang, Pin and Fan, En and Wang, Peng},
+  journaltitle = {Pattern Recognition Letters},
+  date         = {2021},
+  volume       = {141},
+  pages        = {61--67},
+  doi          = {10.1016/j.patrec.2020.07.042},
+}
+
+@article{liuEfficientImageSegmentation2021,
+  title        = {Efficient Image Segmentation Based on Deep Learning for
+                  Mineral Image Classification},
+  author       = {Liu, Yang and Zhang, Zelin and Liu, Xiang and Wang, Lei and
+                  Xia, Xuhui},
+  journaltitle = {Advanced Powder Technology},
+  date         = {2021},
+  volume       = {32},
+  number       = {10},
+  pages        = {3885--3903},
+  doi          = {10.1016/j.apt.2021.08.038},
+}
+
+@article{sharmaPlantDiseaseDiagnosis2022,
+  title        = {Plant Disease Diagnosis and Image Classification Using Deep
+                  Learning},
+  author       = {Sharma, Rachna and Singh, Arvind and Kavita and Jhanjhi,
+                  Nz and Masud, Mehedi and others},
+  journaltitle = {Computers, Materials \& Continua},
+  date         = {2022},
+  volume       = {71},
+  number       = {2},
+  pages        = {2125--2140},
+  doi          = {10.32604/cmc.2022.020017},
+}
+
+@article{oommenConvAttentionViT2024,
+  title        = {Conv-Attention {ViT} for Classification of Multi-Label Class
+                  Imbalanced Data of Lung Thoracic Diseases},
+  author       = {Oommen, Liz and Nikhila Nagajyothi, C. and Chebrolu,
+                  Srilatha},
+  journaltitle = {Multimedia Tools and Applications},
+  date         = {2024},
+  doi          = {10.1007/s11042-024-20363-z},
+}
+
+@inproceedings{sharmaDeepLearningModels2022,
+  title     = {Deep Learning Models for Image Classification: Comparison and
+               Applications},
+  author    = {Sharma, Shifa and Guleria, Kalpna},
+  booktitle = {Proceedings of the 2nd International Conference on Advance
+               Computing and Innovative Technologies in Engineering (ICACITE)},
+  date      = {2022},
+  pages     = {1733--1738},
+  doi       = {10.1109/ICACITE53722.2022.9823516},
+}
+
+@article{bharadiyaConvolutionalNeuralNetworks2023,
+  title        = {Convolutional Neural Networks for Image Classification},
+  author       = {Bharadiya, Jasmin Praful},
+  journaltitle = {International Journal of Innovative Science and Research
+                  Technology},
+  date         = {2023},
+  volume       = {8},
+  number       = {5},
+  pages        = {673--677},
+  doi          = {10.5281/zenodo.8020781},
+}
+
+@article{krishnapriyaPretrainedDeepLearning2023,
+  title        = {Pre-Trained Deep Learning Models for Brain {MRI} Image
+                  Classification},
+  author       = {Krishnapriya, Srigiri and Karuna, Yepuganti},
+  journaltitle = {Frontiers in Human Neuroscience},
+  date         = {2023},
+  volume       = {17},
+  pages        = {1150120},
+  doi          = {10.3389/fnhum.2023.1150120},
+}
+
+@article{liReviewDeepLearning2024,
+  title        = {A Review of Deep Learning-Based Information Fusion Techniques
+                  for Multimodal Medical Image Classification},
+  author       = {Li, Yihao and Daho, Mostafa El Habib and Conze, Pierre-Henri
+                  and Zeghlache, Rachid and Le Boité, Hugo and Tadayoni, Ramin
+                  and Cochener, Béatrice and Lamard, Mathieu and Quellec,
+                  Gwenolé},
+  journaltitle = {Computers in Biology and Medicine},
+  date         = {2024},
+  volume       = {177},
+  pages        = {108635},
+  doi          = {10.1016/j.compbiomed.2024.108635},
+}
+
+@article{yangEnhancingChestXray2025,
+  title        = {Enhancing Chest {X}-ray Diagnosis with a Multimodal Deep
+                  Learning Network by Integrating Clinical History to Refine
+                  Attention},
+  author       = {Yang, Lin and Wan, Yu and Pan, Feng},
+  journaltitle = {Journal of Imaging Informatics in Medicine},
+  date         = {2025},
+  volume       = {38},
+  pages        = {3568--3583},
+  doi          = {10.1007/s10278-025-01446-1},
+}
+
+@article{liuComprehensiveStudyRobustness2025,
+  title        = {A Comprehensive Study on Robustness of Image Classification
+                  Models: Benchmarking and Rethinking},
+  author       = {Liu, Chang and Dong, Yinpeng and Xiang, Wenzhao and Yang, Xiao
+                  and Su, Hang and Zhu, Jun and Chen, Yuefeng and He, Yuan and
+                  Xue, Hui and Zheng, Shibao},
+  journaltitle = {International Journal of Computer Vision},
+  date         = {2025},
+  volume       = {133},
+  pages        = {567--589},
+  doi          = {10.1007/s11263-024-02196-3},
+}
+
+@article{fuExplainableHybridTransformer2025,
+  title        = {Explainable Hybrid Transformer for Multi-Classification of
+                  Lung Disease Using Chest {X}-rays},
+  author       = {Fu, Xiao and Lin, Rui and Du, Wei and others},
+  journaltitle = {Scientific Reports},
+  date         = {2025},
+  volume       = {15},
+  pages        = {6650},
+  doi          = {10.1038/s41598-025-90607-x},
+}
+
+@article{patricioExplainableDeepLearning2023,
+  title        = {Explainable Deep Learning Methods in Medical Image
+                  Classification: A Survey},
+  author       = {Patr{\'i}cio, Cristiano and Neves, Jo{\~a}o C. and Teixeira,
+                  Lu{\'i}s F.},
+  journaltitle = {ACM Computing Surveys},
+  date         = {2023},
+  volume       = {56},
+  number       = {4},
+  pages        = {1--41},
+  doi          = {10.1145/3625287},
+  eprint       = {2205.04766},
+  eprinttype   = {arxiv},
+}
+
+@article{plestedDeepTransferLearning2026,
+  title        = {Deep Transfer Learning for Image Classification: A Survey},
+  author       = {Plested, Jo and Phiri, Musa and Gedeon, Tom},
+  journaltitle = {Artificial Intelligence Review},
+  date         = {2026},
+  doi          = {10.1007/s10462-026-11491-z},
+}
+
+
+% =============================================================
+% SECCIÓN 6 — Referencias del estado del arte (búsqueda complementaria)
+% Verificadas por búsqueda web. Datasets, XAI y SOTA reciente.
+% =============================================================
+
+@article{bustosPadChest2020,
+  title        = {{PadChest}: A Large Chest {X}-ray Image Dataset with
+                  Multi-Label Annotated Reports},
+  author       = {Bustos, Aurelia and Pertusa, Antonio and Salinas,
+                  Jose-Maria and de la Iglesia-Vay{\'a}, Maria},
+  journaltitle = {Medical Image Analysis},
+  date         = {2020},
+  volume       = {66},
+  pages        = {101797},
+  doi          = {10.1016/j.media.2020.101797},
+}
+
+@article{johnsonMIMICCXR2019,
+  title        = {{MIMIC-CXR}, a De-Identified Publicly Available Database of
+                  Chest Radiographs with Free-Text Reports},
+  author       = {Johnson, Alistair E. W. and Pollard, Tom J. and Berkowitz,
+                  Seth J. and Greenbaum, Nathaniel R. and Lungren, Matthew P.
+                  and Deng, Chih-ying and Mark, Roger G. and Horng, Steven},
+  journaltitle = {Scientific Data},
+  date         = {2019},
+  volume       = {6},
+  pages        = {317},
+  doi          = {10.1038/s41597-019-0322-0},
+}
+
+@article{nguyenVinDrCXR2022,
+  title        = {{VinDr-CXR}: An Open Dataset of Chest {X}-rays with
+                  Radiologist's Annotations},
+  author       = {Nguyen, Ha Q. and Lam, Khanh and Le, Linh T. and Pham,
+                  Hieu H. and Tran, Dat Q. and Nguyen, Dung B. and Le, Dung D.
+                  and others},
+  journaltitle = {Scientific Data},
+  date         = {2022},
+  volume       = {9},
+  pages        = {429},
+  doi          = {10.1038/s41597-022-01498-w},
+}
+
+@inproceedings{chattopadhyayGradCAMpp2018,
+  title     = {{Grad-CAM++}: Generalized Gradient-Based Visual Explanations for
+               Deep Convolutional Networks},
+  author    = {Chattopadhyay, Aditya and Sarkar, Anirban and Howlader, Prantik
+               and Balasubramanian, Vineeth N.},
+  booktitle = {Proceedings of the IEEE Winter Conference on Applications of
+               Computer Vision (WACV)},
+  date      = {2018},
+  pages     = {839--847},
+  doi       = {10.1109/WACV.2018.00097},
+}
+
+@article{holsteCXRLT2024,
+  title        = {{CXR-LT} 2024: A {MICCAI} Challenge on Long-Tailed,
+                  Multi-Label, and Zero-Shot Disease Classification from Chest
+                  {X}-ray},
+  author       = {Holste, Gregory and Zhou, Yiliang and Wang, Song and Jaiswal,
+                  Ajay and Lin, Mingquan and others},
+  journaltitle = {Medical Image Analysis},
+  date         = {2025},
+  eprint       = {2506.07984},
+  eprinttype   = {arxiv},
+}
+
+@article{bressemComparingDeepLearning2020,
+  title        = {Comparing Different Deep Learning Architectures for
+                  Classification of Chest Radiographs},
+  author       = {Bressem, Keno K. and Adams, Lisa C. and Erxleben, Christoph
+                  and Hamm, Bernd and Niehues, Stefan M. and Vahldiek, Janis L.},
+  journaltitle = {Scientific Reports},
+  date         = {2020},
+  volume       = {10},
+  pages        = {13590},
+  doi          = {10.1038/s41598-020-70479-z},
+}
+
+@article{zhangRevisitingTrustworthiness2024,
+  title        = {Revisiting the Trustworthiness of Saliency Methods in
+                  Radiology {AI}},
+  author       = {Zhang, Jiajin and Chao, Hanqing and Dasegowda, Giridhar and
+                  Wang, Ge and Kalra, Mannudeep K. and Yan, Pingkun},
+  journaltitle = {Radiology: Artificial Intelligence},
+  date         = {2024},
+  volume       = {6},
+  number       = {1},
+  pages        = {e220221},
+  doi          = {10.1148/ryai.220221},
+}
+
+@article{korfiatisImplementingArtificial2025,
+  title        = {Implementing Artificial Intelligence Algorithms in the
+                  Radiology Workflow: Challenges and Considerations},
+  author       = {Korfiatis, Panagiotis and Kline, Timothy L. and Meyer,
+                  Holly M. and Khalid, Sana and Leiner, Tim and Loufek,
+                  Brenna T. and others},
+  journaltitle = {Mayo Clinic Proceedings: Digital Health},
+  date         = {2025},
+  volume       = {3},
+  number       = {1},
+  pages        = {100188},
+  doi          = {10.1016/j.mcpdig.2024.100188},
+}
+

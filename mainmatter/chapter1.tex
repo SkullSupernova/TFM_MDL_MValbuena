@@ -4,50 +4,112 @@
 \label{ch::capitulo1}
 
 
-\section{Motivación y contexto}
+\section{Introducción y definición del problema}
 
-Las enfermedades del sistema respiratorio y cardiovascular se encuentran entre las principales causas de mortalidad en todo el mundo. La radiografía de tórax (CXR, del inglés \textit{Chest X-Ray}) constituye la técnica de imagen diagnóstica más empleada en la práctica clínica: su bajo coste, rapidez y disponibilidad la convierten en el primer recurso ante una amplia variedad de patologías, desde infecciones pulmonares hasta alteraciones cardíacas o pleurales. Sin embargo, su interpretación precisa exige la formación y experiencia de radiólogos especializados, un recurso escaso cuya demanda crece de manera continua a medida que aumentan tanto el volumen de estudios como la complejidad diagnóstica esperada.
+El diagnóstico médico por imagen constituye uno de los pilares de la medicina
+moderna. Dentro de este ámbito, la radiografía de tórax es la prueba de
+diagnóstico por imagen más frecuente a nivel global para la detección de
+patologías respiratorias, al tratarse de un procedimiento rápido, de bajo coste
+y mínimamente invasivo~\cite{irvinCheXpertLargeChest2019, lizDeepLearningMultilabel2023}.
+Sin embargo, su interpretación no está exenta de dificultades. La propia
+naturaleza de la prueba plantea desafíos como la superposición de estructuras
+anatómicas, la sutileza de ciertos signos radiológicos o la concurrencia de
+múltiples enfermedades en un mismo paciente, factores que contribuyen a una
+elevada variabilidad diagnóstica
+interobservador~\cite{rajpurkarCheXNetRadiologistLevel2017, lizEnsemblesConvolutional2021}.
 
-El aprendizaje profundo (Deep Learning, DL) ha demostrado en la última década un potencial transformador en la interpretación automatizada de imágenes médicas~\cite{litjensSurveyDeepLearning2017, lecunDeepLearning2015}. Los avances en redes neuronales convolucionales (CNN, del inglés \textit{Convolutional Neural Network}), impulsados por arquitecturas como AlexNet~\cite{krizhevskyImageNetClassificationDeep2012}, VGGNet~\cite{simonyanVeryDeepConvolutional2015}, ResNet~\cite{heDeepResidualLearning2016} y DenseNet~\cite{huangDenselyConnectedConvolutional2017}, han trasladado al dominio médico las capacidades de reconocimiento de patrones previamente demostradas sobre el conjunto de datos ImageNet~\cite{dengImageNetLargeScaleHierarchical2009}. El trabajo seminal de Rajpurkar et al.~\cite{rajpurkarCheXNetRadiologistLevel2017} mostró que un modelo de DL basado en DenseNet era capaz de superar a radiólogos humanos en la detección de neumonía a partir de radiografías de tórax del conjunto NIH ChestX-ray14~\cite{wangChestXRay8HospitalScale2017}, abriendo una línea de investigación muy activa.
+A estas limitaciones intrínsecas se suma el carácter humano de los
+profesionales sanitarios: la fatiga del personal médico y la elevada carga
+asistencial incrementan tanto la probabilidad de error diagnóstico como los
+retrasos en la realización de intervenciones clínicas
+críticas~\cite{lizDeepLearningMultilabel2023}. En este contexto, surge la
+necesidad de herramientas automáticas que sirvan de apoyo al especialista,
+reduciendo el impacto de la subjetividad y la sobrecarga asistencial.
 
-Un hito relevante en este campo fue la publicación por parte de la Universidad de Stanford del conjunto de datos CheXpert~\cite{irvinCheXpertLargeChest2019}, con más de 224.000 radiografías etiquetadas con 14 condiciones clínicas extraídas de forma automática a partir de informes radiológicos. Frente a la naturaleza binaria de los problemas clásicos de clasificación, CheXpert plantea una tarea de \textit{clasificación multietiqueta}: cada imagen puede presentar simultáneamente varias condiciones, lo que requiere modelos y métricas específicas~\cite{zhangReviewMultiLabelLearning2014}. El dataset introduce además el problema de la incertidumbre en el etiquetado: la extracción automática de diagnósticos a partir de texto libre produce, para ciertas patologías, etiquetas inciertas (valor $-1$, indicando hallazgo ``posible'' o ``no concluyente'') que no pueden tratarse directamente como positivos ni como negativos, obligando a adoptar estrategias explícitas durante el entrenamiento.
+Los algoritmos de aprendizaje profundo (\textit{Deep Learning}, DL), y en
+especial las redes neuronales convolucionales (\textit{Convolutional Neural
+Networks}, CNN), que extraen información de las imágenes mediante la
+identificación de patrones espaciales, han demostrado en los últimos años ser
+una de las soluciones más eficaces en el análisis y diagnóstico de imágenes
+médicas, alcanzando niveles de fiabilidad iguales o superiores a los de
+especialistas humanos~\cite{rajpurkarCheXNetRadiologistLevel2017, irvinCheXpertLargeChest2019, kermanyIdentifyingMedical2018}.
+No obstante, su aplicación en entornos clínicos se ve limitada por restricciones
+inherentes a los datos médicos, como el fuerte desequilibrio entre clases
+epidemiológicas y la naturaleza multietiqueta del diagnóstico, es decir, la
+presencia simultánea de varias patologías —tales como neumonía, edema o
+cardiomegalia— en un único paciente o
+imagen~\cite{lizDeepLearningMultilabel2023}.
 
-Un segundo desafío para la adopción clínica de estos modelos es la explicabilidad. Los sistemas de clasificación basados en redes profundas son inherentemente opacos: generan predicciones de alta precisión pero sin proporcionar por defecto una justificación del razonamiento subyacente, lo que dificulta su confianza y adopción en entornos de alta responsabilidad~\cite{rudinStopExplainingBlack2019}. Las técnicas de Inteligencia Artificial Explicable (XAI, del inglés \textit{Explainable Artificial Intelligence}) abordan esta limitación. En imagen médica, Grad-CAM~\cite{selvarajuGradCAMVisualExplanations2017} se ha consolidado como el método más ampliamente adoptado: genera mapas de calor superpuestos sobre la imagen original que señalan las regiones anatómicas que han determinado la predicción, sin requerir modificaciones en la arquitectura del modelo y con un coste computacional marginal.
+Finalmente, la Inteligencia Artificial Explicable (\textit{Explainable
+Artificial Intelligence}, XAI) surge de la necesidad, especialmente relevante en
+medicina, de explicar cómo y por qué un sistema toma una determinada decisión.
+Desde su concepción, las redes neuronales profundas han operado como sistemas de
+``caja negra'': se conocen las entradas y las salidas, pero se desconoce en gran
+medida el razonamiento interno del modelo. Esta falta de interpretabilidad
+resulta inadmisible en el ámbito sanitario, donde contraviene los principios de
+la auditoría clínica y genera desconfianza en el
+facultativo~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
+La XAI responde a la pregunta \textit{¿por qué?}, lo que en clasificación de
+imágenes suele materializarse en representaciones visuales —como los mapas de
+calor— que señalan las regiones de la imagen que han determinado la decisión del
+modelo, traduciendo los parámetros matemáticos en evidencia clínica
+interpretable~\cite{rajpurkarCheXNetRadiologistLevel2017, selvarajuGradCAMVisualExplanations2017}.
 
-A pesar de los avances, persiste una brecha significativa entre la investigación y su aplicación práctica. La ausencia de herramientas de despliegue accesibles que integren inferencia, explicabilidad y soporte a la toma de decisiones limita la utilización de los modelos fuera de entornos de laboratorio. El presente trabajo aborda este problema de forma integral: desde el preprocesamiento del dataset hasta el despliegue de una plataforma web con capacidades de inferencia y visualización explicable.
+
+\section{Motivación}
+
+La motivación de este trabajo nace de la confluencia de los tres problemas
+anteriores: la dificultad inherente a la interpretación de la radiografía de
+tórax, el potencial demostrado del aprendizaje profundo para asistir en esta
+tarea, y la barrera que supone la opacidad de los modelos para su adopción
+clínica.
+
+Se propone, por tanto, el desarrollo de una herramienta que combine la capacidad
+de clasificación multietiqueta de las CNN con técnicas de explicabilidad, de
+modo que sirva de soporte tanto para el personal médico como, indirectamente,
+para los pacientes. Una vez alcanzado este objetivo, se dispondrá de un sistema
+capaz de asistir al personal sanitario en el diagnóstico de enfermedades
+torácicas, reduciendo el impacto derivado de la fatiga asistencial y la
+subjetividad en la interpretación radiológica, y de transformar modelos de
+``caja negra'' en sistemas transparentes capaces de justificar visualmente sus
+diagnósticos ante el especialista~\cite{lizEnsemblesConvolutional2021, lizDeepLearningMultilabel2023}.
+
+Es importante delimitar el alcance: el sistema se concibe como una
+\textbf{herramienta de apoyo a la decisión clínica}, nunca como un sustituto del
+juicio del radiólogo. El diagnóstico y el tratamiento finales recaen siempre
+sobre el profesional médico, que mantiene plena autoridad para validar,
+modificar o descartar la inferencia del modelo.
 
 
 \section{Objetivos}
 
-El \textbf{objetivo principal} de este trabajo es diseñar, entrenar y evaluar arquitecturas de aprendizaje profundo para la clasificación multietiqueta de signos radiológicos en radiografías de tórax, e integrar los modelos resultantes en una plataforma web con capacidades de explicabilidad, que sirva como herramienta de apoyo al diagnóstico.
+El objetivo principal de este trabajo es \textbf{diseñar, entrenar y evaluar una
+arquitectura de aprendizaje profundo optimizada para la clasificación
+multietiqueta de patologías respiratorias}, utilizando el conjunto de datos
+CheXpert~\cite{irvinCheXpertLargeChest2019} como base empírica, e integrar dicho
+modelo en una \textbf{plataforma web interactiva} dotada de herramientas de
+Inteligencia Artificial Explicable.
 
-Para alcanzar este objetivo, se establecen los siguientes \textbf{objetivos específicos}:
+Para alcanzar este objetivo general, se establecen los siguientes subobjetivos:
 
-\begin{enumerate}[label=O\arabic*.]
-  \item Revisar el estado del arte en clasificación automática de patologías torácicas mediante DL, identificando los principales conjuntos de datos, arquitecturas y técnicas de evaluación empleadas en la literatura.
-  \item Seleccionar, preprocesar y analizar el conjunto de datos CheXpert, incluyendo el diseño de la cadena de procesamiento y la estrategia para el tratamiento de etiquetas inciertas.
-  \item Establecer una función de pérdida y un protocolo de evaluación adecuados para la tarea de clasificación multietiqueta en presencia de clases fuertemente desbalanceadas.
-  \item Diseñar, entrenar y comparar múltiples arquitecturas CNN con aprendizaje por transferencia sobre CheXpert, seleccionando la arquitectura más adecuada mediante un protocolo de validación reproducible y basado en el conjunto de prueba estándar de CheXpert.
-  \item Aplicar Grad-CAM sobre los modelos entrenados para generar explicaciones visuales de las predicciones por patología.
-  \item Desarrollar una API REST y una interfaz web interactiva que integren inferencia sobre nuevas imágenes y visualización de los mapas Grad-CAM, con soporte para la generación de informes descargables.
-  \item Documentar la metodología y publicar el código fuente del proyecto en un repositorio público, garantizando la reproducibilidad completa de los experimentos.
-\end{enumerate}
+\begin{itemize}
+  \item \textbf{Extracción, transformación y carga (ETL) de datos.} Procesar el
+        repositorio masivo de imágenes médicas CheXpert mediante técnicas
+        estructuradas de ciencia de datos, garantizando la calidad de la
+        información para la fase de modelado.
 
+  \item \textbf{Diseño y entrenamiento de la arquitectura.} Desarrollar y
+        validar modelos basados en redes neuronales convolucionales profundas,
+        capaces de identificar simultáneamente múltiples patologías con un nivel
+        de precisión comparable al de los expertos humanos.
 
-\section{Estructura del documento}
+  \item \textbf{Implementación de Inteligencia Artificial Explicable (XAI).}
+        Incorporar técnicas de visualización que localicen las regiones
+        anatómicas que fundamentan la predicción del modelo, verificando que
+        este se apoya en las zonas de interés clínico.
 
-El presente documento se organiza en ocho capítulos, cuya estructura se describe a continuación.
-
-El \textbf{Capítulo~\ref{ch::capitulo2}} presenta el estado de la cuestión, revisando los trabajos y conjuntos de datos más relevantes en clasificación de patologías torácicas mediante DL, las arquitecturas CNN de referencia, las técnicas de clasificación multietiqueta, las estrategias para el manejo de la incertidumbre y los métodos de explicabilidad.
-
-El \textbf{Capítulo~\ref{sec::capitulo3}} describe el material y los métodos empleados en el trabajo: el conjunto de datos CheXpert y su procesamiento, las configuraciones de clases utilizadas, el diseño de los modelos y la cabeza de clasificación, el protocolo de entrenamiento y evaluación, y la implementación de Grad-CAM.
-
-El \textbf{Capítulo~\ref{sec::capitulo4}} presenta los resultados experimentales: el rendimiento de cada arquitectura evaluada sobre el conjunto de prueba estándar de CheXpert, el análisis por patología, los análisis de errores y las visualizaciones Grad-CAM de los modelos seleccionados.
-
-El \textbf{Capítulo~\ref{sec::capitulo5}} detalla el sistema de despliegue desarrollado: la arquitectura de la API REST, la interfaz interactiva y la contenedorización del servicio completo mediante Docker.
-
-El \textbf{Capítulo~\ref{sec::capitulo6}} aborda los aspectos éticos y las limitaciones del trabajo, incluyendo el análisis de sesgos del dataset, las consideraciones de privacidad y el uso responsable de los resultados en un contexto clínico.
-
-El \textbf{Capítulo~\ref{sec::capitulo7}} describe los mecanismos para garantizar la reproducibilidad de los experimentos, incluyendo el repositorio público de código, el entorno de ejecución documentado y el sistema de trazabilidad de los runs.
-
-El \textbf{Capítulo~\ref{sec::capitulo8}} recoge las conclusiones del trabajo, valora la consecución de los objetivos planteados y propone líneas de trabajo futuro.
+  \item \textbf{Despliegue web.} Desarrollar una aplicación web interactiva que
+        permita la ingesta de nuevas radiografías, la ejecución de inferencia en
+        tiempo real y la presentación intuitiva de los resultados diagnósticos
+        junto con sus explicaciones visuales.
+\end{itemize}

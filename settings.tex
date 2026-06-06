@@ -4,7 +4,9 @@
 % --------------------------
 % Packages
 % --------------------------
-\usepackage[spanish,english,es-tabla]{babel}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}\usepackage[spanish,english,es-tabla]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}     % Use a modern font (that is not pixelated)
@@ -33,15 +35,29 @@
 \usepackage{xcolor}
 \usepackage{emptypage}   % no headers in empty pages
 \usepackage[small,hang,bf]{caption}    % caption options
-\usepackage{subcaption}   
+\usepackage{subcaption}
+
+% --------------------------
+% Formato de títulos de capítulo: "1. Título" en una sola línea
+% (en lugar del formato por defecto "Capítulo 1" / "Título")
+% --------------------------
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]
+  {\normalfont\Huge\bfseries}   % formato del título
+  {\thechapter.}                % etiqueta: número de capítulo + punto
+  {0.5em}                       % separación entre el número y el título
+  {}                            % material previo al título
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
 
 %%% BIBLIOGRAPHY
-% The style used is APA. A list of available styles is available  at https://www.overleaf.com/learn/latex/Biblatex_bibliography_styles
+% Estilo IEEE (citas numéricas [1], orden de aparición).
+% REQUIERE el paquete biblatex-ieee instalado en la distribución LaTeX.
+% Lista de estilos: https://www.overleaf.com/learn/latex/Biblatex_bibliography_styles
 
 \usepackage[
 backend=biber,
-style=apa,
-sorting=nyt,
+style=ieee,
+sorting=none,
 doi=true,
 url=false,
 isbn=false,
