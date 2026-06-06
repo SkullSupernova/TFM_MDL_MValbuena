@@ -3,8 +3,314 @@
 \chapter{Material y métodos}
 \label{sec::capitulo3}
 
-\section{Descripción del dataset}
+Este capítulo describe los materiales y la metodología empleados en el trabajo:
+el conjunto de datos, la cadena de procesamiento (ETL), las configuraciones de
+clases y el diseño experimental, la arquitectura de los modelos, el protocolo de
+entrenamiento y evaluación, la técnica de explicabilidad y los mecanismos de
+gestión de experimentos y reproducibilidad. La descripción se corresponde con la
+implementación desarrollada en el repositorio del proyecto.
 
-\section{Resultados en modelos baseline}
 
-\section{Metodología y entrenamiento}
+\section{Conjunto de datos: CheXpert}
+\label{sec::mm_dataset}
+
+El trabajo se basa en \textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, un
+conjunto de datos público de la Universidad de Stanford que contiene 224.316
+radiografías de tórax de 65.240 pacientes, recogidas de forma retrospectiva. Cada
+estudio está etiquetado con 14 observaciones clínicas extraídas automáticamente
+de los informes radiológicos mediante procesamiento del lenguaje natural. Para
+cada observación, la etiqueta puede tomar el valor positivo (1), negativo (0),
+ausente (sin mención) o incierto ($-1$), siendo este último uno de los rasgos
+distintivos del conjunto.
+
+En este trabajo se emplean \textbf{13 de las 14 observaciones}, excluyendo
+\textit{Pleural Other} por su muy baja prevalencia en el conjunto de
+entrenamiento, que no aporta señal estadística suficiente. La clase
+\textit{No Finding} se conserva para que el modelo pueda indicar explícitamente
+la ausencia de hallazgos. Como conjunto de prueba se utiliza el conjunto de
+validación oficial de CheXpert, anotado por consenso de radiólogos de Stanford;
+al estar verificado por expertos, actúa como referencia \textit{silver-standard}
+y es independiente del entrenamiento (pacientes disjuntos), por lo que no
+participa en la selección del modelo.
+
+
+\section{Procesamiento de datos (ETL)}
+\label{sec::mm_etl}
+
+El conjunto de datos se somete a una cadena de extracción, transformación y carga
+(ETL) implementada como una lista blanca (\textit{whitelist}) de criterios, lo
+que estandariza el preprocesado y evita sesgos de selección arbitrarios. Los
+criterios de retención son:
+
+\begin{itemize}
+  \item \textbf{Proyección.} Solo se conservan las radiografías de vista frontal
+        y proyección anteroposterior (AP), por coherencia con el diseño del
+        trabajo.
+  \item \textbf{Valores de etiqueta permitidos.} Se admiten únicamente los
+        valores $\{0,\ 1,\ \text{ausente}\}$. Las etiquetas inciertas ($-1$) se
+        descartan, lo que corresponde a la estrategia de gestión de la
+        incertidumbre \textbf{U-Ignore} (véase la Sección~\ref{sec::mm_clases}).
+  \item \textbf{Coherencia de \textit{No Finding}.} Se eliminan los estudios
+        inconsistentes en los que \textit{No Finding} aparece como positivo
+        simultáneamente con alguna otra patología.
+  \item \textbf{Sexo.} Se conservan los registros de pacientes de sexo masculino
+        y femenino.
+\end{itemize}
+
+Tras el filtrado, las etiquetas ausentes se imputan a 0 (negativo), ya que la
+ausencia de mención en el informe constituye la señal más débil posible,
+asimilable a un negativo implícito. La división en entrenamiento y validación se
+realiza \textbf{a nivel de paciente} (90\,\% / 10\,\%), garantizando que todas
+las imágenes de un mismo paciente pertenezcan a un único subconjunto. Esta
+partición por paciente es esencial para evitar la fuga de información
+(\textit{data leakage}): si imágenes del mismo paciente apareciesen en
+entrenamiento y validación, el modelo podría aprender rasgos individuales de
+estilo de adquisición en lugar de patrones clínicos generalizables, produciendo
+una estimación optimista del rendimiento.
+
+
+\section{Configuraciones de clases y diseño experimental}
+\label{sec::mm_clases}
+
+\subsection{Gestión de la incertidumbre}
+
+CheXpert codifica explícitamente la incertidumbre de ciertas etiquetas con el
+valor $-1$. En este trabajo se adopta la estrategia \textbf{U-Ignore}, que
+consiste en descartar las muestras con etiquetas inciertas, implementada en el
+ETL mediante la lista blanca de valores permitidos. Esta estrategia es la más
+conservadora —no introduce supuestos sobre el significado de la incertidumbre— y
+sirve como base metodológica del trabajo. La evaluación comparativa de las demás
+estrategias descritas en la literatura (U-Zeros, U-Ones, U-SelfTrained y
+U-MultiClass)~\cite{irvinCheXpertLargeChest2019} queda planteada como línea de
+trabajo futuro.
+
+\subsection{Configuraciones de clases}
+
+El sistema permite seleccionar, mediante configuración, qué conjunto de clases
+activa el modelo. Cada configuración fija sus clases activas y una política de
+eliminación de estudios (\textit{anti-ruido}) que descarta los estudios cuyas
+únicas etiquetas positivas pertenecen a clases eliminadas, evitando convertir un
+positivo real en un falso negativo. Se definen tres configuraciones:
+
+\begin{table}[h]
+\centering
+\caption{Configuraciones de clases evaluadas en el trabajo.}
+\label{tab::mm_configs}
+\begin{tabularx}{\textwidth}{l c X}
+\toprule
+\textbf{Configuración} & \textbf{N.º clases} & \textbf{Descripción} \\
+\midrule
+\texttt{full13} & 13 & Todas las clases activas (sin \textit{Pleural Other}). Sin eliminación de estudios. \\
+\texttt{nofracture12} & 12 & Elimina \textit{Fracture}. Descarta los estudios huérfanos cuya única etiqueta positiva era \textit{Fracture}. \\
+\texttt{min5pct9} & 9 & Elimina las clases de prevalencia inferior al 5\,\% (\textit{Enlarged Cardiomediastinum}, \textit{Lung Lesion}, \textit{Pneumonia} y \textit{Fracture}). Descarta los estudios sin ninguna etiqueta positiva en las clases activas. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Diseño experimental}
+
+El estudio se organiza en torno a un conjunto de experimentos que combinan las
+configuraciones de clases anteriores con distintas arquitecturas. La comparación
+de configuraciones de clases se realiza con una arquitectura de referencia
+(DenseNet-121), mientras que la comparación de arquitecturas se realiza sobre una
+configuración de clases fija; no se evalúa el producto cartesiano completo de
+arquitecturas y configuraciones por restricciones de tiempo de cómputo. Los
+experimentos planificados son los siguientes:
+
+\textbf{Experimento 1 — DenseNet-121 con 13 clases (\texttt{full13}).}
+\begin{itemize}
+  \item \textit{Objetivo:} establecer un modelo de referencia sobre el conjunto
+        completo de 13 clases.
+  \item \textit{Configuración:} \texttt{full13} (sin \textit{Pleural Other}).
+  \item \textit{Motivo:} constituye la referencia más amplia y comparable con la
+        literatura. Este experimento debe repetirse para verificar la
+        consistencia de los resultados.
+  \item \textit{Ventajas:} máxima cobertura diagnóstica. \textit{Inconvenientes:}
+        incluye clases muy poco frecuentes y difíciles de evaluar de forma
+        fiable.
+\end{itemize}
+
+\textbf{Experimento 2 — DenseNet-121 con 12 clases (\texttt{nofracture12}).}
+\begin{itemize}
+  \item \textit{Objetivo:} entrenar y evaluar sin la clase \textit{Fracture}.
+  \item \textit{Configuración:} \texttt{nofracture12}.
+  \item \textit{Motivo:} se detectó que \textit{Fracture} no dispone de muestras
+        positivas en el conjunto de prueba, por lo que no puede evaluarse de
+        forma correcta; su eliminación produce una evaluación más fiable.
+  \item \textit{Ventajas:} métricas de prueba más representativas.
+        \textit{Inconvenientes:} se pierde la capacidad de detectar fracturas.
+\end{itemize}
+
+\textbf{Experimento 3 — DenseNet-121 con 9 clases (\texttt{min5pct9}, pendiente).}
+\begin{itemize}
+  \item \textit{Objetivo:} analizar el comportamiento en un escenario menos
+        desbalanceado, conservando únicamente las clases con prevalencia igual o
+        superior al 5\,\%.
+  \item \textit{Configuración:} \texttt{min5pct9} (9 clases).
+  \item \textit{Motivo:} reducir el desbalanceo extremo eliminando las clases
+        menos representadas, lo que puede dar lugar a un modelo más estable.
+  \item \textit{Ventajas:} menor desbalanceo y mayor representatividad de las
+        clases. \textit{Inconvenientes:} menor cobertura diagnóstica; queda
+        supeditado a la disponibilidad de tiempo de cómputo.
+\end{itemize}
+
+Sobre una configuración de referencia se evalúan de forma comparativa varias
+arquitecturas (Sección~\ref{sec::mm_arquitectura}); el alcance final de esta
+comparativa dependerá del tiempo de cómputo disponible.
+
+
+\section{Arquitectura del modelo}
+\label{sec::mm_arquitectura}
+
+El modelo de clasificación sigue un esquema de \textbf{aprendizaje por
+transferencia}: un \textit{backbone} convolucional preentrenado sobre
+ImageNet~\cite{dengImageNet2009} actúa como extractor de características, y su
+capa de clasificación original se reemplaza por una cabeza adaptada a la tarea
+multietiqueta. La cabeza de clasificación, común a todos los backbones, se
+compone de cuatro capas:
+
+\begin{equation*}
+\text{Linear}(d \rightarrow 1024) \;\rightarrow\; \text{ReLU} \;\rightarrow\;
+\text{Dropout}(0{,}5) \;\rightarrow\; \text{Linear}(1024 \rightarrow C),
+\end{equation*}
+
+donde $d$ es la dimensión de características del backbone y $C$ el número de
+clases activas. La capa oculta permite aprender representaciones no lineales de
+alto nivel, mientras que la regularización por
+\textit{Dropout}~\cite{srivastavaDropout2014} mitiga el sobreajuste, especialmente
+relevante en imagen médica con muestras limitadas. La salida son $C$ logits, uno
+por patología, sobre los que se aplica una función sigmoide para obtener
+probabilidades independientes.
+
+Las radiografías, originalmente en escala de grises, se convierten a tres canales
+(replicando el canal único) para ser compatibles con los pesos preentrenados en
+ImageNet. Se evalúan cinco arquitecturas de referencia, intercambiables mediante
+configuración:
+\textbf{DenseNet-121}~\cite{huangDenselyConnectedConvolutional2017},
+\textbf{ResNet-50}~\cite{heDeepResidualLearning2016},
+\textbf{VGG16-BN}~\cite{simonyanVeryDeepConvolutional2015},
+\textbf{ConvNeXt-Tiny}~\cite{liuConvNet2020s2022} y
+\textbf{Swin-T}~\cite{liuSwinTransformer2021}, abarcando desde CNN clásicas hasta
+transformers de visión.
+
+
+\section{Función de pérdida y protocolo de entrenamiento}
+\label{sec::mm_entrenamiento}
+
+\subsection{Función de pérdida}
+
+Al tratarse de un problema multietiqueta, se emplea la entropía cruzada binaria
+sobre cada salida independiente. Para contrarrestar el fuerte desbalanceo de
+clases, se utiliza \texttt{BCEWithLogitsLoss} con un peso por clase
+$\text{pos\_weight} = n_{\text{neg}} / n_{\text{pos}}$, calculado sobre el
+conjunto de entrenamiento. Este peso escala el gradiente de los ejemplos
+positivos de cada patología en proporción inversa a su frecuencia, de modo que
+las clases minoritarias reciban una atención comparable a las
+mayoritarias~\cite{usharubyBinaryCrossEntropy2020}.
+
+\subsection{Optimización y regularización}
+
+Los hiperparámetros de entrenamiento se resumen en la
+Tabla~\ref{tab::mm_hiperparametros}. El modelo se optimiza con
+\textbf{AdamW}~\cite{kingmaAdamMethod2015}, que incorpora regularización por
+decaimiento de pesos (\textit{weight decay}). La tasa de aprendizaje se ajusta
+dinámicamente con el planificador \texttt{ReduceLROnPlateau}, que la reduce
+cuando la pérdida de validación deja de mejorar. El entrenamiento emplea
+precisión mixta automática (AMP) en GPU para reducir el consumo de memoria y
+acelerar el cómputo. Se aplica \textbf{parada temprana} (\textit{early stopping})
+cuando la pérdida de validación no mejora durante un número fijo de épocas,
+restaurándose al final los pesos del epoch con mejor AUROC de validación.
+
+\begin{table}[h]
+\centering
+\caption{Hiperparámetros de entrenamiento.}
+\label{tab::mm_hiperparametros}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Valor} & \textbf{Descripción} \\
+\midrule
+Optimizador & AdamW & Tasa de aprendizaje $10^{-4}$, \textit{weight decay} $0{,}01$ \\
+Planificador & ReduceLROnPlateau & Paciencia 2 épocas \\
+Tamaño de lote & 64 / 256 & Entrenamiento / inferencia \\
+Épocas máximas & 50 & Con parada temprana (paciencia 8) \\
+Tamaño de imagen & $224 \times 224$ & Píxeles \\
+Precisión mixta & AMP & Activada en GPU \\
+Semilla & 42 & Reproducibilidad \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Aumento de datos}
+
+Sobre el conjunto de entrenamiento se aplica aumento de datos para incrementar la
+variabilidad y reducir el sobreajuste: volteo horizontal aleatorio (probabilidad
+0,5) y una transformación afín aleatoria (rotación de hasta $10°$ y traslación de
+hasta el 5\,\%). Estas transformaciones simulan la variabilidad natural de
+posición del paciente sin introducir artefactos clínicamente incorrectos. Tras el
+aumento, las imágenes se redimensionan a $224 \times 224$ y se normalizan con la
+media y desviación estándar de ImageNet. En validación y prueba no se aplica
+aumento, para obtener una estimación determinista del rendimiento.
+
+
+\section{Evaluación y métricas}
+\label{sec::mm_metricas}
+
+La evaluación se realiza en dos niveles. En \textbf{validación}, durante el
+entrenamiento, se monitoriza el AUROC-macro (área bajo la curva ROC promediada
+sobre las clases evaluables), que es independiente del umbral de decisión y
+robusto frente al desbalanceo; este criterio determina la selección del mejor
+epoch. En el conjunto de \textbf{prueba} \textit{silver-standard} se calcula un
+conjunto más amplio de métricas por patología y agregadas: AUROC, PR-AUC (área
+bajo la curva de precisión-exhaustividad), precisión, exhaustividad y F1, además
+del AUROC promediado sobre las cinco patologías de la competición oficial de
+CheXpert (\textit{Atelectasis}, \textit{Cardiomegaly}, \textit{Consolidation},
+\textit{Edema} y \textit{Pleural Effusion}), bien representadas en el conjunto de
+prueba.
+
+La selección del modelo de producción se realiza mediante un \textbf{mecanismo de
+promoción} automático: un modelo recién entrenado solo reemplaza al mejor modelo
+registrado para su mismo par (arquitectura, configuración de clases) si mejora el
+AUROC de las cinco patologías oficiales sobre el conjunto de prueba por encima de
+un margen mínimo (0,005), empleándose el F1-macro como criterio de desempate.
+Este margen evita sustituciones por ruido estadístico. Las predicciones binarias,
+cuando se requieren, se obtienen con un umbral de 0,5.
+
+
+\section{Explicabilidad mediante Grad-CAM}
+\label{sec::mm_gradcam}
+
+Para dotar al sistema de capacidad explicativa se emplea
+\textbf{Grad-CAM}~\cite{selvarajuGradCAMVisualExplanations2017}, que genera mapas
+de calor a partir de los gradientes que fluyen hacia la última capa convolucional
+del modelo, señalando las regiones de la imagen más influyentes en la predicción
+de cada patología. La capa objetivo se selecciona de forma específica para cada
+arquitectura (la última etapa convolucional del backbone); en el caso del Swin
+Transformer, cuya salida conserva los tokens en formato \textit{channels-last},
+se aplica una reorganización de ejes para adaptarla al formato espacial que
+espera Grad-CAM. Esta técnica no requiere modificar la arquitectura ni reentrenar
+el modelo. Las explicaciones generadas se integran en la plataforma web
+(Capítulo~\ref{sec::capitulo5}) y se interpretan como una ayuda a la verificación
+por parte del especialista, no como una garantía de corrección del modelo, en
+línea con las cautelas señaladas en la literatura sobre la fiabilidad de los
+mapas de saliencia~\cite{zhangRevisitingTrustworthiness2024}.
+
+
+\section{Gestión de experimentos y reproducibilidad}
+\label{sec::mm_reproducibilidad}
+
+Cada ejecución de entrenamiento se documenta de forma automática y trazable. El
+sistema registra, por cada experimento, los metadatos de ejecución (identificador
+del \textit{commit} de git, hardware, duración, mejor epoch), la configuración
+empleada, la distribución de clases de los conjuntos, el historial de métricas
+por época, las métricas finales de validación y prueba por patología, las
+predicciones almacenadas, un análisis de los peores casos (falsos positivos y
+negativos) y las figuras de evaluación. Un registro centralizado mantiene el
+mejor modelo por cada par (arquitectura, configuración de clases) y un índice
+acumulado (\textit{leaderboard}) permite comparar las ejecuciones.
+
+La reproducibilidad se garantiza fijando una semilla global única que controla
+todas las fuentes de aleatoriedad (la variable \texttt{PYTHONHASHSEED}, los
+generadores de NumPy, del módulo \texttt{random} de Python y de PyTorch en CPU y
+GPU) y activando el modo determinista de cuDNN. El entorno de ejecución, basado
+en PyTorch~\cite{paszkePyTorch2019}, y el código completo se documentan en el
+repositorio del proyecto (Capítulo~\ref{sec::capitulo7}).
