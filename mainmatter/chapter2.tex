@@ -120,68 +120,100 @@ proyecto.
 \section{Arquitecturas para la clasificación de patologías torácicas}
 \label{sec::ec_arquitecturas}
 
-La evolución de las arquitecturas de clasificación de imágenes ha seguido una
-trayectoria de profundidad creciente y mayor eficiencia en la propagación del
-gradiente. Tras AlexNet~\cite{krizhevskyImageNetClassification2012}, las redes
-\textbf{VGG}~\cite{simonyanVeryDeepConvolutional2015} demostraron el valor de la
-profundidad con filtros pequeños, mientras que las redes
-residuales \textbf{ResNet}~\cite{heDeepResidualLearning2016} introdujeron las
-conexiones de atajo que permiten entrenar redes de cientos de capas. Las redes
-densamente conectadas \textbf{DenseNet}~\cite{huangDenselyConnectedConvolutional2017},
-en las que cada capa recibe como entrada las salidas de todas las anteriores,
-resultaron especialmente adecuadas para la radiografía de tórax: el trabajo
-\textbf{CheXNet}~\cite{rajpurkarCheXNetRadiologistLevel2017} empleó una
-DenseNet-121 para alcanzar un rendimiento comparable al de radiólogos en la
-detección de neumonía.
+La arquitectura de la red es uno de los factores que más influyen en el
+rendimiento, y su evolución ha seguido una trayectoria marcada por la búsqueda de
+mayor profundidad sin degradar el entrenamiento. Tras el éxito de
+AlexNet~\cite{krizhevskyImageNetClassification2012}, las redes
+\textbf{VGG}~\cite{simonyanVeryDeepConvolutional2015} demostraron que apilar
+muchas capas de filtros pequeños ($3\times3$) mejoraba el rendimiento, aunque a
+costa de un elevado número de parámetros. Sin embargo, al aumentar la profundidad
+surgía el problema de la \textit{desaparición del gradiente}, que dificultaba el
+entrenamiento de redes muy profundas. La solución llegó con las redes residuales
+\textbf{ResNet}~\cite{heDeepResidualLearning2016}, cuyas conexiones de atajo
+(\textit{skip connections}) permiten que el gradiente fluya sin atenuarse,
+posibilitando redes de cientos de capas. Las redes densamente conectadas
+\textbf{DenseNet}~\cite{huangDenselyConnectedConvolutional2017} llevaron esta idea
+más lejos: cada capa recibe como entrada las salidas de todas las anteriores, lo
+que favorece la reutilización de características y la eficiencia de parámetros.
+Esta arquitectura resultó especialmente adecuada para la radiografía de tórax;
+el trabajo seminal \textbf{CheXNet}~\cite{rajpurkarCheXNetRadiologistLevel2017}
+empleó una DenseNet-121 para alcanzar un rendimiento comparable al de los
+radiólogos en la detección de neumonía sobre ChestX-ray14.
 
-Más recientemente, los \textit{transformers} de visión han irrumpido en el
-dominio. El \textbf{Swin Transformer}~\cite{liuSwinTransformer2021} introduce una
-atención jerárquica por ventanas que lo hace eficiente para imágenes de alta
-resolución, mientras que \textbf{ConvNeXt}~\cite{liuConvNet2020s2022} moderniza
-las CNN puras incorporando decisiones de diseño propias de los transformers.
-Estas líneas convergen en las \textit{arquitecturas híbridas CNN-Transformer},
-que combinan la extracción local de características de las convoluciones con la
-captura de dependencias globales de la
-atención~\cite{singhComputerAidedDiagnosis2024, oommenConvAttentionViT2024,
+Más recientemente, el paradigma de los \textit{transformers} —originado en el
+procesamiento del lenguaje natural— ha irrumpido en visión por computador. A
+diferencia de las CNN, que capturan relaciones locales, los \textit{Vision
+Transformers} modelan dependencias globales mediante mecanismos de
+\textbf{atención}. Su aplicación directa, no obstante, exige grandes volúmenes de
+datos y un elevado coste computacional. El \textbf{Swin
+Transformer}~\cite{liuSwinTransformer2021} mitiga este problema con una atención
+jerárquica restringida a ventanas, más eficiente para imágenes de alta
+resolución. En paralelo, \textbf{ConvNeXt}~\cite{liuConvNet2020s2022} demuestra
+que las CNN puras, modernizadas con decisiones de diseño propias de los
+transformers, pueden igualar su rendimiento. Ambas tendencias convergen en las
+\textbf{arquitecturas híbridas CNN-Transformer}, que combinan la extracción local
+de las convoluciones con la captura de dependencias globales de la atención, y que
+han mostrado resultados prometedores en clasificación de patologías
+torácicas~\cite{singhComputerAidedDiagnosis2024, oommenConvAttentionViT2024,
 fuExplainableHybridTransformer2025}.
 
-La elección de la arquitectura no es trivial y depende del conjunto de datos y de
-la tarea. Estudios comparativos sistemáticos sobre radiografía de tórax han
-evaluado múltiples arquitecturas CNN, situando los valores de área bajo la curva
-ROC (AUROC) en rangos de 0,83 a 0,89 según la patología y el
-modelo~\cite{bressemComparingDeepLearning2020}. La robustez de estos modelos
-frente a perturbaciones de la entrada es asimismo objeto de estudio activo, dado
-su impacto en la fiabilidad
-clínica~\cite{liuComprehensiveStudyRobustness2025}. En el presente trabajo se
-evalúan de forma comparativa varias de estas familias (DenseNet, ResNet, VGG,
-ConvNeXt y Swin) mediante aprendizaje por transferencia.
+Esta diversidad plantea una pregunta clave: ¿qué arquitectura es preferible para
+la radiografía de tórax? La respuesta no es unívoca y depende del conjunto de
+datos, la tarea y los recursos. Los estudios comparativos sistemáticos no
+identifican un ganador absoluto: una evaluación de múltiples arquitecturas CNN
+sobre radiografía de tórax situó los valores de área bajo la curva ROC (AUROC)
+entre 0,83 y 0,89 según la patología y el
+modelo~\cite{bressemComparingDeepLearning2020}, diferencias a menudo dentro del
+margen de variabilidad experimental. A esta indefinición se añade la cuestión de
+la robustez frente a perturbaciones de la entrada, crítica para la fiabilidad
+clínica y objeto de estudio activo~\cite{liuComprehensiveStudyRobustness2025}.
+Esta ausencia de consenso justifica precisamente el enfoque comparativo adoptado
+en este trabajo, que evalúa cinco familias representativas (DenseNet, ResNet, VGG,
+ConvNeXt y Swin) bajo un protocolo homogéneo.
 
 
 \section{Clasificación multietiqueta y desbalanceo de clases}
 \label{sec::ec_multietiqueta}
 
-A diferencia de la clasificación multiclase, en la que cada muestra pertenece a
-una única categoría, el diagnóstico radiológico es intrínsecamente
-\textit{multietiqueta}: una misma radiografía puede presentar simultáneamente
-varias patologías no mutuamente excluyentes~\cite{zhangReviewMultiLabel2014}.
-Este planteamiento se aborda habitualmente prediciendo probabilidades
-independientes por patología mediante una capa de salida con activación
-sigmoide y una función de pérdida de entropía cruzada binaria.
+La formulación del problema condiciona toda la cadena de modelado. En la
+clasificación \textit{multiclase}, cada muestra pertenece a una única categoría
+entre varias mutuamente excluyentes, y se resuelve con una capa de salida
+\textit{softmax} que reparte la probabilidad entre clases. El diagnóstico
+radiológico, en cambio, es intrínsecamente \textbf{multietiqueta}: una misma
+radiografía puede presentar simultáneamente varias patologías no
+excluyentes~\cite{zhangReviewMultiLabel2014}. Por ello se aborda como un conjunto
+de problemas de clasificación binaria independientes —uno por patología—,
+empleando una activación \textit{sigmoide} en cada salida y una función de
+pérdida de entropía cruzada binaria, que no impone exclusividad entre clases.
 
-El principal obstáculo en este escenario es el fuerte \textit{desbalanceo de
-clases}: las patologías poco frecuentes están infrarrepresentadas, lo que sesga
-el entrenamiento hacia las clases mayoritarias~\cite{lizDeepLearningMultilabel2023}.
-Para mitigarlo se han propuesto diversas estrategias, entre las que destaca la
-ponderación de la función de pérdida de entropía cruzada binaria en función de
-la prevalencia de cada clase~\cite{usharubyBinaryCrossEntropy2020}, así como
-funciones objetivo orientadas directamente a optimizar el AUROC, más robustas
-ante el desbalanceo que las pérdidas
+El principal obstáculo en este escenario es el fuerte \textbf{desbalanceo de
+clases}, consecuencia directa de la distinta prevalencia epidemiológica de las
+patologías: algunas aparecen en una pequeña fracción de los estudios. Sin
+corrección, el modelo tiende a minimizar la pérdida prediciendo siempre la clase
+negativa, lo que produce una elevada exactitud aparente pero una capacidad nula
+para detectar las patologías minoritarias~\cite{lizDeepLearningMultilabel2023},
+que con frecuencia son las de mayor relevancia clínica.
+
+La literatura ofrece dos grandes familias de soluciones. Las técnicas a
+\textbf{nivel de datos} reequilibran el conjunto antes del entrenamiento, mediante
+sobremuestreo de las clases minoritarias, submuestreo de las mayoritarias o
+aumento de datos. Las técnicas a \textbf{nivel de algoritmo} modifican el proceso
+de aprendizaje: destacan la ponderación de la entropía cruzada binaria según la
+prevalencia de cada clase~\cite{usharubyBinaryCrossEntropy2020}, la \textit{focal
+loss} —que reduce el peso de los ejemplos fáciles—, y las funciones que optimizan
+directamente el AUROC, más robustas ante el desbalanceo que las pérdidas
 convencionales~\cite{yuanLargeScaleRobustDeepAUC2021}. El problema se agrava en
-escenarios de cola larga (\textit{long-tailed}), donde un gran número de
-hallazgos raros coexiste con unas pocas clases muy
-frecuentes~\cite{holsteCXRLT2024}. En este trabajo se adopta una función de
-pérdida de entropía cruzada binaria ponderada como mecanismo principal para
-contrarrestar el desbalanceo.
+escenarios de \textbf{cola larga} (\textit{long-tailed}), donde numerosos
+hallazgos raros coexisten con unas pocas clases muy frecuentes, lo que ha
+motivado líneas de investigación e iniciativas de evaluación
+específicas~\cite{holsteCXRLT2024}.
+
+Entre estas alternativas, este trabajo adopta la \textbf{entropía cruzada binaria
+ponderada} como mecanismo principal para contrarrestar el desbalanceo, por su
+sencillez, su ausencia de hiperparámetros adicionales y su integración directa en
+la formulación multietiqueta, frente a la mayor complejidad de las técnicas de
+remuestreo o de las pérdidas alternativas. La justificación detallada de esta
+elección se desarrolla en el Capítulo~\ref{sec::capitulo3}.
 
 
 \section{Gestión de la incertidumbre en el etiquetado}
