@@ -292,13 +292,15 @@ Se definen tres configuraciones:
 
 \subsection{Diseño experimental}
 
-El estudio se organiza en torno a un conjunto de experimentos que combinan las
-configuraciones de clases anteriores con distintas arquitecturas. La comparación
-de configuraciones de clases se realiza con una arquitectura de referencia
-(DenseNet-121), mientras que la comparación de arquitecturas se realiza sobre una
-configuración de clases fija; no se evalúa el producto cartesiano completo de
-arquitecturas y configuraciones por restricciones de tiempo de cómputo. Los
-experimentos planificados son los siguientes:
+El estudio combina las configuraciones de clases anteriores con las arquitecturas
+descritas en la Sección~\ref{sec::mm_arquitectura}. El primer experimento
+establece un modelo de referencia con una única arquitectura sobre el conjunto
+completo de clases; los experimentos segundo y tercero amplían el estudio
+entrenando \textbf{todas las arquitecturas disponibles} sobre configuraciones de
+clases progresivamente reducidas, lo que permite comparar tanto las arquitecturas
+entre sí como el efecto de la selección de clases sobre el rendimiento. El alcance
+final de la comparativa de arquitecturas en cada configuración dependerá del
+tiempo de cómputo disponible. Los experimentos son los siguientes:
 
 \textbf{Experimento 1 — DenseNet-121 con 13 clases (\texttt{full13}).}
 \begin{itemize}
@@ -313,33 +315,36 @@ experimentos planificados son los siguientes:
         fiable.
 \end{itemize}
 
-\textbf{Experimento 2 — DenseNet-121 con 12 clases (\texttt{nofracture12}).}
+\textbf{Experimento 2 — Todas las arquitecturas con 12 clases (\texttt{nofracture12}).}
 \begin{itemize}
-  \item \textit{Objetivo:} entrenar y evaluar sin la clase \textit{Fracture}.
+  \item \textit{Objetivo:} comparar el rendimiento de las cinco arquitecturas
+        (DenseNet-121, ResNet-50, VGG16-BN, ConvNeXt-Tiny y Swin-T) sobre la
+        configuración sin \textit{Fracture}.
   \item \textit{Configuración:} \texttt{nofracture12}.
   \item \textit{Motivo:} se detectó que \textit{Fracture} no dispone de muestras
-        positivas en el conjunto de prueba, por lo que no puede evaluarse de
-        forma correcta; su eliminación produce una evaluación más fiable.
-  \item \textit{Ventajas:} métricas de prueba más representativas.
-        \textit{Inconvenientes:} se pierde la capacidad de detectar fracturas.
+        positivas en el conjunto de prueba, por lo que no puede evaluarse de forma
+        correcta; su eliminación produce una evaluación más fiable, sobre la que se
+        realiza la comparativa de arquitecturas.
+  \item \textit{Ventajas:} comparación homogénea de las arquitecturas con métricas
+        de prueba más representativas. \textit{Inconvenientes:} se pierde la
+        capacidad de detectar fracturas y el coste de cómputo se multiplica por el
+        número de arquitecturas.
 \end{itemize}
 
-\textbf{Experimento 3 — DenseNet-121 con 9 clases (\texttt{min5pct9}, pendiente).}
+\textbf{Experimento 3 — Todas las arquitecturas con 9 clases (\texttt{min5pct9}, pendiente).}
 \begin{itemize}
-  \item \textit{Objetivo:} analizar el comportamiento en un escenario menos
+  \item \textit{Objetivo:} comparar las arquitecturas en un escenario menos
         desbalanceado, conservando únicamente las clases con prevalencia igual o
         superior al 5\,\%.
   \item \textit{Configuración:} \texttt{min5pct9} (9 clases).
   \item \textit{Motivo:} reducir el desbalanceo extremo eliminando las clases
-        menos representadas, lo que puede dar lugar a un modelo más estable.
+        menos representadas, lo que puede dar lugar a modelos más estables y a una
+        comparación de arquitecturas menos condicionada por las clases
+        minoritarias.
   \item \textit{Ventajas:} menor desbalanceo y mayor representatividad de las
         clases. \textit{Inconvenientes:} menor cobertura diagnóstica; queda
         supeditado a la disponibilidad de tiempo de cómputo.
 \end{itemize}
-
-Sobre una configuración de referencia se evalúan de forma comparativa varias
-arquitecturas (Sección~\ref{sec::mm_arquitectura}); el alcance final de esta
-comparativa dependerá del tiempo de cómputo disponible.
 
 
 \section{Arquitectura del modelo}
