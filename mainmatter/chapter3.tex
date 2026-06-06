@@ -122,60 +122,151 @@ Sección~\ref{sec::mm_etl}.
 \section{Procesamiento de datos (ETL)}
 \label{sec::mm_etl}
 
-El conjunto de datos se somete a una cadena de extracción, transformación y carga
-(ETL) implementada como una lista blanca (\textit{whitelist}) de criterios, lo
-que estandariza el preprocesado y evita sesgos de selección arbitrarios. Los
-criterios de retención son:
+La calidad de los datos de entrada determina en gran medida el rendimiento
+alcanzable por un modelo de aprendizaje profundo; de ahí la importancia de una
+cadena de extracción, transformación y carga (ETL, \textit{Extract, Transform,
+Load}) cuidadosamente diseñada. En conjuntos de datos médicos heterogéneos como
+CheXpert, donde conviven distintas proyecciones, valores de etiqueta y posibles
+inconsistencias, el preprocesado puede plantearse de dos formas
+complementarias: como \textit{lista negra} (\textit{blacklist}), enumerando los
+casos a excluir, o como \textit{lista blanca} (\textit{whitelist}), especificando
+únicamente los casos válidos a conservar. En este trabajo se ha optado por el
+enfoque de lista blanca, más seguro y conservador, ya que cualquier valor o
+condición no contemplada explícitamente queda excluida por defecto, evitando que
+registros anómalos o no previstos contaminen el entrenamiento.
+
+\subsection{Criterios de filtrado}
+
+La cadena de ETL retiene los estudios que satisfacen los siguientes criterios,
+cada uno justificado por una decisión de diseño concreta:
 
 \begin{itemize}
-  \item \textbf{Proyección.} Solo se conservan las radiografías de vista frontal
-        y proyección anteroposterior (AP), por coherencia con el diseño del
-        trabajo.
-  \item \textbf{Valores de etiqueta permitidos.} Se admiten únicamente los
-        valores $\{0,\ 1,\ \text{ausente}\}$. Las etiquetas inciertas ($-1$) se
-        descartan, lo que corresponde a la estrategia de gestión de la
-        incertidumbre \textbf{U-Ignore} (véase la Sección~\ref{sec::mm_clases}).
-  \item \textbf{Coherencia de \textit{No Finding}.} Se eliminan los estudios
-        inconsistentes en los que \textit{No Finding} aparece como positivo
-        simultáneamente con alguna otra patología.
-  \item \textbf{Sexo.} Se conservan los registros de pacientes de sexo masculino
-        y femenino.
+  \item \textbf{Proyección frontal anteroposterior (AP).} CheXpert incluye
+        radiografías en proyección frontal (AP y posteroanterior, PA) y lateral.
+        Las proyecciones presentan diferencias anatómicas notables —en la lateral
+        las estructuras se superponen de forma distinta y el tamaño cardíaco no es
+        directamente comparable—, por lo que mezclarlas introduce variabilidad
+        que dificulta el aprendizaje. Se conserva únicamente la proyección
+        frontal AP para garantizar la homogeneidad del conjunto.
+  \item \textbf{Valores de etiqueta permitidos $\{0,\ 1,\ \text{ausente}\}$.} Se
+        descartan los estudios con etiquetas inciertas ($-1$) en las patologías
+        consideradas. Esta decisión materializa la estrategia de gestión de la
+        incertidumbre \textbf{U-Ignore}, analizada en detalle en la
+        Sección~\ref{sec::mm_clases}.
+  \item \textbf{Coherencia de \textit{No Finding}.} Por definición, la categoría
+        \textit{No Finding} (ausencia de hallazgos) es incompatible con la
+        presencia simultánea de cualquier patología. Los estudios que la marcan
+        como positiva junto con otra observación positiva constituyen una
+        contradicción —probablemente un error del etiquetado automático— y se
+        eliminan para no introducir señal contradictoria.
+  \item \textbf{Sexo registrado.} Se conservan los registros de pacientes de sexo
+        masculino y femenino, descartando los valores ausentes o no
+        especificados en este campo de metadatos.
 \end{itemize}
 
-Tras el filtrado, las etiquetas ausentes se imputan a 0 (negativo), ya que la
-ausencia de mención en el informe constituye la señal más débil posible,
-asimilable a un negativo implícito. La división en entrenamiento y validación se
-realiza \textbf{a nivel de paciente} (90\,\% / 10\,\%), garantizando que todas
-las imágenes de un mismo paciente pertenezcan a un único subconjunto. Esta
-partición por paciente es esencial para evitar la fuga de información
-(\textit{data leakage}): si imágenes del mismo paciente apareciesen en
-entrenamiento y validación, el modelo podría aprender rasgos individuales de
-estilo de adquisición en lugar de patrones clínicos generalizables, produciendo
-una estimación optimista del rendimiento.
+No se aplica filtrado por edad, con el fin de no reducir innecesariamente la
+diversidad demográfica del conjunto.
+
+\subsection{Tratamiento de las etiquetas ausentes}
+
+Una vez filtrado el conjunto, las etiquetas \textbf{ausentes} (patologías no
+mencionadas en el informe) se imputan al valor negativo (0). Caben aquí varias
+alternativas: descartar dichos estudios —lo que reduciría drásticamente el
+tamaño del conjunto, dado que la mayoría de informes no mencionan todas las
+patologías—, imputarlas mediante un modelo, o asignarles el valor negativo. Se
+opta por esta última: la ausencia de mención en un informe radiológico es la
+señal más débil posible y, en la práctica clínica, asimilable a un negativo
+implícito (el radiólogo no consideró relevante señalar ese hallazgo). Esta
+decisión preserva el tamaño del conjunto al coste de asumir un pequeño porcentaje
+de falsos negativos.
+
+\subsection{División en entrenamiento, validación y prueba}
+
+La partición de los datos debe evitar la \textbf{fuga de información}
+(\textit{data leakage}), uno de los errores metodológicos más frecuentes y
+graves en aprendizaje automático aplicado a imagen médica. Una división aleatoria
+a nivel de imagen permitiría que distintas radiografías de un mismo paciente
+quedasen repartidas entre entrenamiento y validación; en tal caso, el modelo
+podría memorizar rasgos individuales del paciente (constitución, dispositivos
+implantados, parámetros de adquisición) en lugar de patrones clínicos
+generalizables, produciendo una estimación del rendimiento artificialmente
+optimista.
+
+Para evitarlo, la división entre entrenamiento y validación se realiza \textbf{a
+nivel de paciente}, con una proporción del 90\,\% / 10\,\%: todas las imágenes de
+un mismo paciente se asignan en bloque a un único subconjunto. Como conjunto de
+prueba se emplea el conjunto de validación oficial de CheXpert
+(Sección~\ref{sec::mm_dataset}), cuyos pacientes son disjuntos de los del
+entrenamiento. De este modo se dispone de tres conjuntos sin solapamiento de
+pacientes: entrenamiento (etiquetas automáticas), validación interna (para la
+selección del modelo) y prueba \textit{silver-standard} (para la evaluación
+final independiente).
 
 
 \section{Configuraciones de clases y diseño experimental}
 \label{sec::mm_clases}
 
 \subsection{Gestión de la incertidumbre}
+\label{sec::mm_incertidumbre}
 
-CheXpert codifica explícitamente la incertidumbre de ciertas etiquetas con el
-valor $-1$. En este trabajo se adopta la estrategia \textbf{U-Ignore}, que
-consiste en descartar las muestras con etiquetas inciertas, implementada en el
-ETL mediante la lista blanca de valores permitidos. Esta estrategia es la más
-conservadora —no introduce supuestos sobre el significado de la incertidumbre— y
-sirve como base metodológica del trabajo. La evaluación comparativa de las demás
-estrategias descritas en la literatura (U-Zeros, U-Ones, U-SelfTrained y
-U-MultiClass)~\cite{irvinCheXpertLargeChest2019} queda planteada como línea de
-trabajo futuro.
+Como se ha señalado, CheXpert codifica explícitamente la incertidumbre de ciertas
+etiquetas con el valor $-1$, que recoge la duda diagnóstica del radiólogo. El
+tratamiento de estas etiquetas es una decisión metodológica de primer orden, pues
+afecta a una fracción no despreciable de los datos. El trabajo original de
+CheXpert~\cite{irvinCheXpertLargeChest2019} propone y compara cinco estrategias,
+que constituyen el conjunto de alternativas habituales en la literatura:
+
+\begin{itemize}
+  \item \textbf{U-Ignore.} Ignora las etiquetas inciertas, que no contribuyen a la
+        función de pérdida. Es la estrategia más conservadora, pues no asume
+        ninguna interpretación de la incertidumbre, pero desaprovecha la
+        información de las muestras afectadas.
+  \item \textbf{U-Zeros.} Asigna a las etiquetas inciertas el valor negativo
+        ($-1 \rightarrow 0$). Es sencilla, pero puede convertir hallazgos reales
+        en falsos negativos.
+  \item \textbf{U-Ones.} Asigna a las etiquetas inciertas el valor positivo
+        ($-1 \rightarrow 1$). Aumenta la sensibilidad a costa de posibles falsos
+        positivos.
+  \item \textbf{U-SelfTrained.} Entrena primero un modelo con U-Ignore y lo
+        utiliza después para predecir las etiquetas inciertas, reentrenando con
+        ellas. Aprovecha la información, pero propaga los errores del primer
+        modelo.
+  \item \textbf{U-MultiClass.} Trata la incertidumbre como una tercera categoría
+        diferenciada, en lugar de forzarla a positivo o negativo. Es la más
+        expresiva, pero complica la formulación del problema.
+\end{itemize}
+
+En este trabajo se adopta la estrategia \textbf{U-Ignore}, implementada en el ETL
+mediante la lista blanca de valores permitidos: se descartan los estudios que
+presentan alguna etiqueta incierta en las patologías activas. La justificación es
+doble. Por un lado, es la opción más rigurosa desde el punto de vista
+metodológico, ya que no introduce supuestos arbitrarios sobre el significado
+clínico de la incertidumbre, que variaría según la patología; tratar
+indistintamente todos los $-1$ como positivos o negativos sesgaría el aprendizaje.
+Por otro, sirve como \textbf{base de referencia} sólida y reproducible sobre la
+que se asienta el resto del trabajo. Su principal \textbf{inconveniente} es que
+reduce el tamaño del conjunto de entrenamiento al descartar muestras; la
+evaluación comparativa de las cuatro estrategias restantes, que podrían
+aprovechar esa información, queda planteada como línea de trabajo futuro.
 
 \subsection{Configuraciones de clases}
 
-El sistema permite seleccionar, mediante configuración, qué conjunto de clases
-activa el modelo. Cada configuración fija sus clases activas y una política de
-eliminación de estudios (\textit{anti-ruido}) que descarta los estudios cuyas
-únicas etiquetas positivas pertenecen a clases eliminadas, evitando convertir un
-positivo real en un falso negativo. Se definen tres configuraciones:
+El desbalanceo de clases de CheXpert no es uniforme: algunas patologías aparecen
+en una fracción muy pequeña de los estudios y, además, ciertas clases resultan
+problemáticas por la calidad o la disponibilidad de sus etiquetas. Mantener
+clases con muy pocos ejemplos positivos puede degradar el aprendizaje global e,
+incluso, impedir una evaluación fiable cuando carecen de soporte suficiente en el
+conjunto de prueba. Por ello, en lugar de fijar de antemano un único conjunto de
+clases, se ha diseñado el sistema para que el conjunto de patologías activas sea
+\textbf{configurable}, lo que permite estudiar el efecto de incluir o excluir las
+clases más conflictivas sobre el rendimiento.
+
+Cada configuración fija sus clases activas y una política de eliminación de
+estudios (\textit{anti-ruido}). El motivo de esta política es que, al descartar
+una clase, los estudios cuya única etiqueta positiva pertenecía a esa clase
+quedarían como completamente negativos; conservarlos los convertiría en falsos
+negativos que introducirían ruido. La política elimina esos estudios huérfanos.
+Se definen tres configuraciones:
 
 \begin{table}[h]
 \centering
@@ -247,12 +338,28 @@ comparativa dependerá del tiempo de cómputo disponible.
 \section{Arquitectura del modelo}
 \label{sec::mm_arquitectura}
 
-El modelo de clasificación sigue un esquema de \textbf{aprendizaje por
-transferencia}: un \textit{backbone} convolucional preentrenado sobre
-ImageNet~\cite{dengImageNet2009} actúa como extractor de características, y su
-capa de clasificación original se reemplaza por una cabeza adaptada a la tarea
-multietiqueta. La cabeza de clasificación, común a todos los backbones, se
-compone de cuatro capas:
+\subsection{Aprendizaje por transferencia}
+
+Entrenar una red neuronal profunda desde cero requiere grandes volúmenes de datos
+y de cómputo, recursos a menudo escasos en imagen médica. El \textbf{aprendizaje
+por transferencia} (\textit{transfer learning}) ofrece una alternativa eficaz:
+reutilizar un modelo previamente entrenado sobre un gran corpus de imágenes
+naturales —típicamente ImageNet~\cite{dengImageNet2009}— como punto de partida.
+Existen dos modalidades principales: la \textbf{extracción de características}
+(\textit{feature extraction}), que congela los pesos del modelo preentrenado y
+solo entrena la nueva capa de salida, y el \textbf{ajuste fino}
+(\textit{fine-tuning}), que permite actualizar también los pesos del backbone. En
+este trabajo se opta por el ajuste fino completo, ya que las radiografías de
+tórax difieren sustancialmente de las imágenes naturales de ImageNet, y permitir
+que el backbone adapte sus filtros al dominio médico mejora el
+rendimiento~\cite{plestedDeepTransferLearning2026}, a costa de un mayor riesgo de
+sobreajuste que se controla con regularización.
+
+\subsection{Cabeza de clasificación}
+
+La capa de clasificación original de cada backbone se sustituye por una cabeza
+adaptada a la tarea multietiqueta. Frente a la alternativa más simple —una única
+capa lineal—, se emplea una cabeza de cuatro capas:
 
 \begin{equation*}
 \text{Linear}(d \rightarrow 1024) \;\rightarrow\; \text{ReLU} \;\rightarrow\;
@@ -260,23 +367,47 @@ compone de cuatro capas:
 \end{equation*}
 
 donde $d$ es la dimensión de características del backbone y $C$ el número de
-clases activas. La capa oculta permite aprender representaciones no lineales de
-alto nivel, mientras que la regularización por
-\textit{Dropout}~\cite{srivastavaDropout2014} mitiga el sobreajuste, especialmente
-relevante en imagen médica con muestras limitadas. La salida son $C$ logits, uno
-por patología, sobre los que se aplica una función sigmoide para obtener
-probabilidades independientes.
+clases activas. La capa oculta intermedia, seguida de una activación no lineal
+ReLU, permite aprender combinaciones de mayor nivel de las características
+extraídas, mientras que la capa de \textit{Dropout}~\cite{srivastavaDropout2014}
+—que desactiva aleatoriamente una fracción de las neuronas durante el
+entrenamiento— actúa como regularizador y mitiga el sobreajuste, especialmente
+relevante dado el tamaño limitado y el ruido de etiquetado del conjunto. La salida
+son $C$ logits, uno por patología; sobre cada uno se aplica de forma independiente
+una función sigmoide para obtener la probabilidad de presencia de esa patología,
+formulación coherente con la naturaleza multietiqueta del problema (a diferencia
+de la \textit{softmax}, que forzaría la exclusividad entre clases).
 
-Las radiografías, originalmente en escala de grises, se convierten a tres canales
-(replicando el canal único) para ser compatibles con los pesos preentrenados en
-ImageNet. Se evalúan cinco arquitecturas de referencia, intercambiables mediante
-configuración:
-\textbf{DenseNet-121}~\cite{huangDenselyConnectedConvolutional2017},
-\textbf{ResNet-50}~\cite{heDeepResidualLearning2016},
-\textbf{VGG16-BN}~\cite{simonyanVeryDeepConvolutional2015},
-\textbf{ConvNeXt-Tiny}~\cite{liuConvNet2020s2022} y
-\textbf{Swin-T}~\cite{liuSwinTransformer2021}, abarcando desde CNN clásicas hasta
-transformers de visión.
+\subsection{Arquitecturas evaluadas}
+
+Las radiografías, originalmente en escala de grises (un canal), se replican en
+tres canales para ser compatibles con la entrada que esperan los modelos
+preentrenados en ImageNet. Con el fin de no limitar el estudio a una única
+familia de arquitecturas, se evalúan de forma comparativa cinco \textit{backbones}
+representativos de la evolución descrita en el Capítulo~\ref{ch::capitulo2},
+intercambiables mediante configuración:
+
+\begin{itemize}
+  \item \textbf{VGG16-BN}~\cite{simonyanVeryDeepConvolutional2015}: CNN secuencial
+        clásica, con normalización por lotes; representa el paradigma de redes
+        profundas homogéneas.
+  \item \textbf{ResNet-50}~\cite{heDeepResidualLearning2016}: introduce las
+        conexiones residuales que permiten entrenar redes muy profundas; es una
+        referencia casi universal.
+  \item \textbf{DenseNet-121}~\cite{huangDenselyConnectedConvolutional2017}:
+        conecta densamente las capas, reutilizando características; ha mostrado un
+        rendimiento destacado en radiografía de tórax (CheXNet).
+  \item \textbf{ConvNeXt-Tiny}~\cite{liuConvNet2020s2022}: CNN moderna que
+        incorpora decisiones de diseño propias de los transformers.
+  \item \textbf{Swin-T}~\cite{liuSwinTransformer2021}: transformer de visión
+        jerárquico, representante del paradigma basado en atención.
+\end{itemize}
+
+Esta selección abarca desde las CNN clásicas hasta los transformers de visión,
+lo que permite comparar familias arquitectónicas distintas bajo un mismo
+protocolo. La principal ventaja de este enfoque comparativo es la robustez de las
+conclusiones; su inconveniente es el elevado coste de cómputo, que condiciona el
+alcance final del estudio.
 
 
 \section{Función de pérdida y protocolo de entrenamiento}
@@ -284,27 +415,62 @@ transformers de visión.
 
 \subsection{Función de pérdida}
 
-Al tratarse de un problema multietiqueta, se emplea la entropía cruzada binaria
-sobre cada salida independiente. Para contrarrestar el fuerte desbalanceo de
-clases, se utiliza \texttt{BCEWithLogitsLoss} con un peso por clase
+Al tratarse de un problema multietiqueta, en el que cada patología se predice de
+forma independiente, la función de pérdida natural es la \textbf{entropía cruzada
+binaria} (\textit{Binary Cross-Entropy}, BCE) aplicada por separado a cada salida.
+Sin embargo, la BCE estándar es sensible al desbalanceo de clases: si una
+patología aparece en una fracción muy pequeña de los estudios, el modelo puede
+minimizar la pérdida prediciendo sistemáticamente el negativo, ignorando la clase
+minoritaria. La literatura ofrece varias alternativas para abordarlo: la
+\textbf{BCE ponderada}, que asigna mayor peso a los ejemplos positivos; la
+\textit{focal loss}, que reduce la contribución de los ejemplos fáciles para
+centrar el aprendizaje en los difíciles; y las funciones que optimizan
+directamente el AUROC~\cite{yuanLargeScaleRobustDeepAUC2021}.
+
+En este trabajo se emplea la \textbf{BCE ponderada}, implementada con
+\texttt{BCEWithLogitsLoss} y un peso por clase
 $\text{pos\_weight} = n_{\text{neg}} / n_{\text{pos}}$, calculado sobre el
-conjunto de entrenamiento. Este peso escala el gradiente de los ejemplos
+conjunto de entrenamiento. Este peso multiplica la contribución de los ejemplos
 positivos de cada patología en proporción inversa a su frecuencia, de modo que
 las clases minoritarias reciban una atención comparable a las
-mayoritarias~\cite{usharubyBinaryCrossEntropy2020}.
+mayoritarias~\cite{usharubyBinaryCrossEntropy2020}. Se ha escogido frente a las
+demás por su sencillez, su interpretabilidad directa y su integración nativa en
+PyTorch, que la hacen una solución robusta y sin hiperparámetros adicionales que
+ajustar. Su \textbf{ventaja} es que corrige el desbalanceo sin descartar datos;
+su \textbf{inconveniente} es que un peso excesivo en clases muy raras puede
+amplificar el ruido de etiquetado y generar falsos positivos. La combinación de
+la BCE numéricamente estable (versión \textit{with logits}, que integra la
+sigmoide) con estos pesos constituye un equilibrio adecuado para el problema.
 
 \subsection{Optimización y regularización}
 
 Los hiperparámetros de entrenamiento se resumen en la
-Tabla~\ref{tab::mm_hiperparametros}. El modelo se optimiza con
-\textbf{AdamW}~\cite{kingmaAdamMethod2015}, que incorpora regularización por
-decaimiento de pesos (\textit{weight decay}). La tasa de aprendizaje se ajusta
-dinámicamente con el planificador \texttt{ReduceLROnPlateau}, que la reduce
-cuando la pérdida de validación deja de mejorar. El entrenamiento emplea
-precisión mixta automática (AMP) en GPU para reducir el consumo de memoria y
-acelerar el cómputo. Se aplica \textbf{parada temprana} (\textit{early stopping})
-cuando la pérdida de validación no mejora durante un número fijo de épocas,
-restaurándose al final los pesos del epoch con mejor AUROC de validación.
+Tabla~\ref{tab::mm_hiperparametros}. La elección del optimizador condiciona la
+velocidad y la estabilidad de la convergencia. Frente al descenso de gradiente
+estocástico (SGD), que requiere un ajuste cuidadoso de la tasa de aprendizaje,
+los métodos adaptativos como Adam~\cite{kingmaAdamMethod2015} ajustan la tasa por
+parámetro y suelen converger más rápido. En este trabajo se emplea su variante
+\textbf{AdamW}, que \textit{desacopla} el decaimiento de pesos
+(\textit{weight decay}) de la actualización del gradiente, lo que proporciona una
+regularización más efectiva y es hoy la opción recomendada para el ajuste fino de
+modelos preentrenados.
+
+La tasa de aprendizaje no se mantiene constante, sino que se adapta con un
+\textbf{planificador} (\textit{scheduler}). Existen estrategias predefinidas
+(reducción escalonada, decaimiento por coseno) y estrategias reactivas; se ha
+optado por \texttt{ReduceLROnPlateau}, que reduce la tasa cuando la pérdida de
+validación deja de mejorar. Esta opción no requiere conocer de antemano la
+duración del entrenamiento y se adapta a la dinámica real de cada arquitectura.
+El entrenamiento emplea además \textbf{precisión mixta automática} (AMP) en GPU,
+que combina cálculos en 16 y 32 bits para reducir el consumo de memoria y
+acelerar el cómputo sin pérdida apreciable de precisión.
+
+Para evitar el sobreajuste y el gasto innecesario de cómputo se aplica
+\textbf{parada temprana} (\textit{early stopping}): el entrenamiento se detiene
+cuando la pérdida de validación no mejora durante un número fijo de épocas. Al
+finalizar, no se conservan los pesos de la última época, sino los del epoch con
+mejor AUROC de validación, garantizando que el modelo final sea el de mejor
+capacidad de generalización observada.
 
 \begin{table}[h]
 \centering
@@ -327,14 +493,24 @@ Semilla & 42 & Reproducibilidad \\
 
 \subsection{Aumento de datos}
 
-Sobre el conjunto de entrenamiento se aplica aumento de datos para incrementar la
-variabilidad y reducir el sobreajuste: volteo horizontal aleatorio (probabilidad
-0,5) y una transformación afín aleatoria (rotación de hasta $10°$ y traslación de
-hasta el 5\,\%). Estas transformaciones simulan la variabilidad natural de
-posición del paciente sin introducir artefactos clínicamente incorrectos. Tras el
-aumento, las imágenes se redimensionan a $224 \times 224$ y se normalizan con la
-media y desviación estándar de ImageNet. En validación y prueba no se aplica
-aumento, para obtener una estimación determinista del rendimiento.
+El aumento de datos (\textit{data augmentation}) genera, en cada época, variantes
+ligeramente transformadas de las imágenes de entrenamiento, lo que incrementa la
+variabilidad efectiva del conjunto y reduce el sobreajuste. En imagen médica, sin
+embargo, las transformaciones deben elegirse con cautela: a diferencia de las
+imágenes naturales, alteraciones agresivas (rotaciones extremas, recortes amplios,
+distorsiones de intensidad) pueden producir radiografías anatómicamente
+imposibles e introducir artefactos que perjudiquen el aprendizaje. Por ello se
+aplican únicamente transformaciones suaves que simulan la variabilidad real del
+posicionamiento del paciente y del encuadre: \textbf{volteo horizontal} aleatorio
+(probabilidad 0,5) y una \textbf{transformación afín} aleatoria (rotación de hasta
+$10°$ y traslación de hasta el 5\,\%).
+
+Tras el aumento, las imágenes se redimensionan a $224 \times 224$ píxeles
+—resolución estándar de los modelos preentrenados en ImageNet— y se normalizan con
+la media y la desviación estándar de ImageNet, condición necesaria para que las
+estadísticas de entrada coincidan con las que el backbone vio durante su
+preentrenamiento. En validación y prueba no se aplica aumento alguno, con el fin
+de obtener una estimación determinista y reproducible del rendimiento.
 
 
 \section{Evaluación y métricas}
