@@ -219,24 +219,36 @@ elección se desarrolla en el Capítulo~\ref{sec::capitulo3}.
 \section{Gestión de la incertidumbre en el etiquetado}
 \label{sec::ec_incertidumbre}
 
-La extracción automática de etiquetas mediante NLP genera, para ciertas
-patologías, anotaciones \textit{inciertas}: hallazgos descritos como posibles o
-no concluyentes que no pueden tratarse directamente como positivos ni como
-negativos. El trabajo original de CheXpert~\cite{irvinCheXpertLargeChest2019}
-formaliza este problema y propone varias estrategias para el manejo de la
-etiqueta de incertidumbre (codificada con el valor $-1$), entre ellas ignorar
-las muestras inciertas (\textit{U-Ignore}), asignarlas a la clase negativa
-(\textit{U-Zeros}) o a la positiva (\textit{U-Ones}), o estimarlas mediante
-autoentrenamiento (\textit{U-SelfTrained}) o un planteamiento multiclase
-(\textit{U-MultiClass}).
+La incertidumbre en el etiquetado es un problema específico de los grandes
+repositorios anotados por NLP y, sin embargo, a menudo desatendido. Tiene un doble
+origen: la duda diagnóstica genuina del radiólogo, que en su informe emplea
+expresiones dubitativas (``posible'', ``no se puede descartar''), y la propia
+ambigüedad del proceso de extracción automática. El resultado es una etiqueta que
+no puede tratarse directamente como positiva ni como negativa y que, en CheXpert,
+afecta a una fracción no despreciable de las anotaciones, por lo que su
+tratamiento influye de forma apreciable en el modelo resultante.
 
-Más allá del tratamiento aislado de cada etiqueta, otros trabajos explotan las
-\textit{dependencias jerárquicas} entre patologías para producir predicciones
-clínicamente coherentes, integrando la estructura de relaciones entre hallazgos
-junto con el manejo explícito de la
-incertidumbre~\cite{phamInterpretingChestXrays2021}. La comparación sistemática
-de estas estrategias constituye uno de los objetivos de diseño del presente
-trabajo.
+El trabajo original de CheXpert~\cite{irvinCheXpertLargeChest2019} formaliza este
+problema mediante una etiqueta explícita de incertidumbre (codificada con el valor
+$-1$) y propone cinco estrategias para gestionarla, que constituyen el marco de
+referencia en la literatura: \textit{U-Ignore} (ignorar las muestras inciertas),
+\textit{U-Zeros} (asignarlas a la clase negativa), \textit{U-Ones} (asignarlas a
+la positiva), \textit{U-SelfTrained} (estimarlas mediante un modelo entrenado
+previamente) y \textit{U-MultiClass} (tratar la incertidumbre como una tercera
+categoría). Un hallazgo relevante de ese estudio, y de los que lo siguieron, es
+que \textbf{ninguna estrategia domina a las demás}: la más eficaz varía según la
+patología, lo que convierte la elección en una decisión empírica.
+
+Más allá del tratamiento aislado de cada etiqueta, líneas posteriores han
+explorado enfoques más sofisticados, como aprovechar las \textit{dependencias
+jerárquicas} entre patologías —ciertos hallazgos implican o excluyen a otros—
+para producir predicciones clínicamente coherentes, integrando esa estructura
+junto con el manejo de la incertidumbre~\cite{phamInterpretingChestXrays2021}, o
+el uso de técnicas de suavizado de etiquetas. La ausencia de un ganador claro
+motiva que la comparación de estas estrategias se plantee como una de las líneas
+de interés del presente trabajo, que adopta \textit{U-Ignore} como base de
+referencia por su carácter conservador, según se justifica en el
+Capítulo~\ref{sec::capitulo3}.
 
 
 \section{Inteligencia artificial explicable en imagen médica}
@@ -244,50 +256,74 @@ trabajo.
 
 La opacidad de las redes neuronales profundas, que operan como sistemas de
 ``caja negra'', constituye una barrera fundamental para su adopción clínica,
-donde la trazabilidad de las decisiones es un requisito
-ineludible~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
-La inteligencia artificial explicable (XAI) responde a esta necesidad mediante
-técnicas que hacen interpretable el razonamiento del modelo. En clasificación de
-imágenes, los métodos más extendidos son los basados en mapas de activación: el
-\textit{Class Activation Mapping} (CAM)~\cite{zhouLearningDeepFeatures2016} y, de
-forma destacada, \textbf{Grad-CAM}~\cite{selvarajuGradCAMVisualExplanations2017},
-que genera mapas de calor a partir de los gradientes que fluyen hacia la última
-capa convolucional, sin requerir modificaciones en la arquitectura. Su extensión
-\textbf{Grad-CAM++}~\cite{chattopadhyayGradCAMpp2018} mejora la localización
-cuando coexisten múltiples instancias de una misma clase, lo que resulta
-pertinente en la radiografía de tórax. Existen revisiones sistemáticas que
-recopilan y categorizan el conjunto de técnicas de XAI aplicadas al diagnóstico
-por imagen~\cite{patricioExplainableDeepLearning2023}.
+donde la trazabilidad y la justificación de cada decisión son requisitos
+ineludibles~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
+La Inteligencia Artificial Explicable (XAI) responde a esta necesidad, y sus
+técnicas pueden organizarse en una taxonomía clara. Una primera distinción separa
+los \textbf{modelos intrínsecamente interpretables} —transparentes por diseño,
+pero generalmente menos potentes— de los \textbf{métodos post-hoc}, que explican a
+posteriori un modelo opaco ya entrenado. Dentro de estos últimos, los métodos
+\textbf{agnósticos al modelo}, como LIME o SHAP, perturban la entrada y observan
+el efecto sobre la predicción, ofreciendo gran generalidad a costa de un elevado
+coste computacional, mientras que los métodos \textbf{específicos} aprovechan la
+estructura interna de la red, normalmente sus gradientes.
 
-No obstante, la fiabilidad de estos métodos no debe presuponerse. Estudios
-recientes con radiólogos han mostrado que algunos mapas de saliencia pueden ser
-sensibles a perturbaciones sutiles de la entrada, generando explicaciones poco
-robustas o no necesariamente alineadas con la evidencia
-clínica~\cite{zhangRevisitingTrustworthiness2024}. Esta cautela motiva que, en
-este trabajo, las explicaciones generadas mediante Grad-CAM se interpreten como
-una ayuda a la verificación por parte del especialista y no como una garantía de
-corrección del modelo.
+En clasificación de imágenes, los métodos más extendidos son los basados en
+\textbf{mapas de activación de clase}. El pionero, \textit{Class Activation
+Mapping} (CAM)~\cite{zhouLearningDeepFeatures2016}, identifica las regiones
+relevantes pero exige una arquitectura específica con \textit{global average
+pooling}. Su generalización,
+\textbf{Grad-CAM}~\cite{selvarajuGradCAMVisualExplanations2017}, supera esa
+restricción generando mapas de calor a partir de los gradientes que fluyen hacia
+la última capa convolucional, sin modificar la arquitectura, lo que explica su
+amplísima adopción. Variantes posteriores refinan aspectos concretos:
+\textbf{Grad-CAM++}~\cite{chattopadhyayGradCAMpp2018} mejora la localización
+cuando coexisten múltiples instancias de una misma clase —situación habitual en la
+radiografía de tórax—, y otras como Score-CAM buscan mayor robustez. Existen
+revisiones sistemáticas que recopilan y categorizan estas técnicas en el contexto
+del diagnóstico por imagen~\cite{patricioExplainableDeepLearning2023}.
+
+Ahora bien, un aspecto crítico, con frecuencia ignorado, es que \textbf{la
+fiabilidad de estos métodos no debe presuponerse}. Estudios recientes con
+radiólogos han evidenciado que algunos mapas de saliencia son sensibles a
+perturbaciones sutiles de la entrada y pueden generar explicaciones poco robustas
+o no alineadas con la evidencia clínica~\cite{zhangRevisitingTrustworthiness2024}.
+Esta constatación, lejos de invalidar la XAI, obliga a interpretarla con cautela:
+en este trabajo, las explicaciones generadas se conciben como una ayuda a la
+verificación por parte del especialista, nunca como una garantía de corrección del
+modelo.
 
 
 \section{Despliegue de modelos en entornos clínicos}
 \label{sec::ec_despliegue}
 
-La traslación de un modelo de investigación a la práctica clínica plantea retos
-que van más allá del rendimiento predictivo. La integración en el flujo de
-trabajo radiológico, la latencia de la inferencia, la monitorización continua y
-la conformidad con la normativa son factores críticos para una implantación
-real~\cite{korfiatisImplementingArtificial2025}. La incorporación de técnicas de
-explicabilidad y de cuantificación de la incertidumbre se considera un elemento
-clave para favorecer la confianza del facultativo y la integración efectiva en
-el entorno asistencial.
+Buena parte de la investigación en este campo concluye con la obtención de un
+modelo de alto rendimiento, sin abordar su traslación a la práctica, pese a que es
+precisamente en esa traslación donde reside la utilidad real. El despliegue
+clínico plantea retos que van mucho más allá del rendimiento predictivo: la
+integración en el flujo de trabajo radiológico —típicamente en torno a los
+sistemas PACS—, la latencia aceptable de la inferencia, la monitorización continua
+del comportamiento del modelo en producción y la conformidad con la normativa de
+producto sanitario y de protección de datos son factores determinantes para una
+implantación efectiva~\cite{korfiatisImplementingArtificial2025}. Estas
+exigencias sitúan el despliegue en el ámbito de la ingeniería de sistemas y de las
+operaciones de aprendizaje automático (MLOps), donde la contenedorización, la
+exposición del modelo mediante servicios y la reproducibilidad cobran tanta
+importancia como la propia precisión.
 
-En esta línea, la tendencia más reciente combina la información de la imagen con
-datos clínicos adicionales mediante esquemas de fusión multimodal, con el
-objetivo de refinar las predicciones y aproximarlas al razonamiento
-diagnóstico~\cite{liReviewDeepLearning2024, yangEnhancingChestXray2025}. El
-presente trabajo aborda el despliegue mediante una plataforma web que integra la
-inferencia del modelo y la visualización de las explicaciones, descrita en el
-Capítulo~\ref{sec::capitulo5}.
+En este contexto, la incorporación de técnicas de explicabilidad y de
+cuantificación de la incertidumbre se considera un elemento clave para favorecer
+la confianza del facultativo y la integración efectiva en el entorno asistencial.
+La tendencia más reciente avanza, además, hacia la \textbf{fusión multimodal},
+que combina la información de la imagen con datos clínicos del paciente —historia,
+informes previos— para refinar las predicciones y aproximarlas al razonamiento
+diagnóstico real~\cite{liReviewDeepLearning2024, yangEnhancingChestXray2025}.
+
+El presente trabajo se sitúa deliberadamente en esa frontera entre la
+investigación y la aplicación: aborda el despliegue mediante una plataforma web
+que integra la inferencia del modelo y la visualización de las explicaciones,
+acercando el sistema a un uso real. Su arquitectura y su implementación se
+describen en el Capítulo~\ref{sec::capitulo5}.
 
 
 \section{Limitaciones de la literatura actual}
