@@ -79,8 +79,15 @@ tres niveles de calidad de anotación:
   \item \textbf{Referencia \textit{gold standard}.} El conjunto de prueba de la
         competición (500 estudios anotados por ocho radiólogos, con verdad de
         referencia por mayoría de cinco) representa el máximo nivel de consenso
-        experto. Sin embargo, no es de acceso público, ya que se reservó para la
-        evaluación de la competición.
+        experto. Stanford \textbf{no lo hace público de forma deliberada}: si las
+        etiquetas del conjunto de prueba estuvieran disponibles, los
+        investigadores podrían ajustar sus modelos contra ellas y obtener
+        resultados artificialmente favorables, invalidando la comparación entre
+        métodos. Para preservar la integridad de la evaluación, esta se realiza
+        enviando el modelo ya entrenado al equipo de Stanford, que ejecuta la
+        inferencia sobre el conjunto oculto y publica las métricas oficiales. En
+        este trabajo no se ha seguido ese procedimiento, por lo que el conjunto
+        \textit{gold standard} no está disponible para la evaluación.
 \end{itemize}
 
 En general, se denomina \textit{gold standard} a la anotación de máxima calidad,
