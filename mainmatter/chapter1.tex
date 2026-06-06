@@ -4,91 +4,134 @@
 \label{ch::capitulo1}
 
 
-\section{Introducción y definición del problema}
+\section{Contexto y definición del problema}
 
-El diagnóstico médico por imagen constituye uno de los pilares de la medicina
-moderna. Dentro de este ámbito, la radiografía de tórax es la prueba de
-diagnóstico por imagen más frecuente a nivel global para la detección de
-patologías respiratorias, al tratarse de un procedimiento rápido, de bajo coste
-y mínimamente invasivo~\cite{irvinCheXpertLargeChest2019, lizDeepLearningMultilabel2023}.
-Sin embargo, su interpretación no está exenta de dificultades. La propia
-naturaleza de la prueba plantea desafíos como la superposición de estructuras
-anatómicas, la sutileza de ciertos signos radiológicos o la concurrencia de
-múltiples enfermedades en un mismo paciente, factores que contribuyen a una
-elevada variabilidad diagnóstica
-interobservador~\cite{rajpurkarCheXNetRadiologistLevel2017, lizEnsemblesConvolutional2021}.
+\subsection{El papel de la radiografía de tórax en el diagnóstico}
 
-A estas limitaciones intrínsecas se suma el carácter humano de los
-profesionales sanitarios: la fatiga del personal médico y la elevada carga
-asistencial incrementan tanto la probabilidad de error diagnóstico como los
-retrasos en la realización de intervenciones clínicas
-críticas~\cite{lizDeepLearningMultilabel2023}. En este contexto, surge la
-necesidad de herramientas automáticas que sirvan de apoyo al especialista,
-reduciendo el impacto de la subjetividad y la sobrecarga asistencial.
+El diagnóstico por imagen constituye uno de los pilares de la medicina moderna,
+al permitir visualizar de forma no invasiva el interior del organismo y orientar
+decisiones clínicas críticas. Dentro de las técnicas disponibles, la radiografía
+de tórax ocupa un lugar singular: es la prueba de imagen más realizada a escala
+mundial y, con frecuencia, la primera línea de exploración ante la sospecha de
+patología torácica~\cite{irvinCheXpertLargeChest2019, lizDeepLearningMultilabel2023}.
+Su predominio se explica por una combinación de factores difícilmente igualables
+por otras modalidades: es un procedimiento rápido, de bajo coste, ampliamente
+disponible —incluso en entornos con recursos limitados— y que somete al paciente
+a una dosis de radiación reducida.
 
-Los algoritmos de aprendizaje profundo (\textit{Deep Learning}, DL), y en
-especial las redes neuronales convolucionales (\textit{Convolutional Neural
-Networks}, CNN), que extraen información de las imágenes mediante la
-identificación de patrones espaciales, han demostrado en los últimos años ser
-una de las soluciones más eficaces en el análisis y diagnóstico de imágenes
-médicas, alcanzando niveles de fiabilidad iguales o superiores a los de
+Esta ubicuidad tiene como contrapartida un enorme volumen de estudios que deben
+ser interpretados, lo que ejerce una presión considerable sobre los servicios de
+radiología. La radiografía de tórax es, por tanto, no solo una herramienta
+diagnóstica fundamental, sino también un punto crítico en la carga de trabajo
+asistencial, lo que la convierte en un candidato idóneo para la introducción de
+sistemas de apoyo automatizados.
+
+\subsection{Los retos de la interpretación radiológica}
+
+Pese a su aparente sencillez, la interpretación de una radiografía de tórax dista
+de ser trivial. La técnica proyecta sobre un plano bidimensional estructuras
+anatómicas tridimensionales, lo que provoca la superposición de órganos y
+tejidos y dificulta la identificación de los hallazgos. A ello se añaden la
+sutileza de muchos signos radiológicos —apenas perceptibles en fases tempranas— y
+la frecuente concurrencia de varias patologías en un mismo paciente, que pueden
+enmascararse mutuamente. Estos factores se traducen en una elevada variabilidad
+diagnóstica entre observadores, e incluso en un mismo observador en momentos
+distintos~\cite{rajpurkarCheXNetRadiologistLevel2017, lizEnsemblesConvolutional2021}.
+
+A las dificultades intrínsecas de la prueba se suma el carácter humano del
+proceso. La fatiga acumulada, la presión asistencial y los turnos prolongados
+incrementan tanto la probabilidad de error como los retrasos en la detección de
+hallazgos urgentes, con el consiguiente impacto en la seguridad del
+paciente~\cite{lizDeepLearningMultilabel2023}. En conjunto, este escenario motiva
+la búsqueda de herramientas automáticas capaces de actuar como una segunda
+opinión objetiva y consistente, que mitigue la subjetividad y descargue al
+especialista de parte de la tarea de cribado.
+
+\subsection{El aprendizaje profundo en el diagnóstico por imagen}
+
+La irrupción del aprendizaje profundo (\textit{Deep Learning}, DL) ha
+transformado el análisis de imágenes en la última década. En particular, las
+redes neuronales convolucionales (\textit{Convolutional Neural Networks}, CNN),
+capaces de aprender de forma jerárquica patrones espaciales directamente a partir
+de los datos, sustituyeron a los métodos basados en características diseñadas
+manualmente y establecieron un nuevo estado del arte en reconocimiento de
+imágenes. Trasladada al ámbito médico, esta capacidad ha permitido alcanzar, en
+tareas concretas, niveles de fiabilidad comparables o superiores a los de los
 especialistas humanos~\cite{rajpurkarCheXNetRadiologistLevel2017, irvinCheXpertLargeChest2019, kermanyIdentifyingMedical2018}.
-No obstante, su aplicación en entornos clínicos se ve limitada por restricciones
-inherentes a los datos médicos, como el fuerte desequilibrio entre clases
-epidemiológicas y la naturaleza multietiqueta del diagnóstico, es decir, la
-presencia simultánea de varias patologías —tales como neumonía, edema o
-cardiomegalia— en un único paciente o
-imagen~\cite{lizDeepLearningMultilabel2023}.
 
-Finalmente, la Inteligencia Artificial Explicable (\textit{Explainable
-Artificial Intelligence}, XAI) surge de la necesidad, especialmente relevante en
-medicina, de explicar cómo y por qué un sistema toma una determinada decisión.
-Desde su concepción, las redes neuronales profundas han operado como sistemas de
-``caja negra'': se conocen las entradas y las salidas, pero se desconoce en gran
-medida el razonamiento interno del modelo. Esta falta de interpretabilidad
-resulta inadmisible en el ámbito sanitario, donde contraviene los principios de
-la auditoría clínica y genera desconfianza en el
-facultativo~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
-La XAI responde a la pregunta \textit{¿por qué?}, lo que en clasificación de
-imágenes suele materializarse en representaciones visuales —como los mapas de
-calor— que señalan las regiones de la imagen que han determinado la decisión del
-modelo, traduciendo los parámetros matemáticos en evidencia clínica
+Sin embargo, el éxito en condiciones de laboratorio no se traslada
+automáticamente a la práctica clínica. Los datos médicos presentan
+particularidades que limitan la aplicabilidad directa de estos modelos: un fuerte
+desequilibrio entre clases, derivado de la distinta prevalencia epidemiológica de
+las patologías; la naturaleza multietiqueta del diagnóstico, en la que varias
+patologías —neumonía, edema o cardiomegalia, entre otras— pueden coexistir en una
+misma imagen; y la incertidumbre inherente al etiquetado de los grandes
+repositorios~\cite{lizDeepLearningMultilabel2023}. Abordar estas restricciones
+constituye uno de los retos centrales de este trabajo.
+
+\subsection{El reto de la interpretabilidad}
+
+Una última barrera, de naturaleza distinta a las anteriores, condiciona la
+adopción clínica de estos sistemas: su opacidad. Desde su concepción, las redes
+neuronales profundas operan como sistemas de ``caja negra'', en los que se
+conocen las entradas y las salidas, pero el razonamiento interno que conduce de
+unas a otras resulta, en gran medida, inescrutable. En un dominio como el
+sanitario, donde cada decisión debe poder justificarse y auditarse, esta falta de
+transparencia es difícilmente admisible y genera una comprensible desconfianza en
+el facultativo~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
+
+La Inteligencia Artificial Explicable (\textit{Explainable Artificial
+Intelligence}, XAI) surge precisamente para responder a la pregunta
+\textit{¿por qué?}: dotar a las predicciones de una justificación comprensible
+para el ser humano. En clasificación de imágenes, esta justificación suele
+materializarse en representaciones visuales —como los mapas de calor— que
+resaltan las regiones de la radiografía determinantes para la decisión del
+modelo, traduciendo así sus parámetros matemáticos en evidencia clínica
 interpretable~\cite{rajpurkarCheXNetRadiologistLevel2017, selvarajuGradCAMVisualExplanations2017}.
+La integración de la explicabilidad no es, por tanto, un añadido accesorio, sino
+un requisito para que estas herramientas puedan ganarse la confianza del
+especialista.
 
 
 \section{Motivación}
 
-La motivación de este trabajo nace de la confluencia de los tres problemas
-anteriores: la dificultad inherente a la interpretación de la radiografía de
-tórax, el potencial demostrado del aprendizaje profundo para asistir en esta
-tarea, y la barrera que supone la opacidad de los modelos para su adopción
-clínica.
+La motivación de este trabajo nace de la confluencia de los problemas expuestos.
+Existe, por un lado, una necesidad clínica real —la interpretación de un volumen
+creciente de radiografías de tórax bajo presión asistencial— y, por otro, una
+tecnología, el aprendizaje profundo, cuyo potencial para asistir en esa tarea
+está sobradamente demostrado. Entre ambas se interpone, sin embargo, una doble
+barrera: las restricciones propias de los datos médicos (desbalanceo,
+multietiqueta, incertidumbre) y la opacidad de los modelos, que impide su
+adopción en un entorno donde la justificación de cada decisión es ineludible.
 
-Se propone, por tanto, el desarrollo de una herramienta que combine la capacidad
-de clasificación multietiqueta de las CNN con técnicas de explicabilidad, de
-modo que sirva de soporte tanto para el personal médico como, indirectamente,
-para los pacientes. Una vez alcanzado este objetivo, se dispondrá de un sistema
-capaz de asistir al personal sanitario en el diagnóstico de enfermedades
-torácicas, reduciendo el impacto derivado de la fatiga asistencial y la
-subjetividad en la interpretación radiológica, y de transformar modelos de
-``caja negra'' en sistemas transparentes capaces de justificar visualmente sus
-diagnósticos ante el especialista~\cite{lizEnsemblesConvolutional2021, lizDeepLearningMultilabel2023}.
+Este trabajo propone abordar esa brecha de forma integral, combinando la
+capacidad de clasificación multietiqueta de las CNN con técnicas de
+explicabilidad e integrando el resultado en una plataforma accesible. La
+finalidad última es disponer de un sistema capaz de asistir al personal sanitario
+en el diagnóstico de patologías torácicas —reduciendo el impacto de la fatiga y
+la subjetividad— y de transformar un modelo de ``caja negra'' en una herramienta
+transparente que justifique visualmente sus
+predicciones~\cite{lizEnsemblesConvolutional2021, lizDeepLearningMultilabel2023}.
 
-Es importante delimitar el alcance: el sistema se concibe como una
-\textbf{herramienta de apoyo a la decisión clínica}, nunca como un sustituto del
-juicio del radiólogo. El diagnóstico y el tratamiento finales recaen siempre
-sobre el profesional médico, que mantiene plena autoridad para validar,
-modificar o descartar la inferencia del modelo.
+Conviene delimitar con claridad el alcance del trabajo. El sistema se concibe
+como una \textbf{herramienta de apoyo a la decisión clínica}, en ningún caso como
+un sustituto del juicio del radiólogo. El diagnóstico y el tratamiento finales
+recaen siempre sobre el profesional médico, que conserva plena autoridad para
+validar, modificar o descartar la inferencia del modelo. Esta delimitación, lejos
+de ser una mera cautela, orienta decisiones de diseño a lo largo de todo el
+proyecto, desde la elección de las métricas hasta la incorporación de la
+explicabilidad.
 
 
 \section{Objetivos}
 
-El objetivo principal de este trabajo es \textbf{diseñar, entrenar y evaluar una
-arquitectura de aprendizaje profundo optimizada para la clasificación
-multietiqueta de patologías respiratorias}, utilizando el conjunto de datos
-CheXpert~\cite{irvinCheXpertLargeChest2019} como base empírica, e integrar dicho
-modelo en una \textbf{plataforma web interactiva} dotada de herramientas de
-Inteligencia Artificial Explicable.
+A partir del contexto anterior, se formulan a continuación el objetivo general y
+los subobjetivos que estructuran el trabajo. El objetivo principal es
+\textbf{diseñar, entrenar y evaluar una arquitectura de aprendizaje profundo
+optimizada para la clasificación multietiqueta de patologías respiratorias},
+utilizando el conjunto de datos CheXpert~\cite{irvinCheXpertLargeChest2019} como
+base empírica, e integrar dicho modelo en una \textbf{plataforma web interactiva}
+dotada de herramientas de Inteligencia Artificial Explicable.
 
 Para alcanzar este objetivo general, se establecen los siguientes subobjetivos:
 
