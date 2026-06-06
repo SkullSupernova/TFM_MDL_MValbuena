@@ -3,8 +3,241 @@
 \chapter{Estado de la cuestión}
 \label{ch::capitulo2}
 
+Este capítulo revisa los fundamentos y los trabajos más relevantes sobre los que
+se asienta el presente Trabajo Fin de Máster. Se parte del papel del aprendizaje
+profundo en el diagnóstico por imagen, se describen los conjuntos de datos y las
+arquitecturas de referencia para la clasificación de patologías torácicas, y se
+abordan los tres ejes centrales del trabajo: la clasificación multietiqueta en
+presencia de desbalanceo, la gestión de la incertidumbre en el etiquetado y la
+explicabilidad. El capítulo concluye situando la aportación del proyecto frente a
+la literatura existente.
 
-\section{Trabajos previos y estudios relevantes}
 
-\section{Limitaciones en la literatura}
+\section{El aprendizaje profundo en el diagnóstico por imagen}
+\label{sec::ec_dl_imagen}
 
+El aprendizaje profundo ha transformado el análisis de imágenes médicas durante
+la última década, desplazando a los métodos clásicos basados en la extracción
+manual de características en favor de modelos capaces de aprender
+representaciones jerárquicas directamente a partir de los
+datos~\cite{litjensSurveyDeepLearning2017, caiReviewApplicationDeep2020}. El
+punto de inflexión llegó con el éxito de las redes neuronales convolucionales
+(CNN) en la competición ImageNet~\cite{krizhevskyImageNetClassification2012,
+dengImageNet2009}, cuya capacidad para el reconocimiento de patrones espaciales
+se trasladó rápidamente al dominio biomédico.
+
+La versatilidad de las CNN en tareas de clasificación de imágenes se ha
+demostrado en dominios muy diversos, desde el diagnóstico de enfermedades de
+plantas~\cite{sharmaPlantDiseaseDiagnosis2022} o la clasificación de imágenes
+minerales~\cite{liuEfficientImageSegmentation2021} hasta la categorización de
+resonancias magnéticas cerebrales~\cite{krishnapriyaPretrainedDeepLearning2023}.
+En el ámbito médico, diversos estudios comparativos confirman que los enfoques
+de aprendizaje profundo superan de forma consistente a los algoritmos clásicos
+de aprendizaje automático cuando se dispone de volúmenes de datos
+suficientes~\cite{wangComparativeAnalysisImage2021, sharmaDeepLearningModels2022,
+bharadiyaConvolutionalNeuralNetworks2023}.
+
+Un factor determinante para esta adopción ha sido el \textit{aprendizaje por
+transferencia} (\textit{transfer learning}): la reutilización de modelos
+preentrenados sobre grandes repositorios de imágenes naturales como punto de
+partida para tareas médicas con datos
+limitados~\cite{plestedDeepTransferLearning2026}. Esta estrategia acelera la
+convergencia y mejora la generalización, y constituye una práctica habitual en
+el diagnóstico por imagen, incluida la radiografía de
+tórax~\cite{jenaArtificialIntelligenceBased2021, kermanyIdentifyingMedical2018}.
+
+
+\section{Conjuntos de datos de radiografía de tórax}
+\label{sec::ec_datasets}
+
+La disponibilidad de grandes repositorios públicos de radiografías de tórax
+anotadas ha sido el principal motor del progreso en este campo. El primero de
+gran escala fue \textbf{ChestX-ray8} (posteriormente ampliado a 14 patologías y
+conocido como \textit{ChestX-ray14}), publicado por el \textit{National
+Institutes of Health} (NIH) con más de 100.000 imágenes frontales etiquetadas
+mediante procesamiento del lenguaje natural (NLP) a partir de los informes
+radiológicos~\cite{wangChestXray8Hospital2017}. Le siguieron repositorios de
+mayor tamaño y calidad de anotación:
+\textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, de la Universidad de
+Stanford, con 224.316 imágenes y 14 observaciones clínicas;
+\textbf{MIMIC-CXR}~\cite{johnsonMIMICCXR2019}, con 377.110 imágenes e informes
+de texto libre; y \textbf{PadChest}~\cite{bustosPadChest2020}, con más de
+160.000 imágenes anotadas en español con una taxonomía jerárquica de 174
+hallazgos.
+
+Una limitación común a estos repositorios es que sus etiquetas se extraen de
+forma automática mediante NLP aplicado a los informes radiológicos, un proceso
+que introduce ruido e incertidumbre. Para mitigarlo se han desarrollado
+etiquetadores especializados como \textbf{CheXbert}~\cite{smitCheXbertCombining2020},
+que combina reglas automáticas con anotaciones de expertos mediante un modelo
+basado en BERT. Frente a este paradigma, conjuntos como
+\textbf{VinDr-CXR}~\cite{nguyenVinDrCXR2022} aportan anotaciones realizadas
+directamente por radiólogos, lo que permite contrastar la calidad del etiquetado
+automático con el consenso de expertos.
+
+En este trabajo se ha seleccionado CheXpert como base empírica por su tamaño, su
+adopción como referencia en la comunidad y, especialmente, por incorporar de
+forma explícita el problema de las etiquetas inciertas, que constituye uno de los
+ejes metodológicos del proyecto.
+
+
+\section{Arquitecturas para la clasificación de patologías torácicas}
+\label{sec::ec_arquitecturas}
+
+La evolución de las arquitecturas de clasificación de imágenes ha seguido una
+trayectoria de profundidad creciente y mayor eficiencia en la propagación del
+gradiente. Tras AlexNet~\cite{krizhevskyImageNetClassification2012}, las redes
+\textbf{VGG}~\cite{simonyanVeryDeepConvolutional2015} demostraron el valor de la
+profundidad con filtros pequeños, mientras que las redes
+residuales \textbf{ResNet}~\cite{heDeepResidualLearning2016} introdujeron las
+conexiones de atajo que permiten entrenar redes de cientos de capas. Las redes
+densamente conectadas \textbf{DenseNet}~\cite{huangDenselyConnectedConvolutional2017},
+en las que cada capa recibe como entrada las salidas de todas las anteriores,
+resultaron especialmente adecuadas para la radiografía de tórax: el trabajo
+\textbf{CheXNet}~\cite{rajpurkarCheXNetRadiologistLevel2017} empleó una
+DenseNet-121 para alcanzar un rendimiento comparable al de radiólogos en la
+detección de neumonía.
+
+Más recientemente, los \textit{transformers} de visión han irrumpido en el
+dominio. El \textbf{Swin Transformer}~\cite{liuSwinTransformer2021} introduce una
+atención jerárquica por ventanas que lo hace eficiente para imágenes de alta
+resolución, mientras que \textbf{ConvNeXt}~\cite{liuConvNet2020s2022} moderniza
+las CNN puras incorporando decisiones de diseño propias de los transformers.
+Estas líneas convergen en las \textit{arquitecturas híbridas CNN-Transformer},
+que combinan la extracción local de características de las convoluciones con la
+captura de dependencias globales de la
+atención~\cite{singhComputerAidedDiagnosis2024, oommenConvAttentionViT2024,
+fuExplainableHybridTransformer2025}.
+
+La elección de la arquitectura no es trivial y depende del conjunto de datos y de
+la tarea. Estudios comparativos sistemáticos sobre radiografía de tórax han
+evaluado múltiples arquitecturas CNN, situando los valores de área bajo la curva
+ROC (AUROC) en rangos de 0,83 a 0,89 según la patología y el
+modelo~\cite{bressemComparingDeepLearning2020}. La robustez de estos modelos
+frente a perturbaciones de la entrada es asimismo objeto de estudio activo, dado
+su impacto en la fiabilidad
+clínica~\cite{liuComprehensiveStudyRobustness2025}. En el presente trabajo se
+evalúan de forma comparativa varias de estas familias (DenseNet, ResNet, VGG,
+ConvNeXt y Swin) mediante aprendizaje por transferencia.
+
+
+\section{Clasificación multietiqueta y desbalanceo de clases}
+\label{sec::ec_multietiqueta}
+
+A diferencia de la clasificación multiclase, en la que cada muestra pertenece a
+una única categoría, el diagnóstico radiológico es intrínsecamente
+\textit{multietiqueta}: una misma radiografía puede presentar simultáneamente
+varias patologías no mutuamente excluyentes~\cite{zhangReviewMultiLabel2014}.
+Este planteamiento se aborda habitualmente prediciendo probabilidades
+independientes por patología mediante una capa de salida con activación
+sigmoide y una función de pérdida de entropía cruzada binaria.
+
+El principal obstáculo en este escenario es el fuerte \textit{desbalanceo de
+clases}: las patologías poco frecuentes están infrarrepresentadas, lo que sesga
+el entrenamiento hacia las clases mayoritarias~\cite{lizDeepLearningMultilabel2023}.
+Para mitigarlo se han propuesto diversas estrategias, entre las que destaca la
+ponderación de la función de pérdida de entropía cruzada binaria en función de
+la prevalencia de cada clase~\cite{usharubyBinaryCrossEntropy2020}, así como
+funciones objetivo orientadas directamente a optimizar el AUROC, más robustas
+ante el desbalanceo que las pérdidas
+convencionales~\cite{yuanLargeScaleRobustDeepAUC2021}. El problema se agrava en
+escenarios de cola larga (\textit{long-tailed}), donde un gran número de
+hallazgos raros coexiste con unas pocas clases muy
+frecuentes~\cite{holsteCXRLT2024}. En este trabajo se adopta una función de
+pérdida de entropía cruzada binaria ponderada como mecanismo principal para
+contrarrestar el desbalanceo.
+
+
+\section{Gestión de la incertidumbre en el etiquetado}
+\label{sec::ec_incertidumbre}
+
+La extracción automática de etiquetas mediante NLP genera, para ciertas
+patologías, anotaciones \textit{inciertas}: hallazgos descritos como posibles o
+no concluyentes que no pueden tratarse directamente como positivos ni como
+negativos. El trabajo original de CheXpert~\cite{irvinCheXpertLargeChest2019}
+formaliza este problema y propone varias estrategias para el manejo de la
+etiqueta de incertidumbre (codificada con el valor $-1$), entre ellas ignorar
+las muestras inciertas (\textit{U-Ignore}), asignarlas a la clase negativa
+(\textit{U-Zeros}) o a la positiva (\textit{U-Ones}), o estimarlas mediante
+autoentrenamiento (\textit{U-SelfTrained}) o un planteamiento multiclase
+(\textit{U-MultiClass}).
+
+Más allá del tratamiento aislado de cada etiqueta, otros trabajos explotan las
+\textit{dependencias jerárquicas} entre patologías para producir predicciones
+clínicamente coherentes, integrando la estructura de relaciones entre hallazgos
+junto con el manejo explícito de la
+incertidumbre~\cite{phamInterpretingChestXrays2021}. La comparación sistemática
+de estas estrategias constituye uno de los objetivos de diseño del presente
+trabajo.
+
+
+\section{Inteligencia artificial explicable en imagen médica}
+\label{sec::ec_xai}
+
+La opacidad de las redes neuronales profundas, que operan como sistemas de
+``caja negra'', constituye una barrera fundamental para su adopción clínica,
+donde la trazabilidad de las decisiones es un requisito
+ineludible~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
+La inteligencia artificial explicable (XAI) responde a esta necesidad mediante
+técnicas que hacen interpretable el razonamiento del modelo. En clasificación de
+imágenes, los métodos más extendidos son los basados en mapas de activación: el
+\textit{Class Activation Mapping} (CAM)~\cite{zhouLearningDeepFeatures2016} y, de
+forma destacada, \textbf{Grad-CAM}~\cite{selvarajuGradCAMVisualExplanations2017},
+que genera mapas de calor a partir de los gradientes que fluyen hacia la última
+capa convolucional, sin requerir modificaciones en la arquitectura. Su extensión
+\textbf{Grad-CAM++}~\cite{chattopadhyayGradCAMpp2018} mejora la localización
+cuando coexisten múltiples instancias de una misma clase, lo que resulta
+pertinente en la radiografía de tórax. Existen revisiones sistemáticas que
+recopilan y categorizan el conjunto de técnicas de XAI aplicadas al diagnóstico
+por imagen~\cite{patricioExplainableDeepLearning2023}.
+
+No obstante, la fiabilidad de estos métodos no debe presuponerse. Estudios
+recientes con radiólogos han mostrado que algunos mapas de saliencia pueden ser
+sensibles a perturbaciones sutiles de la entrada, generando explicaciones poco
+robustas o no necesariamente alineadas con la evidencia
+clínica~\cite{zhangRevisitingTrustworthiness2024}. Esta cautela motiva que, en
+este trabajo, las explicaciones generadas mediante Grad-CAM se interpreten como
+una ayuda a la verificación por parte del especialista y no como una garantía de
+corrección del modelo.
+
+
+\section{Despliegue de modelos en entornos clínicos}
+\label{sec::ec_despliegue}
+
+La traslación de un modelo de investigación a la práctica clínica plantea retos
+que van más allá del rendimiento predictivo. La integración en el flujo de
+trabajo radiológico, la latencia de la inferencia, la monitorización continua y
+la conformidad con la normativa son factores críticos para una implantación
+real~\cite{korfiatisImplementingArtificial2025}. La incorporación de técnicas de
+explicabilidad y de cuantificación de la incertidumbre se considera un elemento
+clave para favorecer la confianza del facultativo y la integración efectiva en
+el entorno asistencial.
+
+En esta línea, la tendencia más reciente combina la información de la imagen con
+datos clínicos adicionales mediante esquemas de fusión multimodal, con el
+objetivo de refinar las predicciones y aproximarlas al razonamiento
+diagnóstico~\cite{liReviewDeepLearning2024, yangEnhancingChestXray2025}. El
+presente trabajo aborda el despliegue mediante una plataforma web que integra la
+inferencia del modelo y la visualización de las explicaciones, descrita en el
+Capítulo~\ref{sec::capitulo5}.
+
+
+\section{Síntesis y posicionamiento del trabajo}
+\label{sec::ec_sintesis}
+
+La revisión anterior pone de manifiesto tres líneas de trabajo consolidadas pero
+con retos abiertos. En primer lugar, existe una amplia variedad de arquitecturas
+de aprendizaje profundo aplicables a la radiografía de tórax, sin que una sola
+domine de forma concluyente, lo que justifica una evaluación comparativa. En
+segundo lugar, el desbalanceo de clases y la incertidumbre del etiquetado siguen
+siendo problemas centrales que condicionan el rendimiento y requieren
+estrategias explícitas. En tercer lugar, la explicabilidad es imprescindible
+para la adopción clínica, pero su fiabilidad debe evaluarse con rigor y no
+asumirse.
+
+Este Trabajo Fin de Máster se posiciona en la intersección de estas tres líneas:
+propone una evaluación comparativa de arquitecturas para la clasificación
+multietiqueta sobre CheXpert, con tratamiento explícito del desbalanceo y de la
+incertidumbre, e integra la explicabilidad mediante Grad-CAM en una plataforma
+web desplegable. La metodología y los recursos empleados para ello se detallan
+en el Capítulo~\ref{sec::capitulo3}.
