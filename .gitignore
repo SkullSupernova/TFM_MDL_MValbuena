@@ -1,0 +1,39 @@
+# ============================================================
+# LaTeX — artefactos de compilación (generados, no rastrear)
+# ============================================================
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+*.synctex
+*.synctex.gz
+*.pdfsync
+*.fdb_latexmk
+
+# PDF generado (se puede recompilar desde las fuentes)
+main.pdf
+
+# ============================================================
+# Material auxiliar — papers, cuadernos, trabajos anteriores
+# ============================================================
+auxiliar/
+
+# ============================================================
+# Sistema operativo
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
