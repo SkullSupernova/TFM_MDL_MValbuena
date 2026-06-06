@@ -37,3 +37,9 @@ auxiliar/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ============================================================
+# Configuración local del entorno de trabajo
+# ============================================================
+.claude/
+CLAUDE.md
