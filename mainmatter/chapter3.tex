@@ -516,62 +516,144 @@ de obtener una estimación determinista y reproducible del rendimiento.
 \section{Evaluación y métricas}
 \label{sec::mm_metricas}
 
-La evaluación se realiza en dos niveles. En \textbf{validación}, durante el
-entrenamiento, se monitoriza el AUROC-macro (área bajo la curva ROC promediada
-sobre las clases evaluables), que es independiente del umbral de decisión y
-robusto frente al desbalanceo; este criterio determina la selección del mejor
-epoch. En el conjunto de \textbf{prueba} \textit{silver-standard} se calcula un
-conjunto más amplio de métricas por patología y agregadas: AUROC, PR-AUC (área
-bajo la curva de precisión-exhaustividad), precisión, exhaustividad y F1, además
-del AUROC promediado sobre las cinco patologías de la competición oficial de
-CheXpert (\textit{Atelectasis}, \textit{Cardiomegaly}, \textit{Consolidation},
-\textit{Edema} y \textit{Pleural Effusion}), bien representadas en el conjunto de
-prueba.
+\subsection{Elección de las métricas}
 
-La selección del modelo de producción se realiza mediante un \textbf{mecanismo de
-promoción} automático: un modelo recién entrenado solo reemplaza al mejor modelo
-registrado para su mismo par (arquitectura, configuración de clases) si mejora el
-AUROC de las cinco patologías oficiales sobre el conjunto de prueba por encima de
-un margen mínimo (0,005), empleándose el F1-macro como criterio de desempate.
-Este margen evita sustituciones por ruido estadístico. Las predicciones binarias,
-cuando se requieren, se obtienen con un umbral de 0,5.
+La elección de las métricas de evaluación es crítica en problemas con clases
+desbalanceadas. La \textbf{exactitud} (\textit{accuracy}) —proporción de aciertos—
+resulta engañosa en este contexto: si una patología aparece en el 2\,\% de los
+casos, un modelo que prediga siempre el negativo alcanzaría un 98\,\% de exactitud
+sin detectar ningún caso positivo. Por ello se recurre a métricas más
+informativas. La \textbf{curva ROC} y su área (\textbf{AUROC}) miden la capacidad
+de discriminación del modelo de forma independiente del umbral de decisión, lo que
+las hace robustas frente al desbalanceo. La \textbf{curva de
+precisión-exhaustividad} y su área (\textbf{PR-AUC}) son especialmente
+informativas cuando los positivos son escasos, pues se centran en el rendimiento
+sobre la clase minoritaria. Finalmente, la métrica \textbf{F1} resume en un único
+valor el equilibrio entre precisión y exhaustividad a un umbral dado.
+
+En este trabajo se emplea como métrica principal el \textbf{AUROC promediado por
+clases} (AUROC-macro), por su independencia del umbral y su robustez ante el
+desbalanceo, complementado con PR-AUC, precisión, exhaustividad y F1 para una
+caracterización completa del rendimiento por patología. La exactitud se reporta
+únicamente como referencia, consciente de sus limitaciones.
+
+\subsection{Protocolo de evaluación}
+
+La evaluación se realiza en dos niveles. Durante el entrenamiento, sobre el
+conjunto de \textbf{validación}, se monitoriza el AUROC-macro, que determina la
+selección del mejor epoch. Sobre el conjunto de \textbf{prueba}
+\textit{silver-standard} se calcula el conjunto completo de métricas por patología
+y agregadas, prestando especial atención al \textbf{AUROC promediado sobre las
+cinco patologías de la competición oficial de CheXpert} (\textit{Atelectasis},
+\textit{Cardiomegaly}, \textit{Consolidation}, \textit{Edema} y \textit{Pleural
+Effusion}). Estas cinco observaciones se han escogido como referencia principal de
+comparación por dos razones: están bien representadas en el conjunto de prueba
+—lo que proporciona estimaciones estables—, y constituyen el estándar de
+comparación con la literatura, al ser las empleadas en la competición oficial.
+
+La selección automática del modelo de producción se realiza mediante un
+\textbf{mecanismo de promoción}: un modelo recién entrenado solo reemplaza al
+mejor modelo registrado para su mismo par (arquitectura, configuración de clases)
+si mejora el AUROC de las cinco patologías oficiales por encima de un margen
+mínimo (0,005), con el F1-macro como criterio de desempate. La función de este
+margen es evitar que el ruido estadístico provoque sustituciones espurias. Las
+predicciones binarias, cuando se requieren, se obtienen con un umbral de decisión
+de 0,5; cabe señalar que la optimización de este umbral por patología constituye
+una vía de mejora no explorada en este trabajo.
 
 
 \section{Explicabilidad mediante Grad-CAM}
 \label{sec::mm_gradcam}
 
-Para dotar al sistema de capacidad explicativa se emplea
-\textbf{Grad-CAM}~\cite{selvarajuGradCAMVisualExplanations2017}, que genera mapas
-de calor a partir de los gradientes que fluyen hacia la última capa convolucional
-del modelo, señalando las regiones de la imagen más influyentes en la predicción
-de cada patología. La capa objetivo se selecciona de forma específica para cada
-arquitectura (la última etapa convolucional del backbone); en el caso del Swin
-Transformer, cuya salida conserva los tokens en formato \textit{channels-last},
-se aplica una reorganización de ejes para adaptarla al formato espacial que
-espera Grad-CAM. Esta técnica no requiere modificar la arquitectura ni reentrenar
-el modelo. Las explicaciones generadas se integran en la plataforma web
-(Capítulo~\ref{sec::capitulo5}) y se interpretan como una ayuda a la verificación
-por parte del especialista, no como una garantía de corrección del modelo, en
-línea con las cautelas señaladas en la literatura sobre la fiabilidad de los
-mapas de saliencia~\cite{zhangRevisitingTrustworthiness2024}.
+\subsection{Alternativas de explicabilidad}
+
+Las técnicas de Inteligencia Artificial Explicable (XAI) pueden agruparse en dos
+grandes familias: los \textbf{modelos intrínsecamente interpretables}, cuyo
+funcionamiento es transparente por diseño (árboles de decisión, modelos
+lineales), y los \textbf{métodos post-hoc}, que explican \textit{a posteriori} las
+predicciones de un modelo opaco ya entrenado. Dado que las redes neuronales
+profundas son inherentemente opacas y que su capacidad predictiva es el objetivo
+prioritario, en este trabajo se recurre a un método post-hoc.
+
+Dentro de los métodos post-hoc para imagen existen, a su vez, dos enfoques. Los
+basados en \textbf{perturbación} —como LIME o SHAP— alteran sistemáticamente
+regiones de la entrada y observan el cambio en la predicción; son agnósticos al
+modelo pero computacionalmente costosos, al requerir numerosas inferencias por
+imagen. Los basados en \textbf{gradiente} aprovechan la información que ya
+proporciona la retropropagación. Entre estos últimos, el \textit{Class Activation
+Mapping} (CAM)~\cite{zhouLearningDeepFeatures2016} fue pionero, pero exige una
+arquitectura específica (con \textit{global average pooling} antes de la salida).
+Su generalización, \textbf{Grad-CAM}~\cite{selvarajuGradCAMVisualExplanations2017},
+elimina esa restricción, y variantes posteriores como
+Grad-CAM++~\cite{chattopadhyayGradCAMpp2018} o Score-CAM mejoran aspectos
+concretos de la localización.
+
+\subsection{Técnica adoptada y justificación}
+
+Se ha elegido \textbf{Grad-CAM} por ofrecer el mejor equilibrio entre fidelidad,
+coste y generalidad: genera mapas de calor a partir de los gradientes que fluyen
+hacia la última capa convolucional, señalando las regiones más influyentes en la
+predicción de cada patología, con una única pasada adicional y \textbf{sin
+necesidad de modificar la arquitectura ni reentrenar el modelo}. Frente a CAM, es
+aplicable a cualquiera de los backbones evaluados; frente a LIME o SHAP, es mucho
+más eficiente, lo que resulta determinante para su integración en una aplicación
+web con inferencia en tiempo real. La capa objetivo se selecciona de forma
+específica para cada arquitectura (la última etapa convolucional del backbone); en
+el caso del Swin Transformer, cuya salida conserva los tokens en formato
+\textit{channels-last}, se aplica una reorganización de ejes para adaptarla al
+formato espacial que espera Grad-CAM.
+
+Como \textbf{inconveniente}, debe tenerse presente que la fiabilidad de los mapas
+de saliencia no está garantizada: pueden ser sensibles a perturbaciones de la
+entrada y no coincidir siempre con la evidencia
+clínica~\cite{zhangRevisitingTrustworthiness2024}. Por ello, las explicaciones
+generadas se integran en la plataforma web (Capítulo~\ref{sec::capitulo5}) y se
+interpretan como una \textbf{ayuda a la verificación} por parte del especialista,
+nunca como una garantía de corrección del modelo.
 
 
 \section{Gestión de experimentos y reproducibilidad}
 \label{sec::mm_reproducibilidad}
 
-Cada ejecución de entrenamiento se documenta de forma automática y trazable. El
-sistema registra, por cada experimento, los metadatos de ejecución (identificador
-del \textit{commit} de git, hardware, duración, mejor epoch), la configuración
-empleada, la distribución de clases de los conjuntos, el historial de métricas
-por época, las métricas finales de validación y prueba por patología, las
-predicciones almacenadas, un análisis de los peores casos (falsos positivos y
-negativos) y las figuras de evaluación. Un registro centralizado mantiene el
-mejor modelo por cada par (arquitectura, configuración de clases) y un índice
-acumulado (\textit{leaderboard}) permite comparar las ejecuciones.
+La reproducibilidad es uno de los grandes retos del aprendizaje automático
+contemporáneo: numerosos resultados publicados resultan difíciles de replicar por
+la combinación de aleatoriedad, dependencias de software no documentadas y
+ausencia de trazabilidad. Garantizarla es, por tanto, un requisito metodológico
+ineludible, y se aborda en este trabajo en dos frentes: el control de la
+aleatoriedad y el seguimiento de los experimentos.
 
-La reproducibilidad se garantiza fijando una semilla global única que controla
-todas las fuentes de aleatoriedad (la variable \texttt{PYTHONHASHSEED}, los
-generadores de NumPy, del módulo \texttt{random} de Python y de PyTorch en CPU y
-GPU) y activando el modo determinista de cuDNN. El entorno de ejecución, basado
-en PyTorch~\cite{paszkePyTorch2019}, y el código completo se documentan en el
-repositorio del proyecto (Capítulo~\ref{sec::capitulo7}).
+\subsection{Control de la aleatoriedad}
+
+Un entrenamiento de aprendizaje profundo incorpora múltiples fuentes de
+aleatoriedad independientes: la inicialización de los pesos, el barajado de los
+datos, el \textit{dropout} y las operaciones no deterministas de la GPU. Para que
+dos ejecuciones con la misma configuración produzcan resultados idénticos, se fija
+una \textbf{semilla global única} que controla todas ellas: la variable de entorno
+\texttt{PYTHONHASHSEED}, y los generadores de NumPy, del módulo \texttt{random} de
+Python y de PyTorch en CPU y GPU. Adicionalmente, se activa el modo
+\textbf{determinista} de la biblioteca cuDNN. Este último tiene una contrapartida:
+los algoritmos deterministas pueden ser algo más lentos que los optimizados por
+rendimiento, un coste asumible a cambio de la reproducibilidad exacta.
+
+\subsection{Seguimiento de experimentos}
+
+El seguimiento de experimentos (\textit{experiment tracking}) puede abordarse con
+plataformas especializadas —como MLflow o Weights \& Biases—, que ofrecen paneles
+visuales y registro centralizado, o con una solución propia basada en ficheros.
+En este trabajo se ha optado por un sistema \textbf{basado en ficheros}
+integrado en el propio repositorio, por su simplicidad, la ausencia de
+dependencias y servicios externos, y porque mantiene toda la trazabilidad junto al
+código, lo que facilita la auditoría. Su principal inconveniente es la menor
+riqueza visual frente a las plataformas dedicadas, no determinante para los
+objetivos del proyecto.
+
+El sistema registra, por cada experimento, los metadatos de ejecución
+(identificador del \textit{commit} de git, hardware, duración, mejor epoch), la
+configuración empleada, la distribución de clases de los conjuntos, el historial
+de métricas por época, las métricas finales de validación y prueba por patología,
+las predicciones almacenadas, un análisis de los peores casos (falsos positivos y
+negativos) y las figuras de evaluación. Un registro centralizado mantiene el mejor
+modelo por cada par (arquitectura, configuración de clases) y un índice acumulado
+(\textit{leaderboard}) permite comparar las ejecuciones. El entorno de ejecución,
+basado en PyTorch~\cite{paszkePyTorch2019}, y el código completo se documentan en
+el repositorio del proyecto (Capítulo~\ref{sec::capitulo7}).
