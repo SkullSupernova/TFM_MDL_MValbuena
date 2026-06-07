@@ -277,8 +277,6 @@ Se definen tres configuraciones:
 
 \begin{table}[h]
 \centering
-\caption{Configuraciones de clases evaluadas en el trabajo.}
-\label{tab::mm_configs}
 \begin{tabularx}{\textwidth}{l c X}
 \toprule
 \textbf{Configuración} & \textbf{N.º clases} & \textbf{Descripción} \\
@@ -288,6 +286,8 @@ Se definen tres configuraciones:
 \texttt{min5pct9} & 9 & Elimina las clases de prevalencia inferior al 5\,\% (\textit{Enlarged Cardiomediastinum}, \textit{Lung Lesion}, \textit{Pneumonia} y \textit{Fracture}). Descarta los estudios sin ninguna etiqueta positiva en las clases activas. \\
 \bottomrule
 \end{tabularx}
+\caption{Configuraciones de clases evaluadas en el trabajo.}
+\label{tab::mm_configs}
 \end{table}
 
 \subsection{Diseño experimental}
@@ -486,8 +486,6 @@ capacidad de generalización observada.
 
 \begin{table}[h]
 \centering
-\caption{Hiperparámetros de entrenamiento.}
-\label{tab::mm_hiperparametros}
 \begin{tabularx}{\textwidth}{l l X}
 \toprule
 \textbf{Hiperparámetro} & \textbf{Valor} & \textbf{Descripción} \\
@@ -501,6 +499,8 @@ Precisión mixta & AMP & Activada en GPU \\
 Semilla & 42 & Reproducibilidad \\
 \bottomrule
 \end{tabularx}
+\caption{Hiperparámetros de entrenamiento.}
+\label{tab::mm_hiperparametros}
 \end{table}
 
 \subsection{Aumento de datos}

@@ -36,6 +36,20 @@
 \usepackage{emptypage}   % no headers in empty pages
 \usepackage[small,hang,bf]{caption}    % caption options
 \usepackage{subcaption}
+\captionsetup{position=bottom}   % pies de tabla y figura DEBAJO del contenido
+
+% --------------------------
+% Marcador de figura pendiente: dibuja un recuadro descriptivo que indica qué
+% imagen debe ir en cada ubicación. Se sustituye por \includegraphics al
+% disponer de la figura definitiva. Argumentos: [ancho]{ruta sugerida}{descripción}.
+% --------------------------
+\newcommand{\figuraplaceholder}[3][0.75\textwidth]{%
+  \setlength{\fboxsep}{12pt}%
+  \fbox{\parbox[c][5cm][c]{#1}{%
+    \centering\itshape\small
+    [FIGURA PENDIENTE]\\[6pt]#3\\[8pt]%
+    \normalfont\ttfamily\footnotesize #2}}%
+}
 
 % --------------------------
 % Formato de títulos de capítulo: "1. Título" en una sola línea
