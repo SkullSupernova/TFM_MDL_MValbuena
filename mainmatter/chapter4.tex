@@ -3,6 +3,307 @@
 \chapter{Resultados y análisis}
 \label{sec::capitulo4}
 
-\section{Resultados obtenidos}
+Este capítulo presenta y analiza los resultados experimentales. Se describe primero
+el protocolo seguido y el conjunto de ejecuciones válidas; a continuación se
+comparan las arquitecturas bajo una configuración de clases común y se estudia el
+efecto de reducir el conjunto de clases; por último, se realiza un análisis global,
+se ilustran las explicaciones generadas mediante Grad-CAM y se discuten las
+limitaciones de los resultados. Todas las cifras proceden de los registros
+automáticos de los experimentos y se acompañan de intervalos de confianza para
+sustentar las conclusiones con rigor estadístico.
 
-\section{Comparativa con otros enfoques y baseline}
+
+\section{Protocolo experimental y conjunto de ejecuciones}
+\label{sec::res_protocolo}
+
+El objetivo experimental es doble: comparar arquitecturas de visión representativas
+de los principales paradigmas bajo un protocolo idéntico y medir el efecto de la
+configuración de clases. Las arquitecturas consideradas se resumen en la
+Tabla~\ref{tab::res_arqs}.
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{l X c}
+\toprule
+\textbf{Arquitectura} & \textbf{Paradigma} & \textbf{Parámetros (aprox.)} \\
+\midrule
+DenseNet-121 & CNN densamente conectada (referencia en radiografía de tórax) & $\sim$7\,M \\
+ResNet-50 & CNN residual & $\sim$25\,M \\
+ConvNeXt-Tiny & CNN moderna inspirada en transformers & $\sim$28\,M \\
+Swin-Tiny & Transformer de visión jerárquico & $\sim$28\,M \\
+VGG16-BN & CNN secuencial clásica (no entrenada) & $\sim$138\,M \\
+\bottomrule
+\end{tabularx}
+\caption{Arquitecturas consideradas y sus paradigmas. VGG16-BN se excluyó del
+entrenamiento por su coste (véase el texto).}
+\label{tab::res_arqs}
+\end{table}
+
+Todas las ejecuciones comparten el protocolo descrito en el
+Capítulo~\ref{sec::capitulo3}: etiquetas de entrenamiento generadas con CheXbert,
+división por paciente 90/10 sin fuga de información, función de pérdida
+\texttt{BCEWithLogitsLoss} con \texttt{pos\_weight} por clase, optimizador AdamW
+($\text{lr}=10^{-4}$, \textit{weight decay} $0{,}01$), planificador
+\texttt{ReduceLROnPlateau}, precisión mixta automática, selección de época por AUROC
+de validación y parada temprana. El entrenamiento se realizó sobre una NVIDIA RTX
+4060 de 8\,GB. La \textbf{métrica principal} es la AUROC media de las cinco
+patologías oficiales de CheXpert (\textit{Atelectasis}, \textit{Cardiomegaly},
+\textit{Consolidation}, \textit{Edema} y \textit{Pleural Effusion}), evaluada sobre
+el conjunto de prueba \textit{silver-standard} (169 imágenes Frontal+AP), idéntico
+para todas las ejecuciones.
+
+\subsection{Cuantificación de la incertidumbre}
+
+Dado que el conjunto de prueba es reducido, comparar puntos estimados aislados
+sería engañoso. Para acotar la incertidumbre se calculan \textbf{intervalos de
+confianza al 95\,\% por \textit{bootstrap}}: se remuestrean con reemplazo las 169
+imágenes del test en 2000 réplicas y se recalcula cada métrica, tomando los
+percentiles 2,5 y 97,5 como límites del intervalo. Este procedimiento estima la
+variabilidad debida al muestreo del conjunto de prueba; no captura, en cambio, la
+variabilidad por inicialización, dado que se emplea una única semilla por
+ejecución (una limitación analizada en la Sección~\ref{sec::res_limitaciones}).
+
+\subsection{Conjunto de ejecuciones válidas y exclusión de VGG16-BN}
+
+El estudio comprende \textbf{nueve ejecuciones válidas}: las cuatro arquitecturas
+entrenadas sobre las configuraciones \texttt{nofracture12} (12 clases) y
+\texttt{min5pct9} (9 clases), más una ablación de DenseNet-121 sobre
+\texttt{full13} (13 clases). La arquitectura \textbf{VGG16-BN se excluyó del
+entrenamiento}: con un lote de 64 imágenes en 8\,GB de memoria, su coste estimado
+superaba las 45 horas por ejecución —aproximadamente veinte veces el de
+DenseNet-121—, un esfuerzo desproporcionado frente a su escaso valor añadido, dado
+que las otras cuatro arquitecturas ya cubren los paradigmas relevantes (CNN
+residual, CNN densa, CNN moderna y transformer). En consecuencia, la comparación
+efectiva se realiza sobre \textbf{cuatro arquitecturas}.
+
+
+\section{Comparación de arquitecturas}
+\label{sec::res_arquitecturas}
+
+La Tabla~\ref{tab::res_nofracture12} recoge los resultados de las cuatro
+arquitecturas sobre la configuración \texttt{nofracture12}, que actúa como base de
+comparación por conservar doce patologías. Las filas se ordenan por la métrica
+principal de forma descendente.
+
+\begin{table}[h]
+\centering
+\setlength{\tabcolsep}{3pt}\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc r}
+\toprule
+\textbf{Arquitectura} & \textbf{AUROC CheXpert-5} & \textbf{AUROC-macro} & \textbf{PR-AUC-macro} & \textbf{F1-macro} & \textbf{Épocas} & \textbf{Dur. (min)} \\
+ & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & & & \\
+\midrule
+ConvNeXt-Tiny & \textbf{0.8536} \scriptsize[0.826, 0.880] & 0.8129 \scriptsize[0.793, 0.852] & 0.6181 \scriptsize[0.584, 0.722] & 0.4809 & 12 & 147 \\
+ResNet-50 & 0.8517 \scriptsize[0.824, 0.879] & 0.7978 \scriptsize[0.768, 0.858] & 0.5992 \scriptsize[0.568, 0.705] & \textbf{0.5062} & 13 & 138 \\
+DenseNet-121 & 0.8497 \scriptsize[0.821, 0.877] & \textbf{0.8229} \scriptsize[0.803, 0.865] & 0.6136 \scriptsize[0.583, 0.724] & 0.4968 & 13 & 131 \\
+Swin-Tiny & 0.8438 \scriptsize[0.815, 0.871] & 0.7924 \scriptsize[0.773, 0.861] & 0.6162 \scriptsize[0.584, 0.725] & 0.5040 & 17 & 186 \\
+\bottomrule
+\end{tabular}}
+\caption{Resultados sobre la configuración \texttt{nofracture12} (12 clases) en el
+test \textit{silver-standard} (169 imágenes), con intervalos de confianza
+\textit{bootstrap} al 95\,\%. En negrita, el mejor valor de cada columna.}
+\label{tab::res_nofracture12}
+\end{table}
+
+ConvNeXt-Tiny obtiene el punto estimado más alto en la métrica principal (0.8536),
+seguido muy de cerca por ResNet-50 y DenseNet-121, con Swin-Tiny algo por debajo.
+Sin embargo, las diferencias son reducidas y, como se analiza en la
+Sección~\ref{sec::res_analisis}, los intervalos de confianza se solapan por
+completo. La Figura~\ref{fig::roc_nofracture12} muestra las curvas ROC
+correspondientes y la Figura~\ref{fig::barras_auroc} compara visualmente la métrica
+principal con sus intervalos.
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/roc-nofracture12.png}{Curvas ROC de las cuatro arquitecturas sobre la configuración \texttt{nofracture12} (test silver). Generada en \texttt{experiments/<run\_id>/plots/roc\_curves\_test.png}.}
+\caption{Curvas ROC de las cuatro arquitecturas (configuración \texttt{nofracture12}).}
+\label{fig::roc_nofracture12}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/barras-auroc-arquitecturas.png}{Diagrama de barras de la AUROC CheXpert-5 por arquitectura, con barras de error correspondientes a los intervalos de confianza al 95\,\%, que evidencian su solapamiento.}
+\caption{AUROC CheXpert-5 por arquitectura con intervalos de confianza al 95\,\%
+(configuración \texttt{nofracture12}).}
+\label{fig::barras_auroc}
+\end{figure}
+
+
+\section{Efecto de la configuración de clases}
+\label{sec::res_config}
+
+La Tabla~\ref{tab::res_min5pct9} presenta los resultados de las mismas cuatro
+arquitecturas sobre la configuración \texttt{min5pct9}, que conserva únicamente las
+nueve clases de prevalencia igual o superior al 5\,\%.
+
+\begin{table}[h]
+\centering
+\setlength{\tabcolsep}{3pt}\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc r}
+\toprule
+\textbf{Arquitectura} & \textbf{AUROC CheXpert-5} & \textbf{AUROC-macro} & \textbf{PR-AUC-macro} & \textbf{F1-macro} & \textbf{Épocas} & \textbf{Dur. (min)} \\
+ & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & & & \\
+\midrule
+ConvNeXt-Tiny & \textbf{0.8505} \scriptsize[0.823, 0.877] & \textbf{0.8788} \scriptsize[0.860, 0.897] & \textbf{0.7331} \scriptsize[0.681, 0.798] & 0.6022 & 12 & 85 \\
+ResNet-50 & 0.8422 \scriptsize[0.813, 0.869] & 0.8751 \scriptsize[0.853, 0.895] & 0.7091 \scriptsize[0.662, 0.783] & \textbf{0.6051} & 13 & 85 \\
+Swin-Tiny & 0.8404 \scriptsize[0.811, 0.868] & 0.8673 \scriptsize[0.836, 0.893] & 0.7313 \scriptsize[0.675, 0.801] & 0.5941 & 18 & 235 \\
+DenseNet-121 & 0.8256 \scriptsize[0.793, 0.855] & 0.8578 \scriptsize[0.829, 0.883] & 0.7038 \scriptsize[0.653, 0.775] & 0.5768 & 14 & 96 \\
+\bottomrule
+\end{tabular}}
+\caption{Resultados sobre la configuración \texttt{min5pct9} (9 clases) en el test
+\textit{silver-standard}, con intervalos de confianza \textit{bootstrap} al 95\,\%.}
+\label{tab::res_min5pct9}
+\end{table}
+
+Al comparar ambas configuraciones se observa una mejora sustancial de las métricas
+promediadas por clase: la AUROC-macro y la PR-AUC-macro crecen de forma notable al
+pasar de doce a nueve clases. Para aislar este efecto del de la arquitectura, la
+Tabla~\ref{tab::ablacion} presenta una ablación con DenseNet-121 sobre las tres
+configuraciones de clases.
+
+\begin{table}[h]
+\centering
+\setlength{\tabcolsep}{5pt}\footnotesize
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Configuración} & \textbf{Clases} & \textbf{AUROC CheXpert-5} & \textbf{AUROC-macro} & \textbf{PR-AUC-macro} & \textbf{F1-macro} \\
+ & & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & \\
+\midrule
+\texttt{full13} & 13 & 0.8451 \scriptsize[0.814, 0.873] & 0.7988 \scriptsize[0.773, 0.857] & 0.6035 \scriptsize[0.574, 0.705] & 0.4555 \\
+\texttt{nofracture12} & 12 & 0.8497 \scriptsize[0.821, 0.877] & 0.8229 \scriptsize[0.803, 0.865] & 0.6136 \scriptsize[0.583, 0.724] & 0.4968 \\
+\texttt{min5pct9} & 9 & 0.8256 \scriptsize[0.793, 0.855] & 0.8578 \scriptsize[0.829, 0.883] & 0.7038 \scriptsize[0.653, 0.775] & 0.5768 \\
+\bottomrule
+\end{tabular}
+\caption{Ablación de la configuración de clases con DenseNet-121. Al reducir el
+número de clases (13$\rightarrow$12$\rightarrow$9), las métricas macro y el
+F1-macro crecen de forma monótona, mientras que la AUROC CheXpert-5 se mantiene
+estable.}
+\label{tab::ablacion}
+\end{table}
+
+La ablación confirma la tendencia: la AUROC-macro pasa de 0.799 a 0.823 y a 0.858,
+y el F1-macro de 0.456 a 0.497 y a 0.577, de forma monótona al eliminar clases. En
+cambio, la AUROC CheXpert-5 se mantiene estable (0.845 / 0.850 / 0.826), porque las
+cinco patologías oficiales están presentes en las tres configuraciones. La
+Figura~\ref{fig::barras_macro} ilustra esta evolución.
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/barras-auroc-macro-config.png}{Diagrama de barras de la AUROC-macro y la PR-AUC-macro por configuración de clases (full13, nofracture12, min5pct9), con sus intervalos de confianza, mostrando la mejora significativa al reducir clases.}
+\caption{Evolución de las métricas macro al reducir el conjunto de clases.}
+\label{fig::barras_macro}
+\end{figure}
+
+
+\section{Análisis}
+\label{sec::res_analisis}
+
+\subsection{Equivalencia estadística entre arquitecturas}
+
+En la métrica principal, los intervalos de confianza de las cuatro arquitecturas
+\textbf{se solapan por completo} en ambas configuraciones. En \texttt{nofracture12},
+los puntos estimados van de 0.8438 (Swin-Tiny) a 0.8536 (ConvNeXt-Tiny) —una
+diferencia de apenas 0.0098—, muy inferior a la anchura de los intervalos
+($\sim$$\pm$0.027). En consecuencia, \textbf{ninguna arquitectura es
+significativamente superior} a las demás sobre este conjunto de prueba: aunque
+ConvNeXt-Tiny obtiene el punto más alto, la diferencia no es estadísticamente
+distinguible. Este resultado es coherente con la literatura comparativa, que
+tampoco identifica un ganador claro entre arquitecturas modernas sobre radiografía
+de tórax~\cite{bressemComparingDeepLearning2020}.
+
+\subsection{La configuración de clases influye más que la arquitectura}
+
+A diferencia de la arquitectura, el conjunto de clases sí produce un efecto
+estadísticamente medible. Para ConvNeXt-Tiny, la AUROC-macro pasa de 0.8129
+[0.793, 0.852] en \texttt{nofracture12} a 0.8788 [0.860, 0.897] en
+\texttt{min5pct9}: \textbf{los intervalos no se solapan}. El mismo patrón se
+observa en la PR-AUC-macro. La explicación es directa: reducir el conjunto a las
+nueve clases de prevalencia $\geq$5\,\% elimina las patologías raras y mal
+soportadas —cuyas métricas individuales son muy ruidosas— y, con ello, mejora los
+promedios macro. Que la AUROC CheXpert-5 permanezca estable confirma que esta
+mejora proviene de excluir clases difíciles, no de un mejor aprendizaje de las cinco
+principales. La conclusión transversal es que \textbf{el conjunto de clases evaluado
+influye más en las métricas agregadas que la elección de arquitectura}.
+
+\subsection{Coste computacional}
+
+Las arquitecturas difieren notablemente en coste. DenseNet-121 es la más eficiente
+—el menor número de parámetros ($\sim$7\,M) y duraciones por ejecución de entre 95 y
+130 minutos— con un rendimiento estadísticamente equivalente al resto. Swin-Tiny es
+la más lenta (hasta 235 minutos) sin ventaja de rendimiento que lo justifique, y
+VGG16-BN resulta directamente inviable con la memoria disponible. Dada la
+equivalencia en rendimiento, \textbf{DenseNet-121 ofrece la mejor relación
+rendimiento/coste}, lo que respalda su uso como arquitectura de referencia en
+radiografía de tórax; si se priorizara el punto estimado más alto sin atender al
+coste, ConvNeXt-Tiny lo encabezaría.
+
+\subsection{Análisis por patología y de errores}
+
+El comportamiento agregado oculta diferencias notables entre patologías. Las clases
+bien representadas en el test (\textit{Pleural Effusion}, \textit{Edema},
+\textit{Cardiomegaly}) alcanzan AUROC elevadas y estables, mientras que las clases
+con muy pocos positivos resultan poco fiables o directamente no evaluables: en el
+test silver, \textit{Fracture} no presenta ningún positivo y \textit{Lung Lesion}
+apenas uno, por lo que sus métricas carecen de significado estadístico. La
+Figura~\ref{fig::matriz_confusion} muestra las matrices de confusión por clase del
+modelo de referencia, y la Figura~\ref{fig::curvas_aprendizaje} sus curvas de
+aprendizaje, que evidencian una convergencia estable y la actuación de la parada
+temprana.
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/matriz-confusion.png}{Matrices de confusión por patología del modelo de referencia (DenseNet-121) sobre el test silver. Generada en \texttt{experiments/<run\_id>/plots/confusion\_matrices\_test.png}.}
+\caption{Matrices de confusión por patología (DenseNet-121, \texttt{nofracture12}).}
+\label{fig::matriz_confusion}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/curvas-aprendizaje.png}{Curvas de aprendizaje (pérdida de entrenamiento y validación, y AUROC de validación por época) del modelo de referencia. Generada en \texttt{experiments/<run\_id>/plots/learning\_curves.png}.}
+\caption{Curvas de aprendizaje del modelo de referencia.}
+\label{fig::curvas_aprendizaje}
+\end{figure}
+
+
+\section{Explicabilidad mediante Grad-CAM}
+\label{sec::res_gradcam}
+
+Más allá de las métricas, la utilidad clínica del modelo depende de que sus
+predicciones se apoyen en regiones anatómicamente plausibles. La
+Figura~\ref{fig::gradcam_ejemplos} presenta varios ejemplos de mapas de calor
+generados con Grad-CAM~\cite{selvarajuGradCAMVisualExplanations2017} sobre
+radiografías del conjunto de prueba, para distintas patologías. En los casos
+correctamente clasificados, las regiones resaltadas tienden a coincidir con las
+zonas de interés clínico —por ejemplo, los campos pulmonares inferiores en el
+derrame pleural o la silueta cardíaca en la cardiomegalia—, lo que aporta una
+verificación visual de que el modelo atiende a evidencia pertinente. No obstante,
+y conforme a las cautelas expuestas en los capítulos previos, estas explicaciones
+se interpretan como una ayuda a la verificación por parte del especialista, no como
+una garantía de corrección.
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder[\textwidth]{figures/gradcam-ejemplos.png}{Ejemplos de mapas de calor Grad-CAM sobre radiografías del test, para varias patologías (p. ej. derrame pleural, cardiomegalia, edema), con la radiografía original y el mapa superpuesto. Generadas desde la aplicación web (Capítulo~\ref{sec::capitulo5}).}
+\caption{Ejemplos de explicaciones visuales generadas con Grad-CAM.}
+\label{fig::gradcam_ejemplos}
+\end{figure}
+
+
+\section{Limitaciones de los resultados}
+\label{sec::res_limitaciones}
+
+La interpretación de los resultados debe considerar varias limitaciones, que se
+retoman en el Capítulo~\ref{sec::capitulo6}. En primer lugar, el \textbf{tamaño
+reducido del conjunto de prueba} (169 imágenes) produce intervalos de confianza
+anchos: diferencias de en torno a 0.01 en AUROC no son detectables, lo que explica
+en parte la equivalencia observada entre arquitecturas. En segundo lugar, el uso de
+una \textbf{única semilla} por ejecución impide cuantificar la variabilidad debida a
+la inicialización y al orden de los datos; la incertidumbre reportada es solo la del
+muestreo del test. En tercer lugar, el conjunto de prueba participa en el
+\textbf{mecanismo de promoción} del mejor modelo, por lo que su métrica deja de ser
+estrictamente insesgada; este sesgo de selección se mitiga con el margen mínimo de
+promoción y el registro completo de ejecuciones, pero no se elimina. Por último, las
+\textbf{etiquetas de entrenamiento son automáticas} (CheXbert) y contienen ruido
+frente a las anotaciones de radiólogo del conjunto de prueba.
