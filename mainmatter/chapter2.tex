@@ -297,6 +297,16 @@ radiografía de tórax—, y otras como Score-CAM buscan mayor robustez. Existen
 revisiones sistemáticas que recopilan y categorizan estas técnicas en el contexto
 del diagnóstico por imagen~\cite{patricioExplainableDeepLearning2023}.
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/gradcam-concepto.png}
+\caption{Concepto de Grad-CAM: a partir de la imagen de entrada (izquierda) se obtiene
+un mapa de activación (centro) que pondera la relevancia de cada región para la
+predicción; su superposición (derecha) resalta, en tonos cálidos, las zonas más
+influyentes. Ilustración con un mapa sintético sobre una radiografía de muestra.}
+\label{fig::ec_gradcam_concepto}
+\end{figure}
+
 Ahora bien, un aspecto crítico, con frecuencia ignorado, es que \textbf{la
 fiabilidad de estos métodos no debe presuponerse}. Estudios recientes con
 radiólogos han evidenciado que algunos mapas de saliencia son sensibles a

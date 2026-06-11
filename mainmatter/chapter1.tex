@@ -6,26 +6,6 @@
 
 \section{Contexto y definición del problema}
 
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  font=\small,
-  box/.style={draw, rounded corners, minimum height=1.1cm, align=center},
-  arr/.style={-{Latex}, thick}]
-\node[box, fill=gray!12, minimum width=2cm] (img) {Radiografía\\de tórax};
-\node[box, fill=blue!10, right=1.4cm of img, minimum width=2.6cm] (cnn) {Red neuronal\\(CNN\,/\,Transformer)};
-\node[right=1.4cm of cnn, align=left] (out) {$P(\text{Cardiomegalia}) = 0{,}87$\\[2pt]
-  $P(\text{Derrame pleural}) = 0{,}42$\\[2pt]
-  $P(\text{Edema}) = 0{,}10$\\[2pt]
-  $\vdots$};
-\draw[arr] (img) -- (cnn);
-\draw[arr] (cnn) -- (out.west);
-\node[font=\scriptsize, gray, below=0.15cm of out] {salidas independientes (sigmoide)};
-\end{tikzpicture}
-\caption{Clasificación multietiqueta de signos radiológicos torácicos.}
-\label{fig::intro_multietiqueta}
-\end{figure}
-
 \subsection{El papel de la radiografía de tórax en el diagnóstico}
 
 El diagnóstico por imagen constituye uno de los pilares de la medicina moderna,
@@ -88,6 +68,27 @@ patologías —neumonía, edema o cardiomegalia, entre otras— pueden coexistir
 misma imagen; y la incertidumbre inherente al etiquetado de los grandes
 repositorios~\cite{lizDeepLearningMultilabel2023}. Abordar estas restricciones
 constituye uno de los retos centrales de este trabajo.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners, minimum height=1.1cm, align=center},
+  arr/.style={-{Latex}, thick}]
+\node[box, fill=gray!12, minimum width=2cm] (img) {Radiografía\\de tórax};
+\node[box, fill=blue!10, right=1.4cm of img, minimum width=2.6cm] (cnn) {Red neuronal\\(CNN\,/\,Transformer)};
+\node[right=1.4cm of cnn, align=left] (out) {$P(\text{Cardiomegalia}) = 0{,}87$\\[2pt]
+  $P(\text{Derrame pleural}) = 0{,}42$\\[2pt]
+  $P(\text{Edema}) = 0{,}10$\\[2pt]
+  $\vdots$};
+\draw[arr] (img) -- (cnn);
+\draw[arr] (cnn) -- (out.west);
+\node[font=\scriptsize, gray, below=0.15cm of out] {salidas independientes (sigmoide)};
+\end{tikzpicture}
+\caption{Clasificación multietiqueta de signos radiológicos torácicos: a partir de una
+radiografía, la red estima de forma independiente la probabilidad de cada patología.}
+\label{fig::intro_multietiqueta}
+\end{figure}
 
 \subsection{El reto de la interpretabilidad}
 
