@@ -3,3 +3,60 @@
 \chapter{Conclusiones}
 \label{sec::capitulo8}
 
+% [PENDIENTE: versión provisional (esqueleto + contenido básico). Profundizar la
+%  redacción y enlazar explícitamente cada conclusión con los resultados del Cap. 4.]
+
+Este capítulo final sintetiza el trabajo realizado, valora la consecución de los
+objetivos, recoge los hallazgos principales y sus aportaciones, y plantea las líneas de
+trabajo futuro.
+
+\section{Consecución de los objetivos}
+\label{sec::concl_objetivos}
+
+El trabajo planteaba cuatro subobjetivos, todos ellos alcanzados:
+
+\begin{itemize}
+  \item \textbf{Tratamiento del conjunto de datos}: depuración, filtrado y división por
+        paciente de CheXpert, con configuraciones de clases parametrizables.
+  \item \textbf{Comparación de arquitecturas}: entrenamiento y evaluación de cinco
+        arquitecturas bajo un protocolo común.
+  \item \textbf{Explicabilidad (XAI)}: integración de Grad-CAM para la interpretación
+        visual de las predicciones.
+  \item \textbf{Despliegue}: exposición del modelo mediante una API REST y una interfaz
+        web explicable, contenedorizada y desplegada públicamente.
+\end{itemize}
+
+\section{Hallazgos principales}
+\label{sec::concl_hallazgos}
+
+\begin{itemize}
+  \item \textbf{Equivalencia estadística entre arquitecturas}: sobre la métrica
+        principal (AUROC CheXpert-5), los intervalos de confianza de las cinco
+        arquitecturas se solapan; ninguna es significativamente superior.
+  \item \textbf{El conjunto de clases pesa más que la arquitectura}: reducir las clases
+        (13$\rightarrow$12$\rightarrow$9) mejora las métricas macro de forma
+        significativa.
+  \item \textbf{DenseNet-121 como mejor compromiso}: rendimiento equivalente al resto
+        con el menor coste computacional. VGG16-BN resultó la más cara y la del peor
+        punto, sin beneficio.
+\end{itemize}
+
+\section{Aportaciones}
+\label{sec::concl_aportaciones}
+
+% [PENDIENTE: desarrollar las aportaciones: pipeline reproducible y trazable, marco de
+%  comparación con IC bootstrap, sistema de despliegue explicable de extremo a extremo.]
+
+\section{Trabajo futuro}
+\label{sec::concl_futuro}
+
+\begin{itemize}
+  \item Comparar las distintas estrategias de tratamiento de la incertidumbre de
+        etiquetas (U-Ignore, U-Zeros, U-Ones, U-SelfTrained, U-MultiClass).
+  \item Repetir los experimentos con \textbf{varias semillas} para cuantificar la
+        variabilidad por inicialización.
+  \item Evaluar sobre un conjunto de prueba mayor o sobre el \textit{gold standard}
+        oficial de Stanford.
+  \item Optimizar el umbral de decisión por clase.
+  \item Explorar la fusión multimodal (imagen e informe clínico).
+\end{itemize}
