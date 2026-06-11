@@ -39,6 +39,13 @@ Health Care entre octubre de 2002 y julio de 2017, tanto en régimen de
 hospitalización como ambulatorio, lo que aporta una notable variabilidad de
 condiciones de adquisición.
 
+\begin{figure}[ht]
+\centering
+\figuraplaceholder[\textwidth]{figures/cxr-ejemplos.png}{Ejemplos de radiografías de tórax del conjunto CheXpert con sus etiquetas, mostrando proyección frontal (AP/PA) y la variabilidad entre patologías.}
+\caption{Ejemplos de radiografías del conjunto CheXpert.}
+\label{fig::mm_cxr_ejemplos}
+\end{figure}
+
 \subsection{Patologías y sistema de etiquetado}
 
 Cada estudio se etiqueta con \textbf{14 observaciones clínicas} —trece patologías
@@ -173,6 +180,13 @@ cada uno justificado por una decisión de diseño concreta:
 
 No se aplica filtrado por edad, con el fin de no reducir innecesariamente la
 diversidad demográfica del conjunto.
+
+\begin{figure}[ht]
+\centering
+\figuraplaceholder[\textwidth]{figures/pipeline-etl.png}{Diagrama del flujo de procesamiento de datos (ETL): filtrado de proyecciones Frontal+AP y valores válidos, tratamiento de etiquetas, selección de la configuración de clases y división por paciente en entrenamiento, validación y prueba.}
+\caption{Flujo de procesamiento de datos (ETL) del proyecto.}
+\label{fig::mm_pipeline_etl}
+\end{figure}
 
 \subsection{Tratamiento de las etiquetas ausentes}
 
@@ -392,6 +406,13 @@ de la \textit{softmax}, que forzaría la exclusividad entre clases).
 
 \subsection{Arquitecturas evaluadas}
 
+\begin{figure}[ht]
+\centering
+\figuraplaceholder[\textwidth]{figures/arquitecturas-esquema.png}{Esquema comparativo de los cinco \textit{backbones} evaluados (VGG16-BN, ResNet-50, DenseNet-121, ConvNeXt-Tiny y Swin-T), ilustrando su bloque característico (secuencial, residual, denso, moderno y transformer jerárquico).}
+\caption{Paradigmas de las cinco arquitecturas evaluadas.}
+\label{fig::mm_arquitecturas}
+\end{figure}
+
 Las radiografías, originalmente en escala de grises (un canal), se replican en
 tres canales para ser compatibles con la entrada que esperan los modelos
 preentrenados en ImageNet. Con el fin de no limitar el estudio a una única
@@ -523,6 +544,18 @@ la media y la desviación estándar de ImageNet, condición necesaria para que l
 estadísticas de entrada coincidan con las que el backbone vio durante su
 preentrenamiento. En validación y prueba no se aplica aumento alguno, con el fin
 de obtener una estimación determinista y reproducible del rendimiento.
+
+La configuración de aumento de datos se ha mantenido \textbf{fija} durante todo el
+estudio: no se ha realizado experimentación ni ablación específica sobre las
+transformaciones empleadas (su exploración sistemática queda como línea de trabajo
+futuro). La Figura~\ref{fig::mm_augmentation} ilustra su efecto sobre una radiografía.
+
+\begin{figure}[ht]
+\centering
+\figuraplaceholder[\textwidth]{figures/augmentation-ejemplos.png}{Ejemplos del aumento de datos: una radiografía original y varias variantes tras el volteo horizontal aleatorio y la transformación afín (rotación de hasta 10 grados y traslación de hasta el 5\%).}
+\caption{Efecto del aumento de datos sobre una radiografía de ejemplo.}
+\label{fig::mm_augmentation}
+\end{figure}
 
 
 \section{Evaluación y métricas}
