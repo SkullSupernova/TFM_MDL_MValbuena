@@ -122,7 +122,14 @@ proyecto.
 
 \begin{figure}[ht]
 \centering
-\figuraplaceholder[\textwidth]{figures/evolucion-arquitecturas.png}{Evolución de las arquitecturas de visión por computador para clasificación de imágenes, desde las CNN secuenciales (VGG) y residuales (ResNet) hasta las densas (DenseNet), las modernas (ConvNeXt) y los transformers de visión (Swin).}
+\begin{tikzpicture}[font=\small]
+\draw[-{Latex}, thick] (0,0) -- (12.8,0);
+\foreach \x/\yr/\nm in {0.8/2015/VGG, 3.6/2016/ResNet, 6.4/2017/DenseNet, 9.2/2021/{Swin-T}, 12/2022/ConvNeXt}{
+  \filldraw[blue!55] (\x,0) circle (2.5pt);
+  \node[align=center, font=\scriptsize, above=4pt] at (\x,0) {\textbf{\nm}\\\yr};
+}
+\node[font=\scriptsize, gray, below=2pt] at (6.4,0) {CNN secuenciales\,/\,residuales\,/\,densas $\rightarrow$ modernas $\rightarrow$ transformers};
+\end{tikzpicture}
 \caption{Evolución de las arquitecturas de aprendizaje profundo para visión.}
 \label{fig::ec_evolucion_arquitecturas}
 \end{figure}

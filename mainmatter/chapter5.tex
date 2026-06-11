@@ -33,7 +33,26 @@ complejidad de despliegue, se mitiga con la contenedorización
 
 \begin{figure}[h]
 \centering
-\figuraplaceholder[\textwidth]{figures/arquitectura-despliegue.png}{Diagrama de la arquitectura de despliegue: la interfaz web (Streamlit) y los clientes externos consumen la API REST (FastAPI), que carga el modelo una sola vez; ambos servicios se empaquetan con Docker y se orquestan con docker-compose.}
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners, minimum width=2.5cm, minimum height=1.1cm, align=center, fill=blue!8},
+  model/.style={draw, rounded corners, minimum width=2.5cm, minimum height=1.1cm, align=center, fill=orange!18},
+  ext/.style={draw, rounded corners, minimum width=2.3cm, minimum height=1.1cm, align=center, fill=gray!12},
+  arr/.style={-{Latex}, thick}]
+\node[ext] (user) {Usuario\\(navegador)};
+\node[box, right=1.5cm of user] (web) {Interfaz web\\Streamlit \texttt{:8501}};
+\node[box, right=1.8cm of web] (api) {API REST\\FastAPI \texttt{:8000}};
+\node[model, right=1.5cm of api] (model) {Modelo PyTorch\\(carga única)};
+\node[ext, below=1.2cm of web] (pacs) {Cliente externo\\(p.\,ej. PACS)};
+\draw[arr] (user) -- (web);
+\draw[arr] (web) -- node[above,font=\scriptsize]{REST} (api);
+\draw[arr] (api) -- node[above,font=\scriptsize]{inferencia} (model);
+\draw[arr] (pacs) -| (api);
+\begin{scope}[on background layer]
+\node[draw, dashed, rounded corners, fit=(web)(api)(model), inner sep=12pt,
+  label={[font=\scriptsize]above:Docker\,/\,\texttt{docker-compose}}] {};
+\end{scope}
+\end{tikzpicture}
 \caption{Arquitectura de despliegue del sistema en servicios desacoplados.}
 \label{fig::arquitectura-despliegue}
 \end{figure}

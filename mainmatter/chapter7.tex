@@ -26,7 +26,18 @@ experimentos— quedan fuera del control de versiones.
 
 \begin{figure}[ht]
 \centering
-\figuraplaceholder[0.8\textwidth]{figures/repro-estructura.png}{Estructura de directorios del repositorio del proyecto: código fuente (\texttt{src/}), configuración (\texttt{config/}), pruebas (\texttt{test/}), documentación (\texttt{docs/}) e integración continua (\texttt{.github/}).}
+\begin{tikzpicture}[font=\small,
+  root/.style={draw, rounded corners, fill=blue!12, minimum height=0.8cm},
+  leaf/.style={draw, rounded corners, fill=gray!8, anchor=west, minimum height=0.62cm, text width=7.4cm, align=left}]
+\node[root] (r) at (0,0.35) {\texttt{MDL\_TFM/}};
+\node[leaf] (a) at (3.2,2.2) {\texttt{src/} — código (modelos, API, app, entrenamiento)};
+\node[leaf] (b) at (3.2,1.45) {\texttt{config/} — \texttt{config.yml}};
+\node[leaf] (c) at (3.2,0.7) {\texttt{test/} — pruebas \textit{pytest}};
+\node[leaf] (d) at (3.2,-0.05) {\texttt{docs/} — documentación};
+\node[leaf] (e) at (3.2,-0.8) {\texttt{.github/} — integración continua (CI/CD)};
+\node[leaf] (f) at (3.2,-1.55) {\texttt{Dockerfile}, \texttt{docker-compose.yml}, \texttt{requirements.txt}};
+\foreach \x in {a,b,c,d,e,f} \draw[-{Latex}] (r.east) -- (\x.west);
+\end{tikzpicture}
 \caption{Estructura del repositorio del proyecto.}
 \label{fig::repro_estructura}
 \end{figure}

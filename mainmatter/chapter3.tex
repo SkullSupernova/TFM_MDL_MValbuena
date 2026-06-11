@@ -183,7 +183,19 @@ diversidad demográfica del conjunto.
 
 \begin{figure}[ht]
 \centering
-\figuraplaceholder[\textwidth]{figures/pipeline-etl.png}{Diagrama del flujo de procesamiento de datos (ETL): filtrado de proyecciones Frontal+AP y valores válidos, tratamiento de etiquetas, selección de la configuración de clases y división por paciente en entrenamiento, validación y prueba.}
+\begin{tikzpicture}[
+  font=\small, node distance=0.55cm,
+  etl/.style={draw, rounded corners, minimum width=10cm, minimum height=0.8cm, align=center, fill=blue!8},
+  etlhi/.style={draw, rounded corners, minimum width=10cm, minimum height=0.95cm, align=center, fill=orange!18},
+  arr/.style={-{Latex}, thick}]
+\node[etl] (a) {CheXpert — etiquetas CheXbert (\texttt{train\_cheXbert.csv})};
+\node[etl, below=of a] (b) {Filtrado ETL: solo Frontal+AP, valores $\{0,1,\text{NaN}\}$, sin inconsistencias};
+\node[etl, below=of b] (c) {Tratamiento de etiquetas ausentes (NaN $\rightarrow$ 0)};
+\node[etlhi, below=of c] (d) {\textbf{Selección de configuración de clases} (\texttt{full13}\,/\,\texttt{nofracture12}\,/\,\texttt{min5pct9})\\filtrado de prevalencia y anti-ruido, aplicado \textbf{solo a entrenamiento y validación}};
+\node[etl, below=of d] (e) {División por paciente 90/10 (sin fuga) y pre-redimensionado a $224\times224$};
+\node[etl, below=of e] (f) {Entrenamiento y validación};
+\foreach \i/\j in {a/b,b/c,c/d,d/e,e/f} \draw[arr] (\i) -- (\j);
+\end{tikzpicture}
 \caption{Flujo de procesamiento de datos (ETL) del proyecto.}
 \label{fig::mm_pipeline_etl}
 \end{figure}
@@ -408,7 +420,15 @@ de la \textit{softmax}, que forzaría la exclusividad entre clases).
 
 \begin{figure}[ht]
 \centering
-\figuraplaceholder[\textwidth]{figures/arquitecturas-esquema.png}{Esquema comparativo de los cinco \textit{backbones} evaluados (VGG16-BN, ResNet-50, DenseNet-121, ConvNeXt-Tiny y Swin-T), ilustrando su bloque característico (secuencial, residual, denso, moderno y transformer jerárquico).}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small, node distance=0.45cm,
+  ab/.style={draw, rounded corners, text width=2.7cm, minimum height=1.9cm, align=center, fill=blue!8}]
+\node[ab] (v) {\textbf{VGG16-BN}\\[2pt]\footnotesize secuencial\\$\sim$138\,M};
+\node[ab, right=of v] (r) {\textbf{ResNet-50}\\[2pt]\footnotesize residual\\$\sim$25\,M};
+\node[ab, right=of r] (d) {\textbf{DenseNet-121}\\[2pt]\footnotesize densa\\$\sim$7\,M};
+\node[ab, right=of d] (c) {\textbf{ConvNeXt-Tiny}\\[2pt]\footnotesize moderna\\$\sim$28\,M};
+\node[ab, right=of c] (s) {\textbf{Swin-Tiny}\\[2pt]\footnotesize transformer\\$\sim$28\,M};
+\end{tikzpicture}}
 \caption{Paradigmas de las cinco arquitecturas evaluadas.}
 \label{fig::mm_arquitecturas}
 \end{figure}

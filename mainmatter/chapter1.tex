@@ -8,7 +8,20 @@
 
 \begin{figure}[ht]
 \centering
-\figuraplaceholder[0.85\textwidth]{figures/intro-multietiqueta.png}{Ilustración del problema de clasificación multietiqueta: a partir de una radiografía de tórax, el modelo estima de forma independiente la probabilidad de cada una de las patologías consideradas.}
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners, minimum height=1.1cm, align=center},
+  arr/.style={-{Latex}, thick}]
+\node[box, fill=gray!12, minimum width=2cm] (img) {Radiografía\\de tórax};
+\node[box, fill=blue!10, right=1.4cm of img, minimum width=2.6cm] (cnn) {Red neuronal\\(CNN\,/\,Transformer)};
+\node[right=1.4cm of cnn, align=left] (out) {$P(\text{Cardiomegalia}) = 0{,}87$\\[2pt]
+  $P(\text{Derrame pleural}) = 0{,}42$\\[2pt]
+  $P(\text{Edema}) = 0{,}10$\\[2pt]
+  $\vdots$};
+\draw[arr] (img) -- (cnn);
+\draw[arr] (cnn) -- (out.west);
+\node[font=\scriptsize, gray, below=0.15cm of out] {salidas independientes (sigmoide)};
+\end{tikzpicture}
 \caption{Clasificación multietiqueta de signos radiológicos torácicos.}
 \label{fig::intro_multietiqueta}
 \end{figure}
