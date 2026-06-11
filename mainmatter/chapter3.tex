@@ -324,9 +324,9 @@ establece un modelo de referencia con una única arquitectura sobre el conjunto
 completo de clases; los experimentos segundo y tercero amplían el estudio
 entrenando \textbf{todas las arquitecturas disponibles} sobre configuraciones de
 clases progresivamente reducidas, lo que permite comparar tanto las arquitecturas
-entre sí como el efecto de la selección de clases sobre el rendimiento. El alcance
-final de la comparativa de arquitecturas en cada configuración dependerá del
-tiempo de cómputo disponible. Los experimentos son los siguientes:
+entre sí como el efecto de la selección de clases sobre el rendimiento. La
+comparativa se llevó a cabo finalmente con las cinco arquitecturas en ambas
+configuraciones reducidas. Los experimentos realizados son los siguientes:
 
 \textbf{Experimento 1 — DenseNet-121 con 13 clases (\texttt{full13}).}
 \begin{itemize}
@@ -334,8 +334,7 @@ tiempo de cómputo disponible. Los experimentos son los siguientes:
         completo de 13 clases.
   \item \textit{Configuración:} \texttt{full13} (sin \textit{Pleural Other}).
   \item \textit{Motivo:} constituye la referencia más amplia y comparable con la
-        literatura. Este experimento debe repetirse para verificar la
-        consistencia de los resultados.
+        literatura.
   \item \textit{Ventajas:} máxima cobertura diagnóstica. \textit{Inconvenientes:}
         incluye clases muy poco frecuentes y difíciles de evaluar de forma
         fiable.
@@ -357,7 +356,7 @@ tiempo de cómputo disponible. Los experimentos son los siguientes:
         número de arquitecturas.
 \end{itemize}
 
-\textbf{Experimento 3 — Todas las arquitecturas con 9 clases (\texttt{min5pct9}, pendiente).}
+\textbf{Experimento 3 — Todas las arquitecturas con 9 clases (\texttt{min5pct9}).}
 \begin{itemize}
   \item \textit{Objetivo:} comparar las arquitecturas en un escenario menos
         desbalanceado, conservando únicamente las clases con prevalencia igual o
@@ -368,8 +367,7 @@ tiempo de cómputo disponible. Los experimentos son los siguientes:
         comparación de arquitecturas menos condicionada por las clases
         minoritarias.
   \item \textit{Ventajas:} menor desbalanceo y mayor representatividad de las
-        clases. \textit{Inconvenientes:} menor cobertura diagnóstica; queda
-        supeditado a la disponibilidad de tiempo de cómputo.
+        clases. \textit{Inconvenientes:} menor cobertura diagnóstica.
 \end{itemize}
 
 
