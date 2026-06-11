@@ -582,17 +582,54 @@ futuro). La Figura~\ref{fig::mm_augmentation} ilustra su efecto sobre una radiog
 \subsection{Elección de las métricas}
 
 La elección de las métricas de evaluación es crítica en problemas con clases
-desbalanceadas. La \textbf{exactitud} (\textit{accuracy}) —proporción de aciertos—
-resulta engañosa en este contexto: si una patología aparece en el 2\,\% de los
-casos, un modelo que prediga siempre el negativo alcanzaría un 98\,\% de exactitud
-sin detectar ningún caso positivo. Por ello se recurre a métricas más
-informativas. La \textbf{curva ROC} y su área (\textbf{AUROC}) miden la capacidad
-de discriminación del modelo de forma independiente del umbral de decisión, lo que
-las hace robustas frente al desbalanceo. La \textbf{curva de
-precisión-exhaustividad} y su área (\textbf{PR-AUC}) son especialmente
-informativas cuando los positivos son escasos, pues se centran en el rendimiento
-sobre la clase minoritaria. Finalmente, la métrica \textbf{F1} resume en un único
-valor el equilibrio entre precisión y exhaustividad a un umbral dado.
+desbalanceadas, pues una métrica mal escogida puede ofrecer una imagen engañosa del
+rendimiento real. Con el fin de que las comparaciones del
+Capítulo~\ref{sec::capitulo4} puedan interpretarse correctamente sin conocimientos
+previos especializados, a continuación se define qué mide cada métrica empleada, así
+como sus ventajas y limitaciones.
+
+Conviene recordar primero los cuatro resultados posibles de una predicción binaria
+para cada patología: el modelo acierta cuando produce un \textbf{verdadero positivo}
+(VP) o un \textbf{verdadero negativo} (VN), y se equivoca cuando produce un
+\textbf{falso positivo} (FP, una falsa alarma) o un \textbf{falso negativo} (FN, una
+patología que pasa inadvertida). Sobre estos cuatro casos se definen las métricas
+utilizadas, que son las siguientes:
+
+\begin{itemize}
+  \item \textbf{Exactitud (\textit{accuracy}):} proporción de aciertos sobre el total
+        de predicciones. Es intuitiva, pero resulta \textbf{engañosa con clases
+        desbalanceadas}: si una patología aparece en el 2\,\% de los casos, un modelo
+        que prediga siempre «ausente» alcanzaría un 98\,\% de exactitud sin detectar un
+        solo caso. Por ello aquí se reporta únicamente como referencia.
+  \item \textbf{Precisión (\textit{precision}):} de todos los casos que el modelo
+        señala como positivos, qué fracción lo es realmente ($VP/(VP+FP)$). Responde a
+        la pregunta «cuando el modelo avisa, ¿cuánto puedo fiarme?»; una precisión baja
+        implica muchas falsas alarmas.
+  \item \textbf{Exhaustividad o sensibilidad (\textit{recall}):} de todos los casos
+        realmente positivos, qué fracción detecta el modelo ($VP/(VP+FN)$). Responde a
+        «¿cuántos casos se me escapan?» y resulta especialmente relevante en el ámbito
+        clínico, donde un valor bajo significa pasar por alto patologías presentes.
+  \item \textbf{F1:} media armónica de la precisión y la exhaustividad. Resume en un
+        único valor el equilibrio entre ambas a un umbral de decisión concreto, y solo
+        es alta cuando las dos lo son. Su limitación es que depende del umbral elegido.
+  \item \textbf{AUROC (área bajo la curva ROC):} mide la capacidad de
+        \textbf{discriminación} del modelo —su habilidad para ordenar un caso positivo
+        por delante de uno negativo— de forma \textbf{independiente del umbral}. Un
+        valor de 0,5 equivale al azar y 1,0 a la discriminación perfecta. Es robusta
+        frente al desbalanceo, aunque puede resultar optimista cuando los negativos son
+        muy abundantes.
+  \item \textbf{PR-AUC o AUPRC (área bajo la curva precisión-exhaustividad):} resume el
+        compromiso entre precisión y exhaustividad a lo largo de todos los umbrales. A
+        diferencia del AUROC, se centra en la clase positiva, por lo que es \textbf{más
+        informativa cuando los positivos son escasos}, como ocurre con las patologías
+        poco frecuentes.
+\end{itemize}
+
+Por otro lado, cuando una de estas métricas se calcula de forma independiente para
+cada patología y después se promedia sin ponderar por su frecuencia, se obtiene su
+variante \textbf{macro} (por ejemplo, AUROC-macro o F1-macro). Este promedio otorga el
+mismo peso a todas las clases, de modo que penaliza el mal rendimiento en las
+minoritarias y constituye un criterio exigente en escenarios desbalanceados.
 
 En este trabajo se emplea como métrica principal el \textbf{AUROC promediado por
 clases} (AUROC-macro), por su independencia del umbral y su robustez ante el

@@ -224,8 +224,9 @@ de tórax~\cite{bressemComparingDeepLearning2020}.
 
 \subsection{La configuración de clases influye más que la arquitectura}
 
-A diferencia de la arquitectura, el conjunto de clases sí produce un efecto
-estadísticamente medible. Para ConvNeXt-Tiny, la AUROC-macro pasa de 0.8129
+El contraste se aprecia con nitidez al comparar una misma arquitectura entre
+configuraciones, donde la única variable que cambia es el conjunto de clases. Para
+ConvNeXt-Tiny, la AUROC-macro pasa de 0.8129
 [0.793, 0.852] en \texttt{nofracture12} a 0.8788 [0.860, 0.897] en
 \texttt{min5pct9}: \textbf{los intervalos no se solapan}. El mismo patrón se
 observa en la PR-AUC-macro. La explicación es directa: reducir el conjunto a las
