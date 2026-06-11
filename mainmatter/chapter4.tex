@@ -31,11 +31,11 @@ DenseNet-121 & CNN densamente conectada (referencia en radiografía de tórax) &
 ResNet-50 & CNN residual & $\sim$25\,M \\
 ConvNeXt-Tiny & CNN moderna inspirada en transformers & $\sim$28\,M \\
 Swin-Tiny & Transformer de visión jerárquico & $\sim$28\,M \\
-VGG16-BN & CNN secuencial clásica (no entrenada) & $\sim$138\,M \\
+VGG16-BN & CNN secuencial clásica (referencia histórica) & $\sim$138\,M \\
 \bottomrule
 \end{tabularx}
-\caption{Arquitecturas consideradas y sus paradigmas. VGG16-BN se excluyó del
-entrenamiento por su coste (véase el texto).}
+\caption{Arquitecturas comparadas y sus paradigmas, ordenadas por número de
+parámetros.}
 \label{tab::res_arqs}
 \end{table}
 
@@ -63,24 +63,29 @@ variabilidad debida al muestreo del conjunto de prueba; no captura, en cambio, l
 variabilidad por inicialización, dado que se emplea una única semilla por
 ejecución (una limitación analizada en la Sección~\ref{sec::res_limitaciones}).
 
-\subsection{Conjunto de ejecuciones válidas y exclusión de VGG16-BN}
+\subsection{Conjunto de ejecuciones válidas}
 
-El estudio comprende \textbf{nueve ejecuciones válidas}: las cuatro arquitecturas
+El estudio comprende \textbf{once ejecuciones válidas}: las cinco arquitecturas
 entrenadas sobre las configuraciones \texttt{nofracture12} (12 clases) y
-\texttt{min5pct9} (9 clases), más una ablación de DenseNet-121 sobre
-\texttt{full13} (13 clases). La arquitectura \textbf{VGG16-BN se excluyó del
-entrenamiento}: con un lote de 64 imágenes en 8\,GB de memoria, su coste estimado
-superaba las 45 horas por ejecución —aproximadamente veinte veces el de
-DenseNet-121—, un esfuerzo desproporcionado frente a su escaso valor añadido, dado
-que las otras cuatro arquitecturas ya cubren los paradigmas relevantes (CNN
-residual, CNN densa, CNN moderna y transformer). En consecuencia, la comparación
-efectiva se realiza sobre \textbf{cuatro arquitecturas}.
+\texttt{min5pct9} (9 clases) —diez ejecuciones—, más una ablación de DenseNet-121
+sobre \texttt{full13} (13 clases). Todas comparten un único protocolo, de modo que
+las diferencias observadas son atribuibles a la arquitectura o a la configuración de
+clases, no a variaciones del entrenamiento.
+
+La arquitectura \textbf{VGG16-BN se entrenó} con el mismo lote de 64 imágenes que el
+resto, pero a un coste muy superior: 817 minutos ($\sim$13,6 horas) en
+\texttt{nofracture12} y 557 minutos en \texttt{min5pct9}, aproximadamente entre seis
+y nueve veces el coste de DenseNet-121, a causa del desbordamiento de la memoria de
+vídeo a la memoria principal que provocan sus 138 millones de parámetros en 8\,GB.
+Como se verá, es la arquitectura más cara y, a la vez, la del peor punto en la
+métrica principal en ambas configuraciones, por lo que su inclusión ilustra de forma
+nítida un caso de mayor coste sin beneficio.
 
 
 \section{Comparación de arquitecturas}
 \label{sec::res_arquitecturas}
 
-La Tabla~\ref{tab::res_nofracture12} recoge los resultados de las cuatro
+La Tabla~\ref{tab::res_nofracture12} recoge los resultados de las cinco
 arquitecturas sobre la configuración \texttt{nofracture12}, que actúa como base de
 comparación por conservar doce patologías. Las filas se ordenan por la métrica
 principal de forma descendente.
@@ -94,10 +99,11 @@ principal de forma descendente.
 \textbf{Arquitectura} & \textbf{AUROC CheXpert-5} & \textbf{AUROC-macro} & \textbf{PR-AUC-macro} & \textbf{F1-macro} & \textbf{Épocas} & \textbf{Dur. (min)} \\
  & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & & & \\
 \midrule
-ConvNeXt-Tiny & \textbf{0.8536} \scriptsize[0.826, 0.880] & 0.8129 \scriptsize[0.793, 0.852] & 0.6181 \scriptsize[0.584, 0.722] & 0.4809 & 12 & 147 \\
+ConvNeXt-Tiny & \textbf{0.8536} \scriptsize[0.826, 0.880] & 0.8129 \scriptsize[0.793, 0.852] & \textbf{0.6181} \scriptsize[0.584, 0.722] & 0.4809 & 12 & 147 \\
 ResNet-50 & 0.8517 \scriptsize[0.824, 0.879] & 0.7978 \scriptsize[0.768, 0.858] & 0.5992 \scriptsize[0.568, 0.705] & \textbf{0.5062} & 13 & 138 \\
 DenseNet-121 & 0.8497 \scriptsize[0.821, 0.877] & \textbf{0.8229} \scriptsize[0.803, 0.865] & 0.6136 \scriptsize[0.583, 0.724] & 0.4968 & 13 & 131 \\
 Swin-Tiny & 0.8438 \scriptsize[0.815, 0.871] & 0.7924 \scriptsize[0.773, 0.861] & 0.6162 \scriptsize[0.584, 0.725] & 0.5040 & 17 & 186 \\
+VGG16-BN & 0.8403 \scriptsize[0.812, 0.868] & 0.7830 \scriptsize[0.760, 0.845] & 0.5864 \scriptsize[0.554, 0.689] & 0.4867 & 12 & 817 \\
 \bottomrule
 \end{tabular}}
 \caption{Resultados sobre la configuración \texttt{nofracture12} (12 clases) en el
@@ -107,8 +113,8 @@ test \textit{silver-standard} (169 imágenes), con intervalos de confianza
 \end{table}
 
 ConvNeXt-Tiny obtiene el punto estimado más alto en la métrica principal (0.8536),
-seguido muy de cerca por ResNet-50 y DenseNet-121, con Swin-Tiny algo por debajo.
-Sin embargo, las diferencias son reducidas y, como se analiza en la
+seguido muy de cerca por ResNet-50 y DenseNet-121, con Swin-Tiny y VGG16-BN algo por
+debajo. Sin embargo, las diferencias son reducidas y, como se analiza en la
 Sección~\ref{sec::res_analisis}, los intervalos de confianza se solapan por
 completo. La Figura~\ref{fig::roc_nofracture12} muestra las curvas ROC
 correspondientes y la Figura~\ref{fig::barras_auroc} compara visualmente la métrica
@@ -116,8 +122,8 @@ principal con sus intervalos.
 
 \begin{figure}[h]
 \centering
-\figuraplaceholder{figures/roc-nofracture12.png}{Curvas ROC de las cuatro arquitecturas sobre la configuración \texttt{nofracture12} (test silver). Generada en \texttt{experiments/<run\_id>/plots/roc\_curves\_test.png}.}
-\caption{Curvas ROC de las cuatro arquitecturas (configuración \texttt{nofracture12}).}
+\figuraplaceholder{figures/roc-nofracture12.png}{Curvas ROC de las cinco arquitecturas sobre la configuración \texttt{nofracture12} (test silver). Generada en \texttt{experiments/<run\_id>/plots/roc\_curves\_test.png}.}
+\caption{Curvas ROC de las cinco arquitecturas (configuración \texttt{nofracture12}).}
 \label{fig::roc_nofracture12}
 \end{figure}
 
@@ -133,7 +139,7 @@ principal con sus intervalos.
 \section{Efecto de la configuración de clases}
 \label{sec::res_config}
 
-La Tabla~\ref{tab::res_min5pct9} presenta los resultados de las mismas cuatro
+La Tabla~\ref{tab::res_min5pct9} presenta los resultados de las mismas cinco
 arquitecturas sobre la configuración \texttt{min5pct9}, que conserva únicamente las
 nueve clases de prevalencia igual o superior al 5\,\%.
 
@@ -146,9 +152,10 @@ nueve clases de prevalencia igual o superior al 5\,\%.
 \textbf{Arquitectura} & \textbf{AUROC CheXpert-5} & \textbf{AUROC-macro} & \textbf{PR-AUC-macro} & \textbf{F1-macro} & \textbf{Épocas} & \textbf{Dur. (min)} \\
  & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & \footnotesize[IC 95\%] & & & \\
 \midrule
-ConvNeXt-Tiny & \textbf{0.8505} \scriptsize[0.823, 0.877] & \textbf{0.8788} \scriptsize[0.860, 0.897] & \textbf{0.7331} \scriptsize[0.681, 0.798] & 0.6022 & 12 & 85 \\
+ConvNeXt-Tiny & \textbf{0.8505} \scriptsize[0.823, 0.877] & \textbf{0.8788} \scriptsize[0.860, 0.897] & 0.7331 \scriptsize[0.681, 0.798] & 0.6022 & 12 & 85 \\
 ResNet-50 & 0.8422 \scriptsize[0.813, 0.869] & 0.8751 \scriptsize[0.853, 0.895] & 0.7091 \scriptsize[0.662, 0.783] & \textbf{0.6051} & 13 & 85 \\
 Swin-Tiny & 0.8404 \scriptsize[0.811, 0.868] & 0.8673 \scriptsize[0.836, 0.893] & 0.7313 \scriptsize[0.675, 0.801] & 0.5941 & 18 & 235 \\
+VGG16-BN & 0.8287 \scriptsize[0.799, 0.857] & 0.8702 \scriptsize[0.847, 0.891] & \textbf{0.7521} \scriptsize[0.693, 0.813] & 0.5863 & 12 & 557 \\
 DenseNet-121 & 0.8256 \scriptsize[0.793, 0.855] & 0.8578 \scriptsize[0.829, 0.883] & 0.7038 \scriptsize[0.653, 0.775] & 0.5768 & 14 & 96 \\
 \bottomrule
 \end{tabular}}
@@ -202,14 +209,15 @@ Figura~\ref{fig::barras_macro} ilustra esta evolución.
 
 \subsection{Equivalencia estadística entre arquitecturas}
 
-En la métrica principal, los intervalos de confianza de las cuatro arquitecturas
+En la métrica principal, los intervalos de confianza de las cinco arquitecturas
 \textbf{se solapan por completo} en ambas configuraciones. En \texttt{nofracture12},
-los puntos estimados van de 0.8438 (Swin-Tiny) a 0.8536 (ConvNeXt-Tiny) —una
-diferencia de apenas 0.0098—, muy inferior a la anchura de los intervalos
-($\sim$$\pm$0.027). En consecuencia, \textbf{ninguna arquitectura es
+los puntos estimados van de 0.8403 (VGG16-BN) a 0.8536 (ConvNeXt-Tiny) —una
+diferencia de apenas 0.0133— y en \texttt{min5pct9} de 0.8256 (DenseNet-121) a
+0.8505 (ConvNeXt-Tiny) —0.0249—, en ambos casos muy inferiores a la anchura de los
+intervalos ($\sim$$\pm$0.027). En consecuencia, \textbf{ninguna arquitectura es
 significativamente superior} a las demás sobre este conjunto de prueba: aunque
-ConvNeXt-Tiny obtiene el punto más alto, la diferencia no es estadísticamente
-distinguible. Este resultado es coherente con la literatura comparativa, que
+ConvNeXt-Tiny obtiene el punto más alto en las dos configuraciones, la diferencia no
+es estadísticamente distinguible. Este resultado es coherente con la literatura comparativa, que
 tampoco identifica un ganador claro entre arquitecturas modernas sobre radiografía
 de tórax~\cite{bressemComparingDeepLearning2020}.
 
@@ -232,9 +240,13 @@ influye más en las métricas agregadas que la elección de arquitectura}.
 Las arquitecturas difieren notablemente en coste. DenseNet-121 es la más eficiente
 —el menor número de parámetros ($\sim$7\,M) y duraciones por ejecución de entre 95 y
 130 minutos— con un rendimiento estadísticamente equivalente al resto. Swin-Tiny es
-la más lenta (hasta 235 minutos) sin ventaja de rendimiento que lo justifique, y
-VGG16-BN resulta directamente inviable con la memoria disponible. Dada la
-equivalencia en rendimiento, \textbf{DenseNet-121 ofrece la mejor relación
+la más lenta entre las modernas (hasta 235 minutos) sin ventaja de rendimiento que lo
+justifique. \textbf{VGG16-BN es, con diferencia, la más cara}: 817 minutos en
+\texttt{nofracture12} y 557 en \texttt{min5pct9}, entre seis y nueve veces el coste de
+DenseNet-121 —por el desbordamiento de memoria que provocan sus 138 millones de
+parámetros— y, además, la del peor punto en la métrica principal en ambas
+configuraciones; constituye el ejemplo de manual de mayor coste sin beneficio alguno.
+Dada la equivalencia en rendimiento, \textbf{DenseNet-121 ofrece la mejor relación
 rendimiento/coste}, lo que respalda su uso como arquitectura de referencia en
 radiografía de tórax; si se priorizara el punto estimado más alto sin atender al
 coste, ConvNeXt-Tiny lo encabezaría.

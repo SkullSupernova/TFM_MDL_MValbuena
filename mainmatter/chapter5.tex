@@ -3,4 +3,247 @@
 \chapter{Despliegue}
 \label{sec::capitulo5}
 
-\section{Desarrollo de la API REST}
+Un modelo de clasificación, por bueno que sea, carece de utilidad práctica
+mientras permanezca confinado a un entorno de investigación. Este capítulo
+describe la plataforma desarrollada para acercar el modelo a un uso real,
+exponiéndolo a través de una interfaz accesible que integra la inferencia y su
+explicación visual. Se detallan la arquitectura del sistema, la API de inferencia,
+la interfaz web, la contenedorización y el flujo de inferencia, justificando en
+cada caso las decisiones tomadas frente a las alternativas disponibles.
+
+
+\section{Arquitectura del sistema}
+\label{sec::dep_arquitectura}
+
+El despliegue podría abordarse como una aplicación monolítica que combinara
+interfaz e inferencia en un único proceso. Sin embargo, se ha optado por una
+\textbf{arquitectura de servicios desacoplados}, organizada en tres componentes
+con responsabilidades bien diferenciadas: una API REST que encapsula la inferencia
+del modelo, una interfaz web que gestiona la interacción con el usuario, y una
+capa de contenedorización que empaqueta y orquesta ambos servicios. La
+Figura~\ref{fig::arquitectura-despliegue} resume esta organización.
+
+La justificación de esta separación es doble. Por un lado, desacoplar la inferencia
+de la interfaz permite que el modelo se consuma de forma independiente —por la
+propia interfaz web, pero también por sistemas externos como un PACS hospitalario—
+sin reescribir la lógica de predicción. Por otro, cada componente puede escalarse,
+actualizarse o sustituirse de forma autónoma. Su principal inconveniente, una mayor
+complejidad de despliegue, se mitiga con la contenedorización
+(Sección~\ref{sec::dep_docker}).
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder[\textwidth]{figures/arquitectura-despliegue.png}{Diagrama de la arquitectura de despliegue: la interfaz web (Streamlit) y los clientes externos consumen la API REST (FastAPI), que carga el modelo una sola vez; ambos servicios se empaquetan con Docker y se orquestan con docker-compose.}
+\caption{Arquitectura de despliegue del sistema en servicios desacoplados.}
+\label{fig::arquitectura-despliegue}
+\end{figure}
+
+
+\section{API REST de inferencia}
+\label{sec::dep_api}
+
+\subsection{Elección del framework}
+
+Para exponer el modelo se requiere un servidor web. Entre las alternativas en
+Python, las más extendidas son Flask —minimalista y muy popular— y FastAPI. Se ha
+elegido \textbf{FastAPI} por varias razones: ofrece un rendimiento elevado gracias
+a su naturaleza asíncrona, valida automáticamente los tipos de los parámetros de
+entrada, y genera de forma nativa documentación interactiva de la API conforme al
+estándar OpenAPI, lo que facilita su consumo y prueba. Su única desventaja frente a
+Flask —una curva de aprendizaje algo mayor— resulta irrelevante dado el tamaño
+acotado de la interfaz.
+
+\subsection{Endpoints y formato de respuesta}
+
+La API expone dos puntos de acceso, resumidos en la Tabla~\ref{tab::endpoints}. El
+\texttt{POST /predict} recibe una imagen (JPEG o PNG) por \textit{multipart/form-data}
+y un umbral de decisión opcional, y devuelve un objeto JSON con el umbral aplicado,
+las probabilidades por patología y la lista de patologías detectadas. La gestión de
+errores es explícita: se devuelve un código 422 ante un tipo de archivo no
+soportado o una imagen corrupta, y un 503 si el modelo no está disponible.
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{Método} & \textbf{Ruta} & \textbf{Función} \\
+\midrule
+GET & \texttt{/health} & Verificación de estado del servicio; devuelve \texttt{\{"status": "ok"\}}. \\
+POST & \texttt{/predict} & Inferencia sobre una radiografía; devuelve probabilidades y patologías detectadas en JSON. \\
+\bottomrule
+\end{tabularx}
+\caption{Puntos de acceso de la API REST.}
+\label{tab::endpoints}
+\end{table}
+
+\subsection{Carga del modelo e inferencia}
+
+Una decisión de diseño clave es \textbf{cuándo cargar el modelo}. Cargarlo en cada
+petición sería inviable: un modelo de PyTorch tarda varios segundos en cargarse y
+ocupa cientos de megabytes en memoria. Por ello se emplea el mecanismo de
+\textit{ciclo de vida} (\textit{lifespan}) de FastAPI, que carga el modelo
+\textbf{una sola vez al arrancar} el servidor y lo comparte entre todas las
+peticiones. Si el \textit{checkpoint} no existe, el servidor falla en el arranque
+con un mensaje descriptivo, en lugar de hacerlo silenciosamente en la primera
+petición.
+
+La inferencia se ejecuta en \textbf{CPU} de forma deliberada: aunque más lenta que
+en GPU, garantiza la máxima portabilidad —el servicio puede desplegarse en
+cualquier máquina, incluido un entorno clínico sin tarjeta gráfica dedicada— y la
+latencia resultante es perfectamente aceptable para un uso interactivo de
+radiografías individuales. La imagen se preprocesa con la misma transformación de
+evaluación del entrenamiento (redimensión a $224\times224$ y normalización con las
+estadísticas de ImageNet), condición imprescindible para que la distribución de
+entrada coincida con la que el modelo aprendió. Sobre los logits de salida se
+aplica una función sigmoide para obtener las probabilidades independientes por
+patología.
+
+
+\section{Interfaz web interactiva}
+\label{sec::dep_web}
+
+\subsection{Elección de la tecnología}
+
+La interfaz de usuario podría construirse como una aplicación web tradicional
+(con un \textit{frontend} en JavaScript y un \textit{backend} independiente), pero
+ello exigiría un esfuerzo de desarrollo considerable, ajeno al objetivo del
+trabajo. Se ha optado por \textbf{Streamlit}, un marco que permite construir
+interfaces web interactivas íntegramente en Python con muy poco código. Su ventaja
+es la rapidez de desarrollo y la integración natural con el ecosistema científico
+de Python; su limitación —menor control sobre el diseño fino de la interfaz— es
+asumible para una herramienta de demostración y validación como esta.
+
+\subsection{Funcionalidades}
+
+La aplicación (Figura~\ref{fig::interfaz-web}) integra el flujo completo de uso:
+
+\begin{itemize}
+  \item \textbf{Carga y validación de la imagen}: el usuario sube una radiografía,
+        que se valida antes de procesarla.
+  \item \textbf{Selección del modelo}: en dos pasos (arquitectura y configuración de
+        clases), descubriendo automáticamente los \textit{checkpoints} disponibles.
+  \item \textbf{Panel de probabilidades}: visualización de la probabilidad estimada
+        para cada patología.
+  \item \textbf{Explicación visual}: superposición del mapa de calor
+        Grad-CAM~\cite{selvarajuGradCAMVisualExplanations2017} sobre la imagen para
+        las patologías más probables (Figura~\ref{fig::gradcam-app}).
+  \item \textbf{Informe descargable}: generación de un informe PDF profesional con
+        los resultados y las explicaciones, así como la descarga de las imágenes en
+        un archivo comprimido.
+  \item \textbf{Historial de sesión}: registro de las predicciones realizadas.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder[\textwidth]{figures/interfaz-web.png}{Captura de la interfaz web (Streamlit): barra lateral de selección de modelo, imagen cargada, panel de probabilidades por patología y opciones de descarga del informe.}
+\caption{Interfaz web interactiva de la aplicación.}
+\label{fig::interfaz-web}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/gradcam-app.png}{Captura de la visualización Grad-CAM en la aplicación: comparación entre la radiografía original y el mapa de calor superpuesto para una patología detectada.}
+\caption{Visualización de la explicación Grad-CAM en la aplicación.}
+\label{fig::gradcam-app}
+\end{figure}
+
+\subsection{Uso de la interfaz web}
+\label{sec::dep_uso_web}
+
+Desde la perspectiva del usuario, la interacción con la herramienta se organiza en
+un flujo lineal que no requiere conocimientos técnicos. En la barra lateral se
+configura primero el modelo en dos pasos —la arquitectura y, a continuación, la
+configuración de clases entrenadas (13, 12 o 9), de modo que el segundo desplegable
+solo ofrece las combinaciones para las que existe un \textit{checkpoint}—, junto con
+dos parámetros de control: el \textbf{umbral de clasificación}, que fija el nivel de
+confianza a partir del cual una patología se considera detectada (un umbral bajo
+aumenta la sensibilidad a costa de más falsos positivos, y uno alto es más
+conservador), y el \textbf{número máximo de paneles Grad-CAM} que se generan.
+
+A continuación, el usuario carga una radiografía en formato JPEG o PNG, que la
+aplicación valida antes de procesarla, advirtiendo si la imagen parece estar en color
+—las radiografías son en escala de grises— o si no presenta las características
+esperadas. Tras la inferencia, la aplicación presenta los resultados en tres bloques:
+un \textbf{resumen} con el número de patologías detectadas, la probabilidad máxima, la
+patología principal y el umbral aplicado; el \textbf{gráfico de probabilidades} por
+patología, que se muestra antes de las explicaciones visuales; y la
+\textbf{explicabilidad visual}, que para cada patología detectada yuxtapone la
+radiografía original y su mapa de calor Grad-CAM, donde las zonas cálidas señalan las
+regiones más influyentes en la predicción. Finalmente, el usuario puede descargar un
+informe PDF, un archivo comprimido con las imágenes o el historial de la sesión en
+formato CSV.
+
+La aplicación incorpora además un modo opcional de \textbf{comparación de dos
+modelos}: al activarlo y seleccionar un segundo modelo, las probabilidades se
+presentan en tres gráficas (cada modelo y la comparativa sobre las patologías
+comunes), la explicabilidad muestra el mapa Grad-CAM de ambos por patología, y el
+informe PDF resultante recoge la comparación completa. Esta funcionalidad permite
+contrastar visualmente el comportamiento de distintas arquitecturas o configuraciones
+de clases sobre una misma imagen.
+
+
+\section{Contenedorización y orquestación}
+\label{sec::dep_docker}
+
+El despliegue de aplicaciones con dependencias complejas —en este caso, PyTorch y
+diversas bibliotecas científicas— es una fuente habitual de problemas de
+reproducibilidad: lo que funciona en una máquina puede fallar en otra por
+diferencias de versiones o de sistema operativo. La solución estándar es la
+\textbf{contenedorización} con Docker, que empaqueta la aplicación junto con todas
+sus dependencias en una imagen portable y reproducible.
+
+La imagen se construye sobre \texttt{python:3.12-slim} —una base ligera— e instala
+las versiones de PyTorch \textbf{para CPU}, coherentes con la decisión de ejecutar
+la inferencia en CPU, lo que reduce drásticamente el tamaño de la imagen frente a
+las variantes con CUDA. Los dos servicios se orquestan con \textbf{docker-compose}
+(Tabla no incluida por brevedad): un servicio \texttt{api} que ejecuta el servidor
+\texttt{uvicorn} en el puerto 8000, y un servicio \texttt{webapp} que ejecuta
+Streamlit en el puerto 8501 y depende del anterior. Los modelos y la configuración
+se montan como volúmenes de solo lectura, de modo que la imagen no necesita
+reconstruirse al cambiar de \textit{checkpoint}. Todo el sistema se levanta con una
+única orden (\texttt{docker-compose up}), lo que constituye la principal ventaja de
+este enfoque: un despliegue sin fricción y reproducible en cualquier máquina con
+Docker.
+
+
+\section{Despliegue público en la nube}
+\label{sec::dep_nube}
+
+Más allá del despliegue local con Docker, la interfaz web se ha publicado en
+\textbf{Streamlit Community Cloud}, un servicio gratuito que despliega aplicaciones
+Streamlit directamente desde un repositorio de GitHub. Esto permite acceder a una
+instancia funcional de la herramienta desde cualquier navegador, sin instalación
+alguna, en la dirección
+\url{https://mdltfm-mvb.streamlit.app/}.
+
+La elección de Streamlit Community Cloud responde a su integración inmediata con el
+ecosistema empleado —reutiliza el mismo código de la aplicación y el fichero de
+dependencias del proyecto— y a su coste nulo, idóneos para una herramienta de
+demostración y validación. Como contrapartida, el servicio impone límites de recursos
+(memoria y cómputo en CPU) y suspende la aplicación tras un periodo de inactividad,
+por lo que el primer acceso puede conllevar un breve tiempo de arranque. Esta vía
+convive con la contenedorización: el despliegue público facilita la difusión y la
+evaluación del trabajo, mientras que la imagen Docker garantiza un despliegue
+reproducible y autónomo en un entorno controlado.
+
+
+\section{Flujo de inferencia de extremo a extremo}
+\label{sec::dep_flujo}
+
+Integrando los componentes anteriores, el recorrido de una radiografía a través del
+sistema es el siguiente: el usuario carga la imagen en la interfaz web, que la
+valida y la envía; el modelo —cargado una sola vez— la preprocesa y produce las
+probabilidades por patología; se aplica el umbral de decisión para determinar las
+patologías detectadas; se genera el mapa de calor Grad-CAM para las más probables;
+y, finalmente, se presentan los resultados y se ofrece la descarga del informe. La
+Figura~\ref{fig::informe-pdf} muestra un ejemplo del informe generado, que recoge
+los metadatos de la predicción, la tabla de probabilidades y las explicaciones
+visuales, junto con una advertencia explícita sobre su carácter de herramienta de
+apoyo y no de diagnóstico definitivo.
+
+\begin{figure}[h]
+\centering
+\figuraplaceholder{figures/informe-pdf.png}{Ejemplo del informe PDF generado por la aplicación: metadatos (modelo, fecha), tabla de probabilidades por patología, imágenes con Grad-CAM y advertencia de uso no clínico.}
+\caption{Informe PDF generado por la aplicación.}
+\label{fig::informe-pdf}
+\end{figure}
