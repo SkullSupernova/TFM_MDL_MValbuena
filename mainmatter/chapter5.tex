@@ -249,6 +249,27 @@ reproducible y autónomo en un entorno controlado.
 \section{Flujo de inferencia de extremo a extremo}
 \label{sec::dep_flujo}
 
+La Figura~\ref{fig::dep_flujo_inferencia} resume, de principio a fin, el recorrido de
+una radiografía a través de la aplicación.
+
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small, node distance=0.5cm,
+  fb/.style={draw, rounded corners, minimum height=1.1cm, text width=2.2cm, align=center, fill=blue!8},
+  arr/.style={-{Latex}, thick}]
+\node[fb] (n1) {Carga y\\validación};
+\node[fb, right=of n1] (n2) {Preprocesado\\$224\times224$};
+\node[fb, right=of n2] (n3) {Inferencia\\(probabilidades)};
+\node[fb, right=of n3] (n4) {Umbral $\rightarrow$\\detectadas};
+\node[fb, right=of n4] (n5) {Grad-CAM};
+\node[fb, right=of n5] (n6) {Resultados e\\informe PDF/ZIP};
+\foreach \a/\b in {n1/n2,n2/n3,n3/n4,n4/n5,n5/n6} \draw[arr] (\a) -- (\b);
+\end{tikzpicture}}
+\caption{Flujo de inferencia de extremo a extremo en la aplicación.}
+\label{fig::dep_flujo_inferencia}
+\end{figure}
+
 Integrando los componentes anteriores, el recorrido de una radiografía a través del
 sistema es el siguiente: el usuario carga la imagen en la interfaz web, que la
 valida y la envía; el modelo —cargado una sola vez— la preprocesa y produce las
