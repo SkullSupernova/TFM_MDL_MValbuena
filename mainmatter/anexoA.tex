@@ -1,0 +1,48 @@
+% called by main.tex
+%
+\chapter{La aplicación web}
+\label{anexo::web}
+
+% [PENDIENTE: añadir capturas de pantalla reales de la aplicación con \figuraplaceholder
+%  ya preparado, o sustituir por \includegraphics cuando se disponga de ellas.]
+
+Este anexo describe la aplicación web desarrollada para demostrar el modelo de forma
+interactiva, así como su versión desplegada públicamente. El detalle técnico de la
+arquitectura del servicio se encuentra en el Capítulo~\ref{sec::capitulo5}.
+
+\section{Acceso público}
+\label{anexo::web_acceso}
+
+La aplicación está desplegada en \textbf{Streamlit Community Cloud} y es accesible,
+sin instalación alguna, en la dirección \url{https://mdltfm-mvb.streamlit.app/}. Al
+tratarse de un servicio gratuito con suspensión por inactividad, el primer acceso
+puede requerir un breve tiempo de arranque.
+
+\section{Funcionalidades}
+\label{anexo::web_funcionalidades}
+
+La interfaz, construida con \textit{Streamlit}, integra el flujo completo de uso:
+
+\begin{itemize}
+  \item \textbf{Carga de radiografías} en formato JPEG o PNG, con validación previa de
+        la imagen.
+  \item \textbf{Selección del modelo} en dos pasos (arquitectura y configuración de
+        clases), descubriendo automáticamente los \textit{checkpoints} disponibles.
+  \item \textbf{Inferencia multietiqueta} con panel de probabilidades por patología.
+  \item \textbf{Explicabilidad visual} mediante mapas de calor Grad-CAM sobre las
+        patologías detectadas.
+  \item \textbf{Comparación de dos modelos} (opcional), con gráficas y Grad-CAM de
+        ambos.
+  \item \textbf{Descarga} de un informe PDF, de las imágenes en un archivo comprimido
+        y del historial de la sesión en CSV.
+\end{itemize}
+
+\section{Uso paso a paso}
+\label{anexo::web_uso}
+
+El procedimiento de uso (configuración del modelo, umbral y número de paneles
+Grad-CAM, carga de la imagen e interpretación de los resultados) se describe en
+detalle en la Sección~\ref{sec::dep_uso_web}.
+
+% [PENDIENTE: si se desea, trasladar aquí la guía paso a paso completa con capturas, en
+%  lugar de remitir al Capítulo 5.]

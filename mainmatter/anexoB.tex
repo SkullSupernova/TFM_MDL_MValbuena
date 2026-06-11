@@ -1,0 +1,48 @@
+% called by main.tex
+%
+\chapter{Despliegue con Docker en local}
+\label{anexo::docker-local}
+
+% [PENDIENTE: verificar los comandos exactos contra README.md y docs/GUIA_USO.md del
+%  repositorio antes de la entrega; añadir requisitos de versión de Docker si procede.]
+
+Este anexo describe cómo construir y ejecutar el sistema en una máquina local a partir
+del código fuente, mediante Docker. La contenedorización garantiza un entorno aislado y
+reproducible, evitando los problemas de compatibilidad de dependencias.
+
+\section{Requisitos previos}
+\label{anexo::docker-local_req}
+
+Es necesario tener instalado \textbf{Docker} (y \textit{Docker Compose}, incluido en
+Docker Desktop). Conviene disponer del \textit{checkpoint} del modelo en la carpeta
+\texttt{models/} del repositorio; sin él, la API arranca con un error descriptivo.
+
+\section{Construcción y ejecución}
+\label{anexo::docker-local_run}
+
+Una vez clonado el repositorio, desde su raíz se construyen y levantan los dos
+servicios (API e interfaz web) con una única orden:
+
+\begin{verbatim}
+docker-compose up --build
+\end{verbatim}
+
+La imagen se construye sobre \texttt{python:3.12-slim} e instala las versiones de
+PyTorch \textbf{para CPU}. Tras el arranque, los servicios quedan accesibles en:
+
+\begin{itemize}
+  \item \textbf{API REST}: \url{http://localhost:8000} (documentación interactiva
+        OpenAPI en \texttt{/docs}).
+  \item \textbf{Interfaz web}: \url{http://localhost:8501}.
+\end{itemize}
+
+Los modelos y la configuración se montan como volúmenes, de modo que no es necesario
+reconstruir la imagen al cambiar de \textit{checkpoint}. Para detener los servicios:
+
+\begin{verbatim}
+docker-compose down
+\end{verbatim}
+
+% [PENDIENTE: incluir aquí, si se quiere, la lista completa de comandos de la guía
+%  (entrenamiento, evaluación, pre-resize, bootstrap) o remitir al anexo/capítulo
+%  correspondiente.]

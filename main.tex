@@ -93,19 +93,28 @@ titlepage=on            % own page for each title page
 \include{mainmatter/chapter7}
 \include{mainmatter/chapter8}
 
+
 \cleardoublepage
 
 % --------------------------
 % Back matter
 % --------------------------
+\appendix
+\renewcommand{\appendixname}{Anexo}
+\titleformat{\chapter}[hang]
+  {\normalfont\Huge\bfseries}
+  {\appendixname~\thechapter.}
+  {0.5em}
+  {}
+\include{mainmatter/anexoA}
+\include{mainmatter/anexoB}
+\include{mainmatter/anexoC}
+
+\cleardoublepage
+
 \backmatter
 \nocite{*}   % incluye en la bibliografía toda la literatura consultada (citada o no)
 \printbibliography[title=Referencias, heading=bibintoc]
-
-\appendix
-\renewcommand{\chaptername}{Anexo}
-\renewcommand{\appendixname}{Anexo}
-\include{anexos/anexo_despliegue}
 
 % **************************************************
 % End of document

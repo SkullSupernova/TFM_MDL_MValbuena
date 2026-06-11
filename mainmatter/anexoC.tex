@@ -1,0 +1,40 @@
+% called by main.tex
+%
+\chapter{Despliegue con Docker desde GitHub}
+\label{anexo::docker-ghcr}
+
+% [PENDIENTE: verificar el nombre y la etiqueta exactos de la imagen publicada y el
+%  contenido de docker-compose.ghcr.yml antes de la entrega.]
+
+A diferencia del Anexo~\ref{anexo::docker-local}, que construye la imagen a partir del
+código fuente, este anexo describe cómo ejecutar el sistema descargando directamente la
+\textbf{imagen ya publicada} en GitHub Container Registry (GHCR), sin necesidad de
+compilarla.
+
+\section{Descarga de la imagen}
+\label{anexo::ghcr_pull}
+
+La imagen del proyecto está publicada en GHCR y puede descargarse con:
+
+\begin{verbatim}
+docker pull ghcr.io/skullsupernova/mdl_tfm:latest
+\end{verbatim}
+
+La publicación se realiza de forma automática mediante un flujo de trabajo de GitHub
+Actions (\texttt{.github/workflows/docker-publish.yml}) en cada actualización del
+repositorio.
+
+\section{Ejecución}
+\label{anexo::ghcr_run}
+
+El repositorio incluye un fichero de orquestación específico
+(\texttt{docker-compose.ghcr.yml}) que utiliza la imagen prepublicada en lugar de
+construirla localmente. Desde la raíz del repositorio:
+
+\begin{verbatim}
+docker compose -f docker-compose.ghcr.yml up
+\end{verbatim}
+
+Los servicios quedan accesibles en las mismas direcciones que en el despliegue local
+(API en \texttt{:8000}, interfaz web en \texttt{:8501}), con resultados idénticos. Esta
+vía es la más rápida para evaluar el sistema, al evitar la construcción de la imagen.
