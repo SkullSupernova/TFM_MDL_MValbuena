@@ -1,0 +1,41 @@
+% called by main.tex
+%
+\chapter{Despliegue y Contenedorización del Sistema}
+\label{sec::anexo_despliegue}
+
+El presente anexo detalla los aspectos relacionados con el despliegue y la contenedorización del sistema de clasificación de radiografías torácicas, facilitando su replicación y uso.
+
+\section{Interfaz Web de Inferencia}
+Para demostrar la funcionalidad del modelo en un entorno interactivo, se ha desarrollado una aplicación web basada en \textit{Streamlit}. Esta interfaz permite a los usuarios:
+\begin{itemize}
+    \item \textbf{Ingesta de radiografías}: Cargar imágenes de radiografías torácicas en formatos comunes.
+    \item \textbf{Inferencia multietiqueta en tiempo real}: Obtener predicciones instantáneas sobre la presencia de múltiples patologías pulmonares.
+    \item \textbf{Visualización de mapas Grad-CAM}: Explorar las regiones de la imagen que el modelo considera más relevantes para cada predicción, ofreciendo interpretabilidad (\textit{eXplainable AI - XAI}).
+    \item \textbf{Descarga de informes}: Generar y descargar informes con los resultados de la inferencia y los mapas de atención.
+\end{itemize}
+La aplicación está desplegada públicamente y es accesible a través de la siguiente URL: \url{https://mdltfm-mvb.streamlit.app/}.
+
+\section{Contenedorización Local (Docker)}
+El sistema ha sido contenedorizado utilizando Docker para asegurar un entorno de ejecución aislado, reproducible y consistente. Esto elimina problemas de compatibilidad de dependencias y facilita el despliegue en diferentes plataformas. La imagen Docker incluye los siguientes componentes esenciales:
+\begin{itemize}
+    \item Un intérprete de Python con las versiones específicas de las librerías necesarias.
+    \item Todas las dependencias del proyecto, tales como \textit{PyTorch} (\texttt{torch}, \texttt{torchvision}) \cite{paszkePyTorch2019}, \texttt{pytorch\_grad\_cam} para la interpretabilidad, \texttt{streamlit} para la interfaz web y \texttt{fastapi} para posibles servicios backend.
+    \item Los pesos pre-entrenados del modelo (\texttt{.pt}), que encapsulan el conocimiento adquirido durante el entrenamiento.
+    \item Los parámetros de normalización utilizados durante el preprocesamiento de las imágenes (media: 0.5031, desviación estándar: 0.2900), fundamentales para el correcto funcionamiento del modelo.
+\end{itemize}
+Para ejecutar el contenedor localmente, una vez construida la imagen Docker, se puede utilizar un comando similar a:
+\begin{verbatim}
+docker run -p 8501:8501 <nombre_de_la_imagen>
+\end{verbatim}
+Este comando mapea el puerto 8501 del contenedor (donde se ejecuta Streamlit) al puerto 8501 del host local, permitiendo acceder a la interfaz web desde un navegador.
+
+\section{Repositorio y Despliegue en GitHub}
+El código fuente completo del proyecto, junto con los archivos de configuración necesarios para su despliegue y replicación, se encuentra disponible en un repositorio público de GitHub. Esta organización del repositorio busca garantizar la máxima reproducibilidad del trabajo.
+La estructura del repositorio incluye:
+\begin{itemize}
+    \item \texttt{requirements.txt}: Lista de todas las dependencias de Python para la instalación.
+    \item \texttt{Dockerfile}: Archivo de configuración para la construcción de la imagen Docker.
+    \item \texttt{docker-compose.yml} (si aplica): Para orquestar múltiples servicios en entornos más complejos.
+    \item Scripts de ejecución y configuración específicos del entorno.
+\end{itemize}
+Los evaluadores pueden clonar el repositorio y seguir las instrucciones detalladas en la documentación (`README.md`) para replicar el entorno de desarrollo y probar el sistema localmente.
