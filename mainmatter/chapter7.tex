@@ -26,18 +26,21 @@ experimentos— quedan fuera del control de versiones.
 
 \begin{figure}[ht]
 \centering
-\begin{tikzpicture}[font=\small,
-  root/.style={draw, rounded corners, fill=blue!12, minimum height=0.8cm},
-  leaf/.style={draw, rounded corners, fill=gray!8, anchor=west, minimum height=0.62cm, text width=7.4cm, align=left}]
-\node[root] (r) at (0,0.35) {\texttt{MDL\_TFM/}};
-\node[leaf] (a) at (3.2,2.2) {\texttt{src/} — código (modelos, API, app, entrenamiento)};
-\node[leaf] (b) at (3.2,1.45) {\texttt{config/} — \texttt{config.yml}};
-\node[leaf] (c) at (3.2,0.7) {\texttt{test/} — pruebas \textit{pytest}};
-\node[leaf] (d) at (3.2,-0.05) {\texttt{docs/} — documentación};
-\node[leaf] (e) at (3.2,-0.8) {\texttt{.github/} — integración continua (CI/CD)};
-\node[leaf] (f) at (3.2,-1.55) {\texttt{Dockerfile}, \texttt{docker-compose.yml}, \texttt{requirements.txt}};
-\foreach \x in {a,b,c,d,e,f} \draw[-{Latex}] (r.east) -- (\x.west);
-\end{tikzpicture}
+\begin{minipage}{0.82\textwidth}
+\begin{verbatim}
+MDL_TFM/
+|-- src/                  codigo: modelos, API, app, entrenamiento
+|-- config/               configuracion (config.yml)
+|-- test/                 pruebas (pytest)
+|-- docs/                 documentacion
+|-- .github/              integracion continua (CI/CD)
+|-- models/               checkpoints (no versionado)
+|-- experiments/          resultados por run (no versionado)
+|-- Dockerfile
+|-- docker-compose.yml
+`-- requirements.txt
+\end{verbatim}
+\end{minipage}
 \caption{Estructura del repositorio del proyecto.}
 \label{fig::repro_estructura}
 \end{figure}
