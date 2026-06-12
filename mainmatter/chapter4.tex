@@ -122,7 +122,7 @@ patología del modelo de referencia.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/roc-nofracture12.png}
+\includegraphics[width=0.85\textwidth]{figures/results/roc-nofracture12.png}
 \caption{Curvas ROC por patología del modelo de referencia (DenseNet-121,
 configuración \texttt{nofracture12}, test \textit{silver-standard}).}
 \label{fig::roc_nofracture12}
@@ -130,7 +130,7 @@ configuración \texttt{nofracture12}, test \textit{silver-standard}).}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/barras-auroc-arquitecturas.png}
+\includegraphics[width=0.8\textwidth]{figures/results/barras-auroc-arquitecturas.png}
 \caption{AUROC CheXpert-5 por arquitectura con intervalos de confianza al 95\,\%
 (configuración \texttt{nofracture12}).}
 \label{fig::barras_auroc}
@@ -199,7 +199,7 @@ Figura~\ref{fig::barras_macro} ilustra esta evolución.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/barras-auroc-macro-config.png}
+\includegraphics[width=0.8\textwidth]{figures/results/barras-auroc-macro-config.png}
 \caption{Evolución de las métricas macro al reducir el conjunto de clases.}
 \label{fig::barras_macro}
 \end{figure}
@@ -268,14 +268,14 @@ temprana.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{figures/matriz-confusion.png}
+\includegraphics[width=\textwidth]{figures/results/matriz-confusion.png}
 \caption{Matrices de confusión por patología (DenseNet-121, \texttt{nofracture12}).}
 \label{fig::matriz_confusion}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{figures/curvas-aprendizaje.png}
+\includegraphics[width=\textwidth]{figures/training/curvas-aprendizaje.png}
 \caption{Curvas de aprendizaje del modelo de referencia.}
 \label{fig::curvas_aprendizaje}
 \end{figure}
@@ -299,10 +299,10 @@ una garantía de corrección.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/gradcam-ejemplos_1.png}\\[8pt]
-\includegraphics[width=0.92\textwidth]{figures/gradcam-ejemplos_2.png}\\[8pt]
-\includegraphics[width=0.92\textwidth]{figures/gradcam-ejemplos_3.png}\\[8pt]
-\includegraphics[width=0.92\textwidth]{figures/gradcam-ejemplos_4.png}
+\includegraphics[width=0.92\textwidth]{figures/gradcam/gradcam-ejemplos_1.png}\\[8pt]
+\includegraphics[width=0.92\textwidth]{figures/gradcam/gradcam-ejemplos_2.png}\\[8pt]
+\includegraphics[width=0.92\textwidth]{figures/gradcam/gradcam-ejemplos_3.png}\\[8pt]
+\includegraphics[width=0.92\textwidth]{figures/gradcam/gradcam-ejemplos_4.png}
 \caption{Ejemplos de explicaciones Grad-CAM. En cada fila, de izquierda a derecha:
 la radiografía original y los mapas de calor de dos modelos sobre la misma imagen.}
 \label{fig::gradcam_ejemplos}
