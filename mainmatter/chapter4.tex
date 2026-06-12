@@ -208,59 +208,53 @@ Figura~\ref{fig::barras_macro} ilustra esta evolución.
 \section{Análisis}
 \label{sec::res_analisis}
 
-\subsection{Equivalencia estadística entre arquitecturas}
+El análisis de los resultados anteriores arroja cuatro observaciones principales. La
+primera es que, en la métrica principal, los intervalos de confianza de las cinco
+arquitecturas \textbf{se solapan por completo} en ambas configuraciones. En
+\texttt{nofracture12}, los puntos estimados van de 0.8403 (VGG16-BN) a 0.8536
+(ConvNeXt-Tiny) —una diferencia de apenas 0.0133— y en \texttt{min5pct9} de 0.8256
+(DenseNet-121) a 0.8505 (ConvNeXt-Tiny) —0.0249—, en ambos casos muy inferiores a la
+anchura de los intervalos ($\sim$$\pm$0.027). En consecuencia, \textbf{ninguna
+arquitectura es significativamente superior} a las demás sobre este conjunto de prueba:
+aunque ConvNeXt-Tiny obtiene el punto más alto en las dos configuraciones, la
+diferencia no es estadísticamente distinguible, un resultado coherente con la
+literatura comparativa, que tampoco identifica un ganador claro entre arquitecturas
+modernas sobre radiografía de tórax~\cite{bressemComparingDeepLearning2020}.
 
-En la métrica principal, los intervalos de confianza de las cinco arquitecturas
-\textbf{se solapan por completo} en ambas configuraciones. En \texttt{nofracture12},
-los puntos estimados van de 0.8403 (VGG16-BN) a 0.8536 (ConvNeXt-Tiny) —una
-diferencia de apenas 0.0133— y en \texttt{min5pct9} de 0.8256 (DenseNet-121) a
-0.8505 (ConvNeXt-Tiny) —0.0249—, en ambos casos muy inferiores a la anchura de los
-intervalos ($\sim$$\pm$0.027). En consecuencia, \textbf{ninguna arquitectura es
-significativamente superior} a las demás sobre este conjunto de prueba: aunque
-ConvNeXt-Tiny obtiene el punto más alto en las dos configuraciones, la diferencia no
-es estadísticamente distinguible. Este resultado es coherente con la literatura comparativa, que
-tampoco identifica un ganador claro entre arquitecturas modernas sobre radiografía
-de tórax~\cite{bressemComparingDeepLearning2020}.
+Frente a esa equivalencia entre arquitecturas, la segunda observación es que el
+conjunto de clases sí produce un efecto medible. El contraste se aprecia con nitidez al
+comparar una misma arquitectura entre configuraciones, donde la única variable que
+cambia es el conjunto de clases: para ConvNeXt-Tiny, la AUROC-macro pasa de 0.8129
+[0.793, 0.852] en \texttt{nofracture12} a 0.8788 [0.860, 0.897] en \texttt{min5pct9},
+de modo que \textbf{los intervalos no se solapan} (y el mismo patrón se observa en la
+PR-AUC-macro). La explicación es directa: reducir el conjunto a las nueve clases de
+prevalencia $\geq$5\,\% elimina las patologías raras y mal soportadas —cuyas métricas
+individuales son muy ruidosas— y, con ello, mejora los promedios macro. Que la AUROC
+CheXpert-5 permanezca estable confirma que esta mejora proviene de excluir clases
+difíciles, no de un mejor aprendizaje de las cinco principales. En síntesis,
+\textbf{el conjunto de clases evaluado influye más en las métricas agregadas que la
+elección de arquitectura}.
 
-\subsection{La configuración de clases influye más que la arquitectura}
+Si el rendimiento no permite decidir entre arquitecturas, el coste sí lo hace, y esa es
+la tercera observación. DenseNet-121 es la más eficiente —el menor número de parámetros
+($\sim$7\,M) y duraciones por ejecución de entre 95 y 130 minutos— con un rendimiento
+estadísticamente equivalente al resto. Swin-Tiny es la más lenta entre las modernas
+(hasta 235 minutos) sin ventaja de rendimiento que lo justifique, y \textbf{VGG16-BN
+es, con diferencia, la más cara}: 817 minutos en \texttt{nofracture12} y 557 en
+\texttt{min5pct9}, entre seis y nueve veces el coste de DenseNet-121 —por el
+desbordamiento de memoria que provocan sus 138 millones de parámetros— y, además, la
+del peor punto en la métrica principal en ambas configuraciones, un caso de manual de
+mayor coste sin beneficio alguno. Dada la equivalencia en rendimiento,
+\textbf{DenseNet-121 ofrece la mejor relación rendimiento/coste}, lo que respalda su uso
+como arquitectura de referencia en radiografía de tórax; si se priorizara el punto
+estimado más alto sin atender al coste, ConvNeXt-Tiny lo encabezaría.
 
-El contraste se aprecia con nitidez al comparar una misma arquitectura entre
-configuraciones, donde la única variable que cambia es el conjunto de clases. Para
-ConvNeXt-Tiny, la AUROC-macro pasa de 0.8129
-[0.793, 0.852] en \texttt{nofracture12} a 0.8788 [0.860, 0.897] en
-\texttt{min5pct9}: \textbf{los intervalos no se solapan}. El mismo patrón se
-observa en la PR-AUC-macro. La explicación es directa: reducir el conjunto a las
-nueve clases de prevalencia $\geq$5\,\% elimina las patologías raras y mal
-soportadas —cuyas métricas individuales son muy ruidosas— y, con ello, mejora los
-promedios macro. Que la AUROC CheXpert-5 permanezca estable confirma que esta
-mejora proviene de excluir clases difíciles, no de un mejor aprendizaje de las cinco
-principales. La conclusión transversal es que \textbf{el conjunto de clases evaluado
-influye más en las métricas agregadas que la elección de arquitectura}.
-
-\subsection{Coste computacional}
-
-Las arquitecturas difieren notablemente en coste. DenseNet-121 es la más eficiente
-—el menor número de parámetros ($\sim$7\,M) y duraciones por ejecución de entre 95 y
-130 minutos— con un rendimiento estadísticamente equivalente al resto. Swin-Tiny es
-la más lenta entre las modernas (hasta 235 minutos) sin ventaja de rendimiento que lo
-justifique. \textbf{VGG16-BN es, con diferencia, la más cara}: 817 minutos en
-\texttt{nofracture12} y 557 en \texttt{min5pct9}, entre seis y nueve veces el coste de
-DenseNet-121 —por el desbordamiento de memoria que provocan sus 138 millones de
-parámetros— y, además, la del peor punto en la métrica principal en ambas
-configuraciones; constituye el ejemplo de manual de mayor coste sin beneficio alguno.
-Dada la equivalencia en rendimiento, \textbf{DenseNet-121 ofrece la mejor relación
-rendimiento/coste}, lo que respalda su uso como arquitectura de referencia en
-radiografía de tórax; si se priorizara el punto estimado más alto sin atender al
-coste, ConvNeXt-Tiny lo encabezaría.
-
-\subsection{Análisis por patología y de errores}
-
-El comportamiento agregado oculta diferencias notables entre patologías. Las clases
-bien representadas en el test (\textit{Pleural Effusion}, \textit{Edema},
-\textit{Cardiomegaly}) alcanzan AUROC elevadas y estables, mientras que las clases
-con muy pocos positivos resultan poco fiables o directamente no evaluables: en el
-test silver, \textit{Fracture} no presenta ningún positivo y \textit{Lung Lesion}
-apenas uno, por lo que sus métricas carecen de significado estadístico. La
+Por último, el comportamiento agregado oculta diferencias notables entre patologías.
+Las clases bien representadas en el test (\textit{Pleural Effusion}, \textit{Edema},
+\textit{Cardiomegaly}) alcanzan AUROC elevadas y estables, mientras que las clases con
+muy pocos positivos resultan poco fiables o directamente no evaluables: en el test
+silver, \textit{Fracture} no presenta ningún positivo y \textit{Lung Lesion} apenas
+uno, por lo que sus métricas carecen de significado estadístico. La
 Figura~\ref{fig::matriz_confusion} muestra las matrices de confusión por clase del
 modelo de referencia, y la Figura~\ref{fig::curvas_aprendizaje} sus curvas de
 aprendizaje, que evidencian una convergencia estable y la actuación de la parada
