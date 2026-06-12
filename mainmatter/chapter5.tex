@@ -214,19 +214,19 @@ con claridad.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/web/zona-parametros_1_modelo.png}\hfill
-\includegraphics[width=0.48\textwidth]{figures/web/zona-carga.png}
-\caption{Configuración del modelo y de los parámetros en la barra lateral (izquierda)
-y carga de la radiografía (derecha).}
+\includegraphics[width=0.30\textwidth]{figures/web/zona-parametros_1_modelo.png}\\[10pt]
+\includegraphics[width=\textwidth]{figures/web/zona-carga.png}
+\caption{Configuración del modelo y de los parámetros en la barra lateral (arriba)
+y carga de la radiografía (abajo).}
 \label{fig::web_config}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/web/zona_resumen.png}\hfill
-\includegraphics[width=0.48\textwidth]{figures/web/zona-probabilidad-modelo-A.png}
-\caption{Resumen de resultados con las tarjetas principales (izquierda) y panel de
-probabilidades por patología (derecha).}
+\includegraphics[width=\textwidth]{figures/web/zona_resumen.png}\\[10pt]
+\includegraphics[width=\textwidth]{figures/web/zona-probabilidad-modelo-A.png}
+\caption{Resumen de resultados con las tarjetas principales (arriba) y panel de
+probabilidades por patología (abajo).}
 \label{fig::web_resultados}
 \end{figure}
 
@@ -240,10 +240,10 @@ y su mapa de calor Grad-CAM superpuesto.}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/web/zona-exportar.png}\hfill
-\includegraphics[width=0.48\textwidth]{figures/web/zona-historial-sesion.png}
-\caption{Opciones de descarga del informe y de las imágenes (izquierda) e historial de
-la sesión (derecha).}
+\includegraphics[width=\textwidth]{figures/web/zona-exportar.png}\\[10pt]
+\includegraphics[width=\textwidth]{figures/web/zona-historial-sesion.png}
+\caption{Opciones de descarga del informe y de las imágenes (arriba) e historial de
+la sesión (abajo).}
 \label{fig::web_exportar}
 \end{figure}
 
@@ -258,19 +258,19 @@ y~\ref{fig::web_comparacion_tabla}.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/web/zona-parametros_2_modelos.png}\hfill
-\includegraphics[width=0.48\textwidth]{figures/web/zona-comparacion-patologias-comunes.png}
-\caption{Modo de comparación de dos modelos: selección de ambos modelos (izquierda) y
-gráfica comparativa sobre las patologías comunes (derecha).}
+\includegraphics[width=0.27\textwidth]{figures/web/zona-parametros_2_modelos.png}\\[10pt]
+\includegraphics[width=\textwidth]{figures/web/zona-comparacion-patologias-comunes.png}
+\caption{Modo de comparación de dos modelos: selección de ambos modelos (arriba) y
+gráfica comparativa sobre las patologías comunes (abajo).}
 \label{fig::web_comparacion}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/web/zona-probabilidad-modelo-B.png}\hfill
-\includegraphics[width=0.48\textwidth]{figures/web/zona-tabla-comparativa.png}
-\caption{Comparación de dos modelos: probabilidades del segundo modelo (izquierda) y
-tabla con la diferencia absoluta entre ambos por patología (derecha).}
+\includegraphics[width=\textwidth]{figures/web/zona-probabilidad-modelo-B.png}\\[10pt]
+\includegraphics[width=\textwidth]{figures/web/zona-tabla-comparativa.png}
+\caption{Comparación de dos modelos: probabilidades del segundo modelo (arriba) y
+tabla con la diferencia absoluta entre ambos por patología (abajo).}
 \label{fig::web_comparacion_tabla}
 \end{figure}
 
@@ -349,19 +349,26 @@ sistema es el siguiente: el usuario carga la imagen en la interfaz web, que la
 valida y la envía; el modelo —cargado una sola vez— la preprocesa y produce las
 probabilidades por patología; se aplica el umbral de decisión para determinar las
 patologías detectadas; se genera el mapa de calor Grad-CAM para las más probables;
-y, finalmente, se presentan los resultados y se ofrece la descarga del informe. La
-Figura~\ref{fig::informe-pdf} muestra un ejemplo del informe generado, que recoge
+y, finalmente, se presentan los resultados y se ofrece la descarga del informe. Las
+Figuras~\ref{fig::informe-pdf} y~\ref{fig::informe-pdf-cont} muestran un ejemplo del
+informe generado, que recoge
 los metadatos de la predicción, la tabla de probabilidades y las explicaciones
 visuales, junto con una advertencia explícita sobre su carácter de herramienta de
 apoyo y no de diagnóstico definitivo.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.235\textwidth]{figures/web/informe-pdf_1.png}\hfill
-\includegraphics[width=0.235\textwidth]{figures/web/informe-pdf_2.png}\hfill
-\includegraphics[width=0.235\textwidth]{figures/web/informe-pdf_3.png}\hfill
-\includegraphics[width=0.235\textwidth]{figures/web/informe-pdf_4.png}
-\caption{Informe PDF generado por la aplicación, mostrado en secciones sucesivas
-(de izquierda a derecha, según el orden de lectura del documento).}
+\includegraphics[width=0.45\textwidth]{figures/web/informe-pdf_1.png}\\[8pt]
+\includegraphics[width=0.45\textwidth]{figures/web/informe-pdf_2.png}
+\caption{Informe PDF generado por la aplicación (secciones 1 y 2, en orden de lectura
+descendente).}
 \label{fig::informe-pdf}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/web/informe-pdf_3.png}\\[8pt]
+\includegraphics[width=0.45\textwidth]{figures/web/informe-pdf_4.png}
+\caption{Informe PDF generado por la aplicación (secciones 3 y 4, continuación).}
+\label{fig::informe-pdf-cont}
 \end{figure}
