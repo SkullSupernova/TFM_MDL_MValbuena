@@ -8,7 +8,28 @@ el conjunto de datos, la cadena de procesamiento (ETL), las configuraciones de
 clases y el diseño experimental, la arquitectura de los modelos, el protocolo de
 entrenamiento y evaluación, la técnica de explicabilidad y los mecanismos de
 gestión de experimentos y reproducibilidad. La descripción se corresponde con la
-implementación desarrollada en el repositorio del proyecto.
+implementación desarrollada en el repositorio del proyecto. Para situar al lector, la
+Figura~\ref{fig::mm_workflow} ofrece una visión global del flujo de trabajo completo,
+desde el conjunto de datos hasta el despliegue.
+
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small, node distance=0.5cm,
+  wf/.style={draw, rounded corners, minimum height=1.2cm, text width=2.1cm, align=center, fill=blue!8},
+  arr/.style={-{Latex}, thick}]
+\node[wf] (a) {Datos\\CheXpert};
+\node[wf, right=of a] (b) {ETL\\(filtrado y etiquetas)};
+\node[wf, right=of b] (c) {Configuración\\de clases};
+\node[wf, right=of c] (d) {Entrenamiento\\(5 arquitecturas)};
+\node[wf, right=of d] (e) {Evaluación\\(test silver + IC)};
+\node[wf, right=of e] (f) {Selección y\\registro};
+\node[wf, right=of f] (g) {Despliegue\\(API + web)};
+\foreach \x/\y in {a/b,b/c,c/d,d/e,e/f,f/g} \draw[arr] (\x) -- (\y);
+\end{tikzpicture}}
+\caption{Flujo de trabajo completo del proyecto, del conjunto de datos al despliegue.}
+\label{fig::mm_workflow}
+\end{figure}
 
 
 \section{Conjunto de datos: CheXpert}
@@ -672,7 +693,26 @@ caracterización completa del rendimiento por patología. La exactitud se report
 
 \subsection{Protocolo de evaluación}
 
-La evaluación se realiza en dos niveles. Durante el entrenamiento, sobre el
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small, node distance=0.5cm,
+  tr/.style={draw, rounded corners, minimum height=1.4cm, text width=2.5cm, align=center, fill=blue!8},
+  arr/.style={-{Latex}, thick}]
+\node[tr] (a) {Train / Val\\(split por paciente)};
+\node[tr, right=of a] (b) {Bucle de entrenamiento\\(AdamW, BCE+\texttt{pos\_weight}, AMP)};
+\node[tr, right=of b] (c) {Mejor época\\(AUROC val, \textit{early stopping})};
+\node[tr, right=of c] (d) {Evaluación en test \textit{silver}\\(métricas + IC bootstrap)};
+\node[tr, right=of d] (e) {Gate de promoción\\y registro del modelo};
+\foreach \x/\y in {a/b,b/c,c/d,d/e} \draw[arr] (\x) -- (\y);
+\end{tikzpicture}}
+\caption{Flujo de entrenamiento y evaluación, de la división por paciente al registro
+del mejor modelo.}
+\label{fig::mm_train_eval}
+\end{figure}
+
+La Figura~\ref{fig::mm_train_eval} resume este proceso. La evaluación se realiza en dos
+niveles. Durante el entrenamiento, sobre el
 conjunto de \textbf{validación}, se monitoriza el AUROC-macro, que determina la
 selección del mejor epoch. Sobre el conjunto de \textbf{prueba}
 \textit{silver-standard} se calcula el conjunto completo de métricas por patología
