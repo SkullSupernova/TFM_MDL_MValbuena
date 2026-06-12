@@ -57,6 +57,30 @@ complejidad de despliegue, se mitiga con la contenedorización
 \label{fig::arquitectura-despliegue}
 \end{figure}
 
+A un nivel más fino, la Figura~\ref{fig::dep_componentes} muestra la relación entre los
+principales módulos de código del proyecto, agrupados según su función.
+
+\begin{figure}[ht]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[font=\small, node distance=0.7cm,
+  grp/.style={draw, rounded corners, minimum height=2.3cm, text width=3.4cm, align=center, fill=blue!8},
+  cfg/.style={draw, rounded corners, minimum height=0.9cm, fill=orange!15, align=center},
+  arr/.style={-{Latex}, thick}]
+\node[grp] (datos) {\textbf{Datos y modelos}\\\texttt{utils.py} (ETL)\\\texttt{models.py} (arquitecturas)};
+\node[grp, right=1.2cm of datos] (train) {\textbf{Entrenamiento y evaluación}\\\texttt{main.py} (orquestación)\\\texttt{train.py}, \texttt{evaluate.py}\\\texttt{experiment\_tracker.py}};
+\node[grp, right=1.2cm of train] (depl) {\textbf{Despliegue}\\\texttt{api.py} (FastAPI)\\\texttt{app.py} (Streamlit)\\\texttt{report.py} (PDF)};
+\node[cfg, above=0.6cm of train] (cfg) {\texttt{config.yml}};
+\draw[arr] (datos) -- (train);
+\draw[arr] (train) -- node[above,font=\scriptsize]{\textit{checkpoint}} (depl);
+\draw[arr] (cfg) -- (datos.north);
+\draw[arr] (cfg) -- (train);
+\draw[arr] (cfg) -- (depl.north);
+\end{tikzpicture}}
+\caption{Relación entre los principales componentes software del proyecto.}
+\label{fig::dep_componentes}
+\end{figure}
+
 
 \section{API REST de inferencia}
 \label{sec::dep_api}
