@@ -19,9 +19,9 @@ El código fuente completo está disponible en un repositorio público de GitHub
 diferenciados, según se muestra en la Figura~\ref{fig::repro_estructura}: el código
 fuente (\texttt{src/}), la configuración (\texttt{config/}), las pruebas
 (\texttt{test/}), la documentación (\texttt{docs/}) y la definición de la integración
-continua (\texttt{.github/}). Por otro lado, los artefactos pesados —el conjunto de
+continua (\texttt{.github/}). Por otro lado, los artefactos pesados, el conjunto de
 datos, los modelos entrenados (\texttt{models/}) y los resultados de los experimentos
-(\texttt{experiments/})— quedan deliberadamente fuera del control de versiones, tanto
+(\texttt{experiments/}), quedan deliberadamente fuera del control de versiones, tanto
 por su tamaño como por contener datos que no deben distribuirse; en su lugar, se
 referencian mediante rutas y sumas de verificación.
 
@@ -60,16 +60,16 @@ distintas:
         precisión mixta automática para reducir el tiempo de cómputo.
   \item \textbf{Inferencia y despliegue:} se ejecutan sobre \textbf{CPU} de forma
         deliberada. La imagen de despliegue instala las versiones de PyTorch 2.12 y
-        torchvision 0.27 para CPU, lo que maximiza la portabilidad —el sistema puede
-        ejecutarse en cualquier máquina, incluso sin tarjeta gráfica— a costa de una
+        torchvision 0.27 para CPU, lo que maximiza la portabilidad, el sistema puede
+        ejecutarse en cualquier máquina, incluso sin tarjeta gráfica, a costa de una
         latencia mayor, perfectamente asumible para el uso interactivo previsto.
 \end{itemize}
 
 \section{Contenedorización}
 \label{sec::repro_docker}
 
-Para eliminar la dependencia del entorno local —la causa más frecuente de los problemas
-de reproducibilidad—, el sistema se distribuye como una imagen Docker construida sobre
+Para eliminar la dependencia del entorno local, la causa más frecuente de los problemas
+de reproducibilidad, el sistema se distribuye como una imagen Docker construida sobre
 \texttt{python:3.12-slim}, que empaqueta el código y todas sus dependencias. Existen,
 además, dos vías de despliegue complementarias: la \textbf{construcción desde el código
 fuente} (descrita en el Anexo~\ref{anexo::docker-local}) y la \textbf{descarga de la
@@ -80,9 +80,9 @@ modo que la imagen disponible siempre corresponde al estado actual del repositor
 \section{Control de la aleatoriedad}
 \label{sec::repro_semilla}
 
-El entrenamiento de redes neuronales incorpora numerosas fuentes de aleatoriedad —la
+El entrenamiento de redes neuronales incorpora numerosas fuentes de aleatoriedad, la
 inicialización de los pesos, el barajado de los datos o el comportamiento de ciertas
-operaciones en la GPU— que, sin control, harían que dos ejecuciones idénticas
+operaciones en la GPU, que, sin control, harían que dos ejecuciones idénticas
 produjeran resultados distintos. Para evitarlo, todos los experimentos emplean una
 \textbf{semilla fija (42)} que inicializa de forma determinista los generadores de
 números aleatorios de Python, NumPy y PyTorch. Asimismo, la carga de datos se realiza en
@@ -90,8 +90,8 @@ un único hilo (\texttt{num\_workers=0}), decisión que, además de ser más rob
 Windows, elimina la variabilidad introducida por la concurrencia. No obstante, conviene
 ser honesto sobre sus límites: un determinismo \textbf{exacto a nivel de bits} no está
 garantizado entre distintas máquinas o versiones de las bibliotecas de cálculo (cuDNN),
-por lo que la reproducibilidad debe entenderse en términos prácticos —resultados
-equivalentes dentro del margen de la incertidumbre estadística reportada— y no como una
+por lo que la reproducibilidad debe entenderse en términos prácticos, resultados
+equivalentes dentro del margen de la incertidumbre estadística reportada, y no como una
 igualdad binaria perfecta.
 
 \section{Trazabilidad de los experimentos}
@@ -115,8 +115,8 @@ fuente autoritativa de los resultados presentados en el Capítulo~\ref{sec::capi
 
 Para garantizar que el código permanece funcional a lo largo del desarrollo, el
 repositorio incorpora una batería de \textbf{153 pruebas automatizadas} (con
-\textit{pytest}) que cubren los módulos críticos —el procesamiento de datos, los
-modelos, la evaluación, el registro de experimentos y la API—. Estas pruebas se ejecutan
+\textit{pytest}) que cubren los módulos críticos, el procesamiento de datos, los
+modelos, la evaluación, el registro de experimentos y la API, . Estas pruebas se ejecutan
 de forma automática mediante un flujo de \textbf{integración continua} en GitHub Actions
 con cada cambio enviado al repositorio, de modo que cualquier regresión se detecta de
 inmediato. La integración continua se ejecuta sobre CPU de forma intencionada, para

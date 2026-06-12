@@ -41,10 +41,10 @@ La elección del conjunto de datos es una de las decisiones más determinantes e
 un proyecto de aprendizaje profundo aplicado a imagen médica, pues condiciona el
 alcance de las patologías detectables, la calidad de la supervisión y la validez
 de las conclusiones. Como se expuso en el Capítulo~\ref{ch::capitulo2}, existen
-varios repositorios públicos de radiografía de tórax a gran escala
-—ChestX-ray14~\cite{wangChestXray8Hospital2017},
+varios repositorios públicos de radiografía de tórax a gran escala,
+ChestX-ray14~\cite{wangChestXray8Hospital2017},
 MIMIC-CXR~\cite{johnsonMIMICCXR2019} y
-PadChest~\cite{bustosPadChest2020}, entre otros—, cada uno con compromisos
+PadChest~\cite{bustosPadChest2020}, entre otros, cada uno con compromisos
 distintos entre tamaño, número de patologías y calidad de anotación. Este trabajo
 emplea \textbf{CheXpert}~\cite{irvinCheXpertLargeChest2019}, publicado por la
 Universidad de Stanford, por tres motivos: su gran tamaño, su adopción como banco
@@ -69,8 +69,8 @@ condiciones de adquisición.
 
 \subsection{Patologías y sistema de etiquetado}
 
-Cada estudio se etiqueta con \textbf{14 observaciones clínicas} —trece patologías
-o hallazgos más la categoría \textit{No Finding}— seleccionadas por su prevalencia
+Cada estudio se etiqueta con \textbf{14 observaciones clínicas}, trece patologías
+o hallazgos más la categoría \textit{No Finding}, seleccionadas por su prevalencia
 y relevancia clínica, siguiendo en lo posible el glosario de la Fleischner
 Society. Dado que anotar manualmente más de doscientas mil imágenes es inviable,
 las etiquetas se obtienen de forma automática a partir del texto libre de los
@@ -128,8 +128,8 @@ explícitamente esta limitación.
 
 \subsection{Ventajas y limitaciones}
 
-Las principales \textbf{ventajas} de CheXpert son su gran escala —que favorece el
-aprendizaje de representaciones robustas—, la cobertura de catorce hallazgos
+Las principales \textbf{ventajas} de CheXpert son su gran escala, que favorece el
+aprendizaje de representaciones robustas, la cobertura de catorce hallazgos
 clínicamente relevantes, el tratamiento explícito de la incertidumbre y la
 existencia de un conjunto de validación anotado por radiólogos. Entre sus
 \textbf{limitaciones} destacan el ruido inherente al etiquetado automático del
@@ -178,9 +178,9 @@ cada uno justificado por una decisión de diseño concreta:
 \begin{itemize}
   \item \textbf{Proyección frontal anteroposterior (AP).} CheXpert incluye
         radiografías en proyección frontal (AP y posteroanterior, PA) y lateral.
-        Las proyecciones presentan diferencias anatómicas notables —en la lateral
+        Las proyecciones presentan diferencias anatómicas notables, en la lateral
         las estructuras se superponen de forma distinta y el tamaño cardíaco no es
-        directamente comparable—, por lo que mezclarlas introduce variabilidad
+        directamente comparable, por lo que mezclarlas introduce variabilidad
         que dificulta el aprendizaje. Se conserva únicamente la proyección
         frontal AP para garantizar la homogeneidad del conjunto.
   \item \textbf{Valores de etiqueta permitidos $\{0,\ 1,\ \text{ausente}\}$.} Se
@@ -192,7 +192,7 @@ cada uno justificado por una decisión de diseño concreta:
         \textit{No Finding} (ausencia de hallazgos) es incompatible con la
         presencia simultánea de cualquier patología. Los estudios que la marcan
         como positiva junto con otra observación positiva constituyen una
-        contradicción —probablemente un error del etiquetado automático— y se
+        contradicción, probablemente un error del etiquetado automático, y se
         eliminan para no introducir señal contradictoria.
   \item \textbf{Sexo registrado.} Se conservan los registros de pacientes de sexo
         masculino y femenino, descartando los valores ausentes o no
@@ -209,7 +209,7 @@ diversidad demográfica del conjunto.
   etl/.style={draw, rounded corners, minimum width=10cm, minimum height=0.8cm, align=center, fill=blue!8},
   etlhi/.style={draw, rounded corners, minimum width=10cm, minimum height=0.95cm, align=center, fill=orange!18},
   arr/.style={-{Latex}, thick}]
-\node[etl] (a) {CheXpert — etiquetas CheXbert (\texttt{train\_cheXbert.csv})};
+\node[etl] (a) {CheXpert, etiquetas CheXbert (\texttt{train\_cheXbert.csv})};
 \node[etl, below=of a] (b) {Filtrado ETL: solo Frontal+AP, valores $\{0,1,\text{NaN}\}$, sin inconsistencias};
 \node[etl, below=of b] (c) {Tratamiento de etiquetas ausentes (NaN $\rightarrow$ 0)};
 \node[etlhi, below=of c] (d) {\textbf{Selección de configuración de clases} (\texttt{full13}\,/\,\texttt{nofracture12}\,/\,\texttt{min5pct9})\\filtrado de prevalencia y anti-ruido, aplicado \textbf{solo a entrenamiento y validación}};
@@ -225,9 +225,9 @@ diversidad demográfica del conjunto.
 
 Una vez filtrado el conjunto, las etiquetas \textbf{ausentes} (patologías no
 mencionadas en el informe) se imputan al valor negativo (0). Caben aquí varias
-alternativas: descartar dichos estudios —lo que reduciría drásticamente el
+alternativas: descartar dichos estudios, lo que reduciría drásticamente el
 tamaño del conjunto, dado que la mayoría de informes no mencionan todas las
-patologías—, imputarlas mediante un modelo, o asignarles el valor negativo. Se
+patologías, imputarlas mediante un modelo, o asignarles el valor negativo. Se
 opta por esta última: la ausencia de mención en un informe radiológico es la
 señal más débil posible y, en la práctica clínica, asimilable a un negativo
 implícito (el radiólogo no consideró relevante señalar ese hallazgo). Esta
@@ -349,7 +349,7 @@ entre sí como el efecto de la selección de clases sobre el rendimiento. La
 comparativa se llevó a cabo finalmente con las cinco arquitecturas en ambas
 configuraciones reducidas. Los experimentos realizados son los siguientes:
 
-\textbf{Experimento 1 — DenseNet-121 con 13 clases (\texttt{full13}).}
+\textbf{Experimento 1, DenseNet-121 con 13 clases (\texttt{full13}).}
 \begin{itemize}
   \item \textit{Objetivo:} establecer un modelo de referencia sobre el conjunto
         completo de 13 clases.
@@ -361,7 +361,7 @@ configuraciones reducidas. Los experimentos realizados son los siguientes:
         fiable.
 \end{itemize}
 
-\textbf{Experimento 2 — Todas las arquitecturas con 12 clases (\texttt{nofracture12}).}
+\textbf{Experimento 2, Todas las arquitecturas con 12 clases (\texttt{nofracture12}).}
 \begin{itemize}
   \item \textit{Objetivo:} comparar el rendimiento de las cinco arquitecturas
         (DenseNet-121, ResNet-50, VGG16-BN, ConvNeXt-Tiny y Swin-Tiny) sobre la
@@ -377,7 +377,7 @@ configuraciones reducidas. Los experimentos realizados son los siguientes:
         número de arquitecturas.
 \end{itemize}
 
-\textbf{Experimento 3 — Todas las arquitecturas con 9 clases (\texttt{min5pct9}).}
+\textbf{Experimento 3, Todas las arquitecturas con 9 clases (\texttt{min5pct9}).}
 \begin{itemize}
   \item \textit{Objetivo:} comparar las arquitecturas en un escenario menos
         desbalanceado, conservando únicamente las clases con prevalencia igual o
@@ -401,7 +401,7 @@ Entrenar una red neuronal profunda desde cero requiere grandes volúmenes de dat
 y de cómputo, recursos a menudo escasos en imagen médica. El \textbf{aprendizaje
 por transferencia} (\textit{transfer learning}) ofrece una alternativa eficaz:
 reutilizar un modelo previamente entrenado sobre un gran corpus de imágenes
-naturales —típicamente ImageNet~\cite{dengImageNet2009}— como punto de partida.
+naturales, típicamente ImageNet~\cite{dengImageNet2009}, como punto de partida.
 Existen dos modalidades principales: la \textbf{extracción de características}
 (\textit{feature extraction}), que congela los pesos del modelo preentrenado y
 solo entrena la nueva capa de salida, y el \textbf{ajuste fino}
@@ -415,8 +415,8 @@ sobreajuste que se controla con regularización.
 \subsection{Cabeza de clasificación}
 
 La capa de clasificación original de cada backbone se sustituye por una cabeza
-adaptada a la tarea multietiqueta. Frente a la alternativa más simple —una única
-capa lineal—, se emplea una cabeza de cuatro capas:
+adaptada a la tarea multietiqueta. Frente a la alternativa más simple, una única
+capa lineal, se emplea una cabeza de cuatro capas:
 
 \begin{equation*}
 \text{Linear}(d \rightarrow 1024) \;\rightarrow\; \text{ReLU} \;\rightarrow\;
@@ -426,9 +426,9 @@ capa lineal—, se emplea una cabeza de cuatro capas:
 donde $d$ es la dimensión de características del backbone y $C$ el número de
 clases activas. La capa oculta intermedia, seguida de una activación no lineal
 ReLU, permite aprender combinaciones de mayor nivel de las características
-extraídas, mientras que la capa de \textit{Dropout}~\cite{srivastavaDropout2014}
-—que desactiva aleatoriamente una fracción de las neuronas durante el
-entrenamiento— actúa como regularizador y mitiga el sobreajuste, especialmente
+extraídas, mientras que la capa de \textit{Dropout}~\cite{srivastavaDropout2014},
+que desactiva aleatoriamente una fracción de las neuronas durante el
+entrenamiento, actúa como regularizador y mitiga el sobreajuste, especialmente
 relevante dado el tamaño limitado y el ruido de etiquetado del conjunto. La salida
 son $C$ logits, uno por patología; sobre cada uno se aplica de forma independiente
 una función sigmoide para obtener la probabilidad de presencia de esa patología,
@@ -583,15 +583,15 @@ limitaciones que justifican el carácter conservador de la configuración adopta
 son las siguientes:
 
 \begin{itemize}
-  \item \textbf{Generación de imágenes no realistas:} las transformaciones agresivas
-        —rotaciones amplias, recortes pronunciados o distorsiones de intensidad— pueden
+  \item \textbf{Generación de imágenes no realistas:} las transformaciones agresivas,
+      rotaciones amplias, recortes pronunciados o distorsiones de intensidad, pueden
         producir radiografías anatómicamente imposibles que el modelo nunca
         encontraría en la práctica, introduciendo ruido en lugar de variabilidad
         útil~\cite{hryniewskaChecklistResponsible2021}.
   \item \textbf{Alteración de la información clínica:} ciertas transformaciones pueden
         modificar la semántica de la imagen. El volteo horizontal, en concreto, invierte
         la lateralidad; aunque es una transformación muy habitual en radiografía de
-        tórax —pues la mayoría de los hallazgos son aproximadamente bilaterales—, no es
+        tórax, pues la mayoría de los hallazgos son aproximadamente bilaterales, no es
         inocua, ya que la silueta cardíaca no es simétrica y un volteo puede simular
         condiciones como la dextrocardia, por lo que se recomienda valorarla con
         criterio clínico~\cite{hryniewskaChecklistResponsible2021}.
@@ -610,8 +610,8 @@ conservador: se asume el volteo horizontal por su uso extendido, pero se descart
 alteraciones más agresivas que comprometan la plausibilidad anatómica o la lateralidad
 de la radiografía.
 
-Tras el aumento, las imágenes se redimensionan a $224 \times 224$ píxeles
-—resolución estándar de los modelos preentrenados en ImageNet— y se normalizan con
+Tras el aumento, las imágenes se redimensionan a $224 \times 224$ píxeles,
+resolución estándar de los modelos preentrenados en ImageNet, y se normalizan con
 la media y la desviación estándar de ImageNet, condición necesaria para que las
 estadísticas de entrada coincidan con las que el backbone vio durante su
 preentrenamiento. En validación y prueba no se aplica aumento alguno, con el fin
@@ -667,8 +667,8 @@ utilizadas, que son las siguientes:
         único valor el equilibrio entre ambas a un umbral de decisión concreto, y solo
         es alta cuando las dos lo son. Su limitación es que depende del umbral elegido.
   \item \textbf{AUROC (área bajo la curva ROC):} mide la capacidad de
-        \textbf{discriminación} del modelo —su habilidad para ordenar un caso positivo
-        por delante de uno negativo— de forma \textbf{independiente del umbral}. Un
+        \textbf{discriminación} del modelo, su habilidad para ordenar un caso positivo
+        por delante de uno negativo, de forma \textbf{independiente del umbral}. Un
         valor de 0,5 equivale al azar y 1,0 a la discriminación perfecta. Es robusta
         frente al desbalanceo, aunque puede resultar optimista cuando los negativos son
         muy abundantes.
@@ -720,8 +720,8 @@ y agregadas, prestando especial atención al \textbf{AUROC promediado sobre las
 cinco patologías de la competición oficial de CheXpert} (\textit{Atelectasis},
 \textit{Cardiomegaly}, \textit{Consolidation}, \textit{Edema} y \textit{Pleural
 Effusion}). Estas cinco observaciones se han escogido como referencia principal de
-comparación por dos razones: están bien representadas en el conjunto de prueba
-—lo que proporciona estimaciones estables—, y constituyen el estándar de
+comparación por dos razones: están bien representadas en el conjunto de prueba,
+lo que proporciona estimaciones estables, y constituyen el estándar de
 comparación con la literatura, al ser las empleadas en la competición oficial.
 
 La selección automática del modelo de producción se realiza mediante un
@@ -749,7 +749,7 @@ profundas son inherentemente opacas y que su capacidad predictiva es el objetivo
 prioritario, en este trabajo se recurre a un método post-hoc.
 
 Dentro de los métodos post-hoc para imagen existen, a su vez, dos enfoques. Los
-basados en \textbf{perturbación} —como LIME o SHAP— alteran sistemáticamente
+basados en \textbf{perturbación}, como LIME o SHAP, alteran sistemáticamente
 regiones de la entrada y observan el cambio en la predicción; son agnósticos al
 modelo pero computacionalmente costosos, al requerir numerosas inferencias por
 imagen. Los basados en \textbf{gradiente} aprovechan la información que ya
@@ -811,7 +811,7 @@ rendimiento, un coste asumible a cambio de la reproducibilidad exacta.
 \subsection{Seguimiento de experimentos}
 
 El seguimiento de experimentos (\textit{experiment tracking}) puede abordarse con
-plataformas especializadas —como MLflow o Weights \& Biases—, que ofrecen paneles
+plataformas especializadas, como MLflow o Weights \& Biases, que ofrecen paneles
 visuales y registro centralizado, o con una solución propia basada en ficheros.
 En este trabajo se ha optado por un sistema \textbf{basado en ficheros}
 integrado en el propio repositorio, por su simplicidad, la ausencia de

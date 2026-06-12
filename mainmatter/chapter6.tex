@@ -49,7 +49,7 @@ La presencia de sesgos es una preocupación fundamental en los sistemas de IA. E
 El sistema presenta las siguientes limitaciones operativas clave, que impiden su uso autónomo en un entorno clínico:
 \begin{itemize}
     \item \textbf{Sensibilidad limitada en patologías relevantes:} a un umbral de decisión estándar (0,5), el modelo de referencia (DenseNet-121) detecta solo en torno a la mitad de los casos de cardiomegalia (sensibilidad cercana al 49\,\%), lo que implica un riesgo de falsos negativos que desaconseja un uso autónomo.
-    \item \textbf{Baja precisión en la clase «No Finding»:} la precisión de la categoría «No Finding» (radiografías sin hallazgos aparentes) es muy baja —en torno al 19\,\%—, de modo que muchas de las imágenes que el modelo da por normales en realidad no lo son. Conviene matizar que estas métricas por clase se calculan sobre un conjunto de prueba reducido y a un umbral fijo, por lo que deben interpretarse como indicativas.
+    \item \textbf{Baja precisión en la clase «No Finding»:} la precisión de la categoría «No Finding» (radiografías sin hallazgos aparentes) es muy baja, en torno al 19\,\%, de modo que muchas de las imágenes que el modelo da por normales en realidad no lo son. Conviene matizar que estas métricas por clase se calculan sobre un conjunto de prueba reducido y a un umbral fijo, por lo que deben interpretarse como indicativas.
 \end{itemize}
 Estas limitaciones hacen que el modelo no sea apto para operar de forma autónoma. Su función se restringe a la de una herramienta de triaje bajo la supervisión obligatoria de personal facultativo, apoyando la toma de decisiones clínicas pero sin sustituir el juicio experto.
 

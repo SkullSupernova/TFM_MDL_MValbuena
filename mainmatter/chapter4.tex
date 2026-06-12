@@ -5,8 +5,8 @@
 
 Este capítulo presenta los resultados experimentales. Tras describir el protocolo
 común a todas las ejecuciones, se exponen \textbf{de forma independiente los resultados
-de los tres experimentos} definidos en el Capítulo~\ref{sec::capitulo3} —el modelo de
-referencia y las dos comparaciones de arquitecturas—, cada uno con sus tablas y figuras.
+de los tres experimentos} definidos en el Capítulo~\ref{sec::capitulo3}, el modelo de
+referencia y las dos comparaciones de arquitecturas, cada uno con sus tablas y figuras.
 A continuación se realiza el \textbf{análisis comparativo} (equivalencia entre
 arquitecturas, efecto de la configuración de clases y coste computacional), se ilustran
 las explicaciones generadas mediante Grad-CAM y se discuten las limitaciones. Todas las
@@ -78,7 +78,7 @@ ejecución (una limitación analizada en la Sección~\ref{sec::res_limitaciones}
 \label{sec::res_exp1}
 
 El primer experimento establece un \textbf{modelo de referencia} entrenando
-DenseNet-121 —la arquitectura de referencia en radiografía de tórax— sobre el conjunto
+DenseNet-121, la arquitectura de referencia en radiografía de tórax, sobre el conjunto
 completo de 13 clases (\texttt{full13}). Sus resultados se recogen en la
 Tabla~\ref{tab::res_full13}.
 
@@ -103,8 +103,8 @@ El modelo de referencia alcanza una AUROC CheXpert-5 de 0.8451 y converge de for
 estable, como muestran sus curvas de aprendizaje (Figura~\ref{fig::curvas_full13}),
 donde se aprecia la actuación de la parada temprana. Su comportamiento por patología
 (Figura~\ref{fig::roc_full13}) evidencia ya una limitación inherente a esta
-configuración: \texttt{full13} incluye clases muy poco representadas en el test
-—\textit{Fracture} no presenta ningún positivo y \textit{Lung Lesion} apenas uno—, cuyas
+configuración: \texttt{full13} incluye clases muy poco representadas en el test,
+\textit{Fracture} no presenta ningún positivo y \textit{Lung Lesion} apenas uno, cuyas
 métricas no son estadísticamente fiables y penalizan los promedios macro. Esta
 observación motiva los dos experimentos siguientes, que reducen el conjunto de clases.
 
@@ -129,8 +129,8 @@ sobre \texttt{full13}).}
 \label{sec::res_arquitecturas}
 
 El segundo experimento compara las \textbf{cinco arquitecturas} sobre la configuración
-\texttt{nofracture12} (12 clases), que elimina \textit{Fracture} —sin positivos en el
-test— y actúa como base de comparación. La Tabla~\ref{tab::res_nofracture12} recoge los
+\texttt{nofracture12} (12 clases), que elimina \textit{Fracture}, sin positivos en el
+test, y actúa como base de comparación. La Tabla~\ref{tab::res_nofracture12} recoge los
 resultados, ordenados por la métrica principal de forma descendente, y la
 Figura~\ref{fig::barras_auroc} los representa con sus intervalos de confianza.
 
@@ -235,8 +235,8 @@ cuatro observaciones principales.
 \textbf{Equivalencia estadística entre arquitecturas.} En la métrica principal, los
 intervalos de confianza de las cinco arquitecturas \textbf{se solapan por completo} en
 ambas comparaciones (Experimentos 2 y 3). En \texttt{nofracture12}, los puntos estimados
-van de 0.8403 (VGG16-BN) a 0.8536 (ConvNeXt-Tiny) —una diferencia de apenas 0.0133— y en
-\texttt{min5pct9} de 0.8256 (DenseNet-121) a 0.8505 (ConvNeXt-Tiny) —0.0249—, en ambos
+van de 0.8403 (VGG16-BN) a 0.8536 (ConvNeXt-Tiny), una diferencia de apenas 0.0133, y en
+\texttt{min5pct9} de 0.8256 (DenseNet-121) a 0.8505 (ConvNeXt-Tiny), 0.0249, en ambos
 casos muy inferiores a la anchura de los intervalos ($\sim$$\pm$0.027). En consecuencia,
 \textbf{ninguna arquitectura es significativamente superior} a las demás sobre este
 conjunto de prueba: aunque ConvNeXt-Tiny obtiene el punto más alto en las dos
@@ -254,7 +254,7 @@ AUROC-macro pasa de 0.8129 [0.793, 0.852] en \texttt{nofracture12} a 0.8788 [0.8
 0.897] en \texttt{min5pct9}, de modo que \textbf{los intervalos no se solapan} (y el
 mismo patrón se observa en la PR-AUC-macro). La explicación es directa: reducir el
 conjunto a las nueve clases de prevalencia $\geq$5\,\% elimina las patologías raras y
-mal soportadas —cuyas métricas individuales son muy ruidosas— y, con ello, mejora los
+mal soportadas, cuyas métricas individuales son muy ruidosas, y, con ello, mejora los
 promedios macro. Que la AUROC CheXpert-5 permanezca estable confirma que esta mejora
 proviene de excluir clases difíciles, no de un mejor aprendizaje de las cinco
 principales. En síntesis, \textbf{el conjunto de clases evaluado influye más en las
@@ -293,14 +293,14 @@ DenseNet-121).}
 \end{figure}
 
 \textbf{Coste computacional.} Si el rendimiento no permite decidir entre arquitecturas,
-el coste sí lo hace. DenseNet-121 es la más eficiente —el menor número de parámetros
-($\sim$7\,M) y duraciones por ejecución de entre 95 y 130 minutos— con un rendimiento
+el coste sí lo hace. DenseNet-121 es la más eficiente, el menor número de parámetros
+($\sim$7\,M) y duraciones por ejecución de entre 95 y 130 minutos, con un rendimiento
 estadísticamente equivalente al resto. Swin-Tiny es la más lenta entre las modernas
 (hasta 235 minutos) sin ventaja que lo justifique, y \textbf{VGG16-BN es, con
 diferencia, la más cara}: 817 minutos en \texttt{nofracture12} y 557 en
-\texttt{min5pct9}, entre seis y nueve veces el coste de DenseNet-121 —por el
+\texttt{min5pct9}, entre seis y nueve veces el coste de DenseNet-121, por el
 desbordamiento de la memoria de vídeo que provocan sus 138 millones de parámetros en
-8\,GB— y, además, la del peor punto en la métrica principal en ambas configuraciones, un
+8\,GB, y, además, la del peor punto en la métrica principal en ambas configuraciones, un
 caso de manual de mayor coste sin beneficio alguno. Dada la equivalencia en rendimiento,
 \textbf{DenseNet-121 ofrece la mejor relación rendimiento/coste}, lo que respalda su uso
 como arquitectura de referencia; si se priorizara el punto estimado más alto sin atender
@@ -331,8 +331,8 @@ Figura~\ref{fig::gradcam_ejemplos} presenta varios ejemplos de mapas de calor
 generados con Grad-CAM~\cite{selvarajuGradCAMVisualExplanations2017} sobre
 radiografías del conjunto de prueba, para distintas patologías. En los casos
 correctamente clasificados, las regiones resaltadas tienden a coincidir con las
-zonas de interés clínico —por ejemplo, los campos pulmonares inferiores en el
-derrame pleural o la silueta cardíaca en la cardiomegalia—, lo que aporta una
+zonas de interés clínico, por ejemplo, los campos pulmonares inferiores en el
+derrame pleural o la silueta cardíaca en la cardiomegalia, lo que aporta una
 verificación visual de que el modelo atiende a evidencia pertinente. No obstante,
 y conforme a las cautelas expuestas en los capítulos previos, estas explicaciones
 se interpretan como una ayuda a la verificación por parte del especialista, no como

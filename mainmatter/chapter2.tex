@@ -19,7 +19,7 @@ la literatura existente.
 Antes de la consolidación del aprendizaje profundo, la clasificación automática
 de imágenes médicas se abordaba mediante el paradigma clásico del aprendizaje
 automático: un experto diseñaba manualmente un conjunto de características
-(\textit{handcrafted features}) —descriptores de textura, forma o bordes— que
+(\textit{handcrafted features}), descriptores de textura, forma o bordes, que
 posteriormente alimentaban a un clasificador como las máquinas de vectores de
 soporte o los bosques aleatorios. Este enfoque adolecía de una limitación
 fundamental: la calidad del resultado dependía de la pericia con que se diseñaran
@@ -52,7 +52,7 @@ Precisamente la dependencia de grandes volúmenes de datos constituye el princip
 escollo en medicina, donde los conjuntos etiquetados son costosos y escasos. La
 respuesta habitual es el \textbf{aprendizaje por transferencia} (\textit{transfer
 learning}): reutilizar un modelo preentrenado sobre un gran repositorio de
-imágenes naturales —como ImageNet— y adaptarlo a la tarea médica. Esta estrategia
+imágenes naturales, como ImageNet, y adaptarlo a la tarea médica. Esta estrategia
 puede aplicarse congelando el modelo preentrenado y entrenando solo la capa de
 salida (\textit{feature extraction}) o reajustando también sus pesos
 (\textit{fine-tuning}); en ambos casos acelera la convergencia y mejora la
@@ -61,8 +61,8 @@ convertido en una práctica estándar en el diagnóstico por imagen, incluida la
 radiografía de tórax~\cite{jenaArtificialIntelligenceBased2021, kermanyIdentifyingMedical2018}.
 No obstante, el aprendizaje profundo arrastra dos limitaciones que condicionan su
 aplicación clínica y que vertebran este trabajo: su sensibilidad a las
-particularidades de los datos médicos —desbalanceo, multietiqueta e
-incertidumbre— y su naturaleza opaca, abordadas en las secciones siguientes.
+particularidades de los datos médicos, desbalanceo, multietiqueta e
+incertidumbre, y su naturaleza opaca, abordadas en las secciones siguientes.
 
 
 \section{Conjuntos de datos de radiografía de tórax}
@@ -78,8 +78,8 @@ extracción automática de etiquetas a partir de los informes radiológicos medi
 procesamiento del lenguaje natural (NLP), con la consiguiente introducción de
 ruido.
 
-El primer repositorio de gran escala fue \textbf{ChestX-ray14} —inicialmente
-publicado como ChestX-ray8—, del \textit{National Institutes of Health} (NIH),
+El primer repositorio de gran escala fue \textbf{ChestX-ray14}, inicialmente
+publicado como ChestX-ray8, del \textit{National Institutes of Health} (NIH),
 con más de cien mil imágenes frontales etiquetadas automáticamente para catorce
 patologías~\cite{wangChestXray8Hospital2017}. Pese a su impacto, estudios
 posteriores señalaron la limitada fiabilidad de sus etiquetas, derivada del
@@ -111,8 +111,8 @@ La elección del conjunto de datos implica, pues, un compromiso entre escala,
 calidad de anotación y riqueza de las patologías. En este trabajo se ha
 seleccionado CheXpert por reunir un equilibrio favorable: un tamaño que favorece
 el aprendizaje de representaciones robustas, su consolidación como banco de
-pruebas de referencia en la comunidad —lo que facilita la comparación con la
-literatura— y, de forma determinante, la incorporación explícita del problema de
+pruebas de referencia en la comunidad, lo que facilita la comparación con la
+literatura, y, de forma determinante, la incorporación explícita del problema de
 las etiquetas inciertas, que constituye uno de los ejes metodológicos del
 proyecto.
 
@@ -154,8 +154,8 @@ el trabajo seminal \textbf{CheXNet}~\cite{rajpurkarCheXNetRadiologistLevel2017}
 empleó una DenseNet-121 para alcanzar un rendimiento comparable al de los
 radiólogos en la detección de neumonía sobre ChestX-ray14.
 
-Más recientemente, el paradigma de los \textit{transformers} —originado en el
-procesamiento del lenguaje natural— ha irrumpido en visión por computador. A
+Más recientemente, el paradigma de los \textit{transformers}, originado en el
+procesamiento del lenguaje natural, ha irrumpido en visión por computador. A
 diferencia de las CNN, que capturan relaciones locales, los \textit{Vision
 Transformers} modelan dependencias globales mediante mecanismos de
 \textbf{atención}. Su aplicación directa, no obstante, exige grandes volúmenes de
@@ -196,7 +196,7 @@ entre varias mutuamente excluyentes, y se resuelve con una capa de salida
 radiológico, en cambio, es intrínsecamente \textbf{multietiqueta}: una misma
 radiografía puede presentar simultáneamente varias patologías no
 excluyentes~\cite{zhangReviewMultiLabel2014}. Por ello se aborda como un conjunto
-de problemas de clasificación binaria independientes —uno por patología—,
+de problemas de clasificación binaria independientes, uno por patología,
 empleando una activación \textit{sigmoide} en cada salida y una función de
 pérdida de entropía cruzada binaria, que no impone exclusividad entre clases.
 
@@ -214,7 +214,7 @@ sobremuestreo de las clases minoritarias, submuestreo de las mayoritarias o
 aumento de datos. Las técnicas a \textbf{nivel de algoritmo} modifican el proceso
 de aprendizaje: destacan la ponderación de la entropía cruzada binaria según la
 prevalencia de cada clase~\cite{usharubyBinaryCrossEntropy2020}, la \textit{focal
-loss} —que reduce el peso de los ejemplos fáciles—, y las funciones que optimizan
+loss}, que reduce el peso de los ejemplos fáciles, y las funciones que optimizan
 directamente el AUROC, más robustas ante el desbalanceo que las pérdidas
 convencionales~\cite{yuanLargeScaleRobustDeepAUC2021}. El problema se agrava en
 escenarios de \textbf{cola larga} (\textit{long-tailed}), donde numerosos
@@ -255,7 +255,7 @@ patología, lo que convierte la elección en una decisión empírica.
 
 Más allá del tratamiento aislado de cada etiqueta, líneas posteriores han
 explorado enfoques más sofisticados, como aprovechar las \textit{dependencias
-jerárquicas} entre patologías —ciertos hallazgos implican o excluyen a otros—
+jerárquicas} entre patologías, ciertos hallazgos implican o excluyen a otros, 
 para producir predicciones clínicamente coherentes, integrando esa estructura
 junto con el manejo de la incertidumbre~\cite{phamInterpretingChestXrays2021}, o
 el uso de técnicas de suavizado de etiquetas. La ausencia de un ganador claro
@@ -274,8 +274,8 @@ donde la trazabilidad y la justificación de cada decisión son requisitos
 ineludibles~\cite{lizlopezDeepLearningInnovations2025, lizEnsemblesConvolutional2021}.
 La Inteligencia Artificial Explicable (XAI) responde a esta necesidad, y sus
 técnicas pueden organizarse en una taxonomía clara. Una primera distinción separa
-los \textbf{modelos intrínsecamente interpretables} —transparentes por diseño,
-pero generalmente menos potentes— de los \textbf{métodos post-hoc}, que explican a
+los \textbf{modelos intrínsecamente interpretables}, transparentes por diseño,
+pero generalmente menos potentes, de los \textbf{métodos post-hoc}, que explican a
 posteriori un modelo opaco ya entrenado. Dentro de estos últimos, los métodos
 \textbf{agnósticos al modelo}, como LIME o SHAP, perturban la entrada y observan
 el efecto sobre la predicción, ofreciendo gran generalidad a costa de un elevado
@@ -292,8 +292,8 @@ restricción generando mapas de calor a partir de los gradientes que fluyen haci
 la última capa convolucional, sin modificar la arquitectura, lo que explica su
 amplísima adopción. Variantes posteriores refinan aspectos concretos:
 \textbf{Grad-CAM++}~\cite{chattopadhyayGradCAMpp2018} mejora la localización
-cuando coexisten múltiples instancias de una misma clase —situación habitual en la
-radiografía de tórax—, y otras como Score-CAM buscan mayor robustez. Existen
+cuando coexisten múltiples instancias de una misma clase, situación habitual en la
+radiografía de tórax, y otras como Score-CAM buscan mayor robustez. Existen
 revisiones sistemáticas que recopilan y categorizan estas técnicas en el contexto
 del diagnóstico por imagen~\cite{patricioExplainableDeepLearning2023}.
 
@@ -325,8 +325,8 @@ Buena parte de la investigación en este campo concluye con la obtención de un
 modelo de alto rendimiento, sin abordar su traslación a la práctica, pese a que es
 precisamente en esa traslación donde reside la utilidad real. El despliegue
 clínico plantea retos que van mucho más allá del rendimiento predictivo: la
-integración en el flujo de trabajo radiológico —típicamente en torno a los
-sistemas PACS—, la latencia aceptable de la inferencia, la monitorización continua
+integración en el flujo de trabajo radiológico, típicamente en torno a los
+sistemas PACS, la latencia aceptable de la inferencia, la monitorización continua
 del comportamiento del modelo en producción y la conformidad con la normativa de
 producto sanitario y de protección de datos son factores determinantes para una
 implantación efectiva~\cite{korfiatisImplementingArtificial2025}. Estas
@@ -339,8 +339,8 @@ En este contexto, la incorporación de técnicas de explicabilidad y de
 cuantificación de la incertidumbre se considera un elemento clave para favorecer
 la confianza del facultativo y la integración efectiva en el entorno asistencial.
 La tendencia más reciente avanza, además, hacia la \textbf{fusión multimodal},
-que combina la información de la imagen con datos clínicos del paciente —historia,
-informes previos— para refinar las predicciones y aproximarlas al razonamiento
+que combina la información de la imagen con datos clínicos del paciente, historia,
+informes previos, para refinar las predicciones y aproximarlas al razonamiento
 diagnóstico real~\cite{liReviewDeepLearning2024, yangEnhancingChestXray2025}.
 
 El presente trabajo se sitúa deliberadamente en esa frontera entre la
@@ -355,8 +355,8 @@ describen en el Capítulo~\ref{sec::capitulo5}.
 
 Pese a los avances descritos, la revisión pone de manifiesto varias limitaciones
 y retos abiertos. En primer lugar, existe una amplia variedad de arquitecturas
-aplicables a la radiografía de tórax —CNN clásicas, transformers y modelos
-híbridos— sin que ninguna se imponga de forma concluyente; las comparativas
+aplicables a la radiografía de tórax, CNN clásicas, transformers y modelos
+híbridos, sin que ninguna se imponga de forma concluyente; las comparativas
 publicadas emplean además protocolos y métricas heterogéneos, lo que dificulta
 la reproducibilidad y la comparación
 directa~\cite{bressemComparingDeepLearning2020, liuComprehensiveStudyRobustness2025}.
@@ -377,7 +377,7 @@ evidencia clínica~\cite{zhangRevisitingTrustworthiness2024}. Por último, persi
 una brecha entre la investigación y la práctica: son escasos los trabajos que
 abordan el despliegue \textit{de extremo a extremo} en un entorno usable,
 integrando inferencia y explicabilidad, y que consideran los sesgos demográficos
-de los conjuntos de datos —de origen institucional único— que limitan la
+de los conjuntos de datos, de origen institucional único, que limitan la
 generalización del modelo~\cite{korfiatisImplementingArtificial2025,
 bustosPadChest2020}.
 
