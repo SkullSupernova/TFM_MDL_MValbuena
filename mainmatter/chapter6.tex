@@ -36,7 +36,7 @@ Para mitigar estas amenazas, se proponen las siguientes medidas de protección:
 \section{Privacidad, gobernanza y propiedad intelectual}
 El corpus CheXpert \cite{irvinCheXpertLargeChest2019} utilizado para el entrenamiento del modelo ha sido sometido a un proceso de desidentificación para proteger la privacidad de los pacientes. Sin embargo, existe un riesgo residual, aunque bajo, de re-identificación a través de metadatos o la combinación con otras fuentes de información. En un entorno de producción, es crucial establecer un flujo de seudonimización irreversible de los metadatos DICOM, asegurando que ninguna información identificable del paciente sea procesada por el modelo de inferencia.
 
-La minería de datos para fines de investigación y desarrollo está amparada por la Directiva de la UE 2019/790 sobre derechos de autor en el mercado único digital, siempre y cuando se cumplan las condiciones establecidas.
+La minería de datos para fines de investigación y desarrollo está amparada por la Directiva de la UE 2019/790 sobre derechos de autor en el mercado único digital~\cite{euDSMDirective2019}, siempre y cuando se cumplan las condiciones establecidas.
 
 En cuanto a la propiedad intelectual, los pesos resultantes de un modelo de \textit{Deep Learning} y sus predicciones no tienen una autoría humana directa en el sentido tradicional. Por lo tanto, no se protegen bajo derechos de autor, sino más bien a través de mecanismos de secreto empresarial y acuerdos de confidencialidad, especialmente en lo que respecta a los algoritmos y la arquitectura específica que dan lugar a dichos pesos.
 
