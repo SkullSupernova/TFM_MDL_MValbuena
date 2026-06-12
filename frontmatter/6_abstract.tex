@@ -5,7 +5,40 @@
 \addcontentsline{toc}{section}{Abstract}
 \label{sec::abstract}
 
-<Abstract in English: maximum of 4000 characters (including spaces), plain text (without symbols), structured summary of the thesis (introduction or motivation, objectives, findings and conclusions)>
+The interpretation of chest radiographs is a frequent yet demanding clinical task, in
+which the subtlety of many signs and the high workload favour variability and error.
+Deep learning offers a way to support this task through the multilabel classification
+of radiological signs, although its real usefulness depends on two often neglected
+conditions: that predictions are interpretable and that the model is deployed in an
+accessible way. This Master's Thesis addresses both issues, with four objectives: the
+treatment of the dataset, the comparison of architectures, the incorporation of
+explainability and the deployment on a web platform.
+
+CheXpert is used as the dataset. A processing pipeline was designed that filters valid
+projections, handles uncertain labels through the U-Ignore strategy and splits the data
+by patient to prevent information leakage, with parameterisable class configurations
+(thirteen, twelve and nine classes) that allow studying the effect of including or
+excluding the least represented pathologies. On this pipeline, five architectures
+representative of the main paradigms were trained and evaluated under an identical
+protocol: DenseNet-121, ResNet-50, ConvNeXt-Tiny, Swin-Tiny and VGG16-BN. Evaluation
+was carried out on a radiologist-annotated test set, using as the main metric the area
+under the ROC curve of the five official CheXpert pathologies and quantifying
+uncertainty through bootstrap confidence intervals.
+
+The results yield three main findings. First, the five architectures are statistically
+equivalent on the main metric, as their confidence intervals overlap; none is superior.
+Second, the evaluated class set matters more than the architecture: reducing the number
+of classes significantly improves the averaged metrics. Third, since performance is
+equivalent, the decision should be guided by cost, and DenseNet-121 offers the best
+performance-cost trade-off, whereas VGG16-BN is the most expensive without any benefit.
+
+Finally, the model was exposed through a decoupled service architecture: a FastAPI-based
+programming interface and an interactive Streamlit web interface that integrates
+inference, its visual explanation through Grad-CAM and report generation. The system is
+containerised with Docker and has been publicly deployed. It is concluded that the
+objectives have been achieved, that the process is reproducible and traceable, and that
+the tool should be understood as a decision support aid under medical supervision, never
+as a replacement for expert judgement.
 
 
 \newpage
@@ -14,5 +47,41 @@
 \label{sec::resumen}
 
 
-<Resumen en español: máximo de 4000 caracteres (incluyendo espacios), texto plano (sin símbolos), resumen estructurado de la tesis (introducción o motivación, objetivos, hallazgos y conclusiones)>
+La interpretación de la radiografía de tórax es una tarea clínica frecuente pero
+exigente, en la que la sutileza de muchos signos y la elevada carga asistencial
+favorecen la variabilidad y el error. El aprendizaje profundo ofrece una vía para
+apoyar esta tarea mediante la clasificación multietiqueta de signos radiológicos, aunque
+su utilidad real depende de dos condiciones a menudo descuidadas: que las predicciones
+sean interpretables y que el modelo se despliegue de forma accesible. Este Trabajo de
+Fin de Máster aborda ambas cuestiones, con cuatro objetivos: el tratamiento del conjunto
+de datos, la comparación de arquitecturas, la incorporación de explicabilidad y el
+despliegue en una plataforma web.
+
+Como conjunto de datos se emplea CheXpert. Se diseñó una cadena de procesamiento que
+filtra las proyecciones válidas, gestiona las etiquetas inciertas mediante la estrategia
+U-Ignore y divide los datos por paciente para evitar la fuga de información, con
+configuraciones de clases parametrizables (trece, doce y nueve clases) que permiten
+estudiar el efecto de incluir o excluir las patologías menos representadas. Sobre este
+proceso se entrenaron y evaluaron, bajo un protocolo idéntico, cinco arquitecturas
+representativas de los principales paradigmas: DenseNet-121, ResNet-50, ConvNeXt-Tiny,
+Swin-Tiny y VGG16-BN. La evaluación se realizó sobre un conjunto de prueba anotado por
+radiólogos, empleando como métrica principal el área bajo la curva ROC de las cinco
+patologías oficiales de CheXpert y cuantificando la incertidumbre mediante intervalos de
+confianza por bootstrap.
+
+Los resultados arrojan tres hallazgos principales. Primero, las cinco arquitecturas son
+estadísticamente equivalentes en la métrica principal, ya que sus intervalos de
+confianza se solapan; ninguna es superior. Segundo, el conjunto de clases evaluado
+influye más que la arquitectura: reducir el número de clases mejora de forma
+significativa las métricas promediadas. Tercero, dado que el rendimiento es equivalente,
+la decisión debe guiarse por el coste, y DenseNet-121 ofrece la mejor relación
+rendimiento-coste, mientras que VGG16-BN resulta la más cara sin beneficio alguno.
+
+Finalmente, el modelo se expuso mediante una arquitectura de servicios desacoplados: una
+interfaz de programación basada en FastAPI y una interfaz web interactiva en Streamlit
+que integra la inferencia, su explicación visual mediante Grad-CAM y la generación de
+informes. El sistema se contenedoriza con Docker y se ha desplegado de forma pública. Se
+concluye que los objetivos se han alcanzado, que el proceso es reproducible y trazable, y
+que la herramienta debe entenderse como un apoyo a la decisión bajo supervisión
+facultativa, nunca como un sustituto del juicio experto.
 
