@@ -145,7 +145,7 @@ La aplicación (Figura~\ref{fig::interfaz-web}) integra el flujo completo de uso
         para cada patología.
   \item \textbf{Explicación visual}: superposición del mapa de calor
         Grad-CAM~\cite{selvarajuGradCAMVisualExplanations2017} sobre la imagen para
-        las patologías más probables (Figura~\ref{fig::gradcam-app}).
+        las patologías más probables (Figura~\ref{fig::web_explicabilidad}).
   \item \textbf{Informe descargable}: generación de un informe PDF profesional con
         los resultados y las explicaciones, así como la descarga de las imágenes en
         un archivo comprimido.
@@ -154,16 +154,10 @@ La aplicación (Figura~\ref{fig::interfaz-web}) integra el flujo completo de uso
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{figures/web/interfaz-web.png}
-\caption{Interfaz web interactiva de la aplicación.}
+\includegraphics[width=\textwidth]{figures/web/zona_completa_inicio.png}
+\caption{Vista general de la interfaz web: barra lateral de configuración (izquierda)
+y área principal de resultados (derecha).}
 \label{fig::interfaz-web}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/web/gradcam-app.png}
-\caption{Visualización de la explicación Grad-CAM en la aplicación.}
-\label{fig::gradcam-app}
 \end{figure}
 
 \subsection{Uso de la interfaz web}
@@ -190,7 +184,44 @@ patología, que se muestra antes de las explicaciones visuales; y la
 radiografía original y su mapa de calor Grad-CAM, donde las zonas cálidas señalan las
 regiones más influyentes en la predicción. Finalmente, el usuario puede descargar un
 informe PDF, un archivo comprimido con las imágenes o el historial de la sesión en
-formato CSV.
+formato CSV. Las Figuras~\ref{fig::web_config} a~\ref{fig::web_exportar} ilustran cada
+una de estas zonas de la interfaz por separado, para que sus detalles puedan apreciarse
+con claridad.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/web/zona-parametros_1_modelo.png}\hfill
+\includegraphics[width=0.48\textwidth]{figures/web/zona-carga.png}
+\caption{Configuración del modelo y de los parámetros en la barra lateral (izquierda)
+y carga de la radiografía (derecha).}
+\label{fig::web_config}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/web/zona_resumen.png}\hfill
+\includegraphics[width=0.48\textwidth]{figures/web/zona-probabilidad-modelo-A.png}
+\caption{Resumen de resultados con las tarjetas principales (izquierda) y panel de
+probabilidades por patología (derecha).}
+\label{fig::web_resultados}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/web/zona-explicabilidad-visual.png}
+\caption{Explicabilidad visual: para cada patología detectada, la radiografía original
+y su mapa de calor Grad-CAM superpuesto.}
+\label{fig::web_explicabilidad}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/web/zona-exportar.png}\hfill
+\includegraphics[width=0.48\textwidth]{figures/web/zona-historial-sesion.png}
+\caption{Opciones de descarga del informe y de las imágenes (izquierda) e historial de
+la sesión (derecha).}
+\label{fig::web_exportar}
+\end{figure}
 
 La aplicación incorpora además un modo opcional de \textbf{comparación de dos
 modelos}: al activarlo y seleccionar un segundo modelo, las probabilidades se
@@ -198,7 +229,26 @@ presentan en tres gráficas (cada modelo y la comparativa sobre las patologías
 comunes), la explicabilidad muestra el mapa Grad-CAM de ambos por patología, y el
 informe PDF resultante recoge la comparación completa. Esta funcionalidad permite
 contrastar visualmente el comportamiento de distintas arquitecturas o configuraciones
-de clases sobre una misma imagen.
+de clases sobre una misma imagen, como ilustran las Figuras~\ref{fig::web_comparacion}
+y~\ref{fig::web_comparacion_tabla}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/web/zona-parametros_2_modelos.png}\hfill
+\includegraphics[width=0.48\textwidth]{figures/web/zona-comparacion-patologias-comunes.png}
+\caption{Modo de comparación de dos modelos: selección de ambos modelos (izquierda) y
+gráfica comparativa sobre las patologías comunes (derecha).}
+\label{fig::web_comparacion}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/web/zona-probabilidad-modelo-B.png}\hfill
+\includegraphics[width=0.48\textwidth]{figures/web/zona-tabla-comparativa.png}
+\caption{Comparación de dos modelos: probabilidades del segundo modelo (izquierda) y
+tabla con la diferencia absoluta entre ambos por patología (derecha).}
+\label{fig::web_comparacion_tabla}
+\end{figure}
 
 
 \section{Contenedorización y orquestación}
