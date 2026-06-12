@@ -21,7 +21,7 @@ Los modelos de \textit{Deep Learning}, aunque potentes, son vulnerables a divers
 Para mitigar estas amenazas, se proponen las siguientes medidas de protección:
 \begin{itemize}
     \item \textbf{Regularización}: Técnicas como \textit{Dropout} \cite{srivastavaDropout2014} y \textit{weight decay} durante el entrenamiento, que reducen el sobreajuste y aumentan la robustez del modelo frente a pequeñas perturbaciones.
-    \item \textbf{Exclusión de incertidumbre (\textit{U-Exclude})}: En la preparación del conjunto de datos, se puede aplicar la estrategia \textit{U-Exclude} propuesta por Irvin et al. \cite{irvinCheXpertLargeChest2019}, que trata las etiquetas inciertas como negativas, simplificando el problema y potencialmente reduciendo la superficie de ataque para envenenamiento.
+    \item \textbf{Gestión de la incertidumbre de etiquetas (\textit{U-Ignore})}: en la preparación de los datos, este trabajo adopta la estrategia \textit{U-Ignore} (Irvin et al.~\cite{irvinCheXpertLargeChest2019}), que ignora las etiquetas inciertas en lugar de asignarles un valor arbitrario, evitando así introducir ruido de etiquetado que podría explotarse en ataques de envenenamiento.
     \item \textbf{Limitación de consultas API}: En un despliegue vía API, establecer límites de tasa y autenticación robusta para prevenir el robo sistemático del modelo.
     \item \textbf{Cifrado de canales}: Asegurar que todas las comunicaciones entre el cliente y el servidor, incluyendo la transmisión de imágenes y resultados, se realicen a través de canales cifrados (ej. HTTPS).
     \item \textbf{Supervisión humana obligatoria (\textit{human-in-the-loop})}: La intervención de profesionales sanitarios es indispensable. El sistema debe actuar como una herramienta de apoyo, no como un decisor autónomo, asegurando que cualquier diagnóstico o acción final sea validada por un experto humano.
@@ -42,8 +42,8 @@ La presencia de sesgos es una preocupación fundamental en los sistemas de IA. E
 \end{itemize}
 El sistema presenta las siguientes limitaciones operativas clave, que impiden su uso autónomo en un entorno clínico:
 \begin{itemize}
-    \item \textbf{Baja sensibilidad en cardiomegalia}: El modelo muestra una sensibilidad de solo el 38.2\% para la detección de cardiomegalia, lo que implica un riesgo elevado de falsos negativos para esta patología.
-    \item \textbf{Baja precisión en "No Finding"}: La precisión para la categoría "No Finding" (es decir, radiografías sin patologías aparentes) es del 30.0\%. Esto sugiere una propensión a identificar falsos positivos o a errar en la ausencia de enfermedad.
+    \item \textbf{Sensibilidad limitada en patologías relevantes}: a un umbral de decisión estándar (0,5), el modelo de referencia (DenseNet-121) detecta solo en torno a la mitad de los casos de cardiomegalia (sensibilidad cercana al 49\,\%), lo que implica un riesgo de falsos negativos que desaconseja un uso autónomo.
+    \item \textbf{Baja precisión en la clase «No Finding»}: la precisión de la categoría «No Finding» (radiografías sin hallazgos aparentes) es muy baja —en torno al 19\,\%—, de modo que muchas de las imágenes que el modelo da por normales en realidad no lo son. Conviene matizar que estas métricas por clase se calculan sobre un conjunto de prueba reducido y a un umbral fijo, por lo que deben interpretarse como indicativas.
 \end{itemize}
 Estas limitaciones hacen que el modelo no sea apto para operar de forma autónoma. Su función se restringe a la de una herramienta de triaje bajo la supervisión obligatoria de personal facultativo, apoyando la toma de decisiones clínicas pero sin sustituir el juicio experto.
 
