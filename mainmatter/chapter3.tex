@@ -556,6 +556,39 @@ posicionamiento del paciente y del encuadre: \textbf{volteo horizontal} aleatori
 (probabilidad 0,5) y una \textbf{transformación afín} aleatoria (rotación de hasta
 $10°$ y traslación de hasta el 5\,\%).
 
+Ahora bien, el aumento de datos no es una técnica exenta de riesgos, y en imagen
+médica conviene aplicarlo con especial cautela. La literatura advierte de varias
+limitaciones que justifican el carácter conservador de la configuración adoptada, que
+son las siguientes:
+
+\begin{itemize}
+  \item \textbf{Generación de imágenes no realistas:} las transformaciones agresivas
+        —rotaciones amplias, recortes pronunciados o distorsiones de intensidad— pueden
+        producir radiografías anatómicamente imposibles que el modelo nunca
+        encontraría en la práctica, introduciendo ruido en lugar de variabilidad
+        útil~\cite{hryniewskaChecklistResponsible2021}.
+  \item \textbf{Alteración de la información clínica:} ciertas transformaciones pueden
+        modificar la semántica de la imagen. El volteo horizontal, en concreto, invierte
+        la lateralidad; aunque es una transformación muy habitual en radiografía de
+        tórax —pues la mayoría de los hallazgos son aproximadamente bilaterales—, no es
+        inocua, ya que la silueta cardíaca no es simétrica y un volteo puede simular
+        condiciones como la dextrocardia, por lo que se recomienda valorarla con
+        criterio clínico~\cite{hryniewskaChecklistResponsible2021}.
+  \item \textbf{Beneficio no garantizado:} la utilidad del aumento depende fuertemente
+        del conjunto de datos y de la tarea. Una transformación solo aporta valor si las
+        variantes que genera son representativas de la variabilidad real del problema,
+        de modo que su elección debe ser específica del dominio y no
+        automática~\cite{shortenSurveyImageData2019}.
+  \item \textbf{Coste computacional:} al generar variantes nuevas en cada época, el
+        aumento incrementa el tiempo de entrenamiento sin asegurar una mejora
+        proporcional del rendimiento.
+\end{itemize}
+
+Por estas razones, en este trabajo el aumento se ha mantenido deliberadamente
+conservador: se asume el volteo horizontal por su uso extendido, pero se descartan
+alteraciones más agresivas que comprometan la plausibilidad anatómica o la lateralidad
+de la radiografía.
+
 Tras el aumento, las imágenes se redimensionan a $224 \times 224$ píxeles
 —resolución estándar de los modelos preentrenados en ImageNet— y se normalizan con
 la media y la desviación estándar de ImageNet, condición necesaria para que las
