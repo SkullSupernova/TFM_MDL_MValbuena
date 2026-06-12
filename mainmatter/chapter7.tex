@@ -3,26 +3,27 @@
 \chapter{Reproducibilidad}
 \label{sec::capitulo7}
 
-% [PENDIENTE: versión provisional (esqueleto + contenido básico). Profundizar cada
-%  apartado y verificar versiones exactas contra requirements.txt y el entorno real.
-%  Incluir aquí, o repartidos con los anexos B y C, TODOS los comandos de docs/GUIA_USO.md.]
-
-La reproducibilidad es un requisito esencial del trabajo científico. Este capítulo
-documenta los elementos que permiten reproducir los resultados presentados: el
-repositorio de código, el entorno de ejecución, la contenedorización, el control de la
-aleatoriedad, la trazabilidad de los experimentos y la integración continua.
+La reproducibilidad es un requisito esencial del trabajo científico: un resultado solo
+adquiere valor si un tercero puede recrearlo a partir de los mismos datos, el mismo
+código y el mismo procedimiento. Por este motivo, el proyecto se ha diseñado desde el
+principio para ser reproducible y trazable. Este capítulo documenta los elementos que
+lo hacen posible: el repositorio de código, el entorno de ejecución, la
+contenedorización, el control de la aleatoriedad, la trazabilidad de los experimentos,
+la integración continua y los comandos necesarios para reproducir el trabajo.
 
 \section{Repositorio y estructura del proyecto}
 \label{sec::repro_repo}
 
 El código fuente completo está disponible en un repositorio público de GitHub
-% [PENDIENTE: insertar la URL exacta del repositorio del proyecto, p. ej.
-%  \url{https://github.com/SkullSupernova/MDL_TFM}, y verificarla.]
-y se organiza en módulos diferenciados: el código fuente (\texttt{src/}), la
-configuración (\texttt{config/}), las pruebas (\texttt{test/}), la documentación
-(\texttt{docs/}) y la definición de la integración continua (\texttt{.github/}). Los
-artefactos pesados —conjunto de datos, modelos entrenados y resultados de
-experimentos— quedan fuera del control de versiones.
+(\url{https://github.com/SkullSupernova/MDL_TFM}). El proyecto se organiza en módulos
+diferenciados, según se muestra en la Figura~\ref{fig::repro_estructura}: el código
+fuente (\texttt{src/}), la configuración (\texttt{config/}), las pruebas
+(\texttt{test/}), la documentación (\texttt{docs/}) y la definición de la integración
+continua (\texttt{.github/}). Por otro lado, los artefactos pesados —el conjunto de
+datos, los modelos entrenados (\texttt{models/}) y los resultados de los experimentos
+(\texttt{experiments/})— quedan deliberadamente fuera del control de versiones, tanto
+por su tamaño como por contener datos que no deben distribuirse; en su lugar, se
+referencian mediante rutas y sumas de verificación.
 
 \begin{figure}[ht]
 \centering
@@ -48,49 +49,100 @@ MDL_TFM/
 \section{Entorno de ejecución}
 \label{sec::repro_entorno}
 
-El proyecto se desarrolla en \textbf{Python 3.12}. Las dependencias se fijan en
-\texttt{requirements.txt}. El entrenamiento se realizó con PyTorch sobre GPU
-(NVIDIA RTX 4060, CUDA), mientras que la inferencia en producción se ejecuta en CPU
-para maximizar la portabilidad.
-% [PENDIENTE: precisar versiones exactas de PyTorch/torchvision/CUDA y distinguir
-%  dependencias de entrenamiento frente a las de despliegue.]
+El proyecto se desarrolla en \textbf{Python 3.12}, y todas sus dependencias se fijan de
+forma explícita en el fichero \texttt{requirements.txt}, lo que permite recrear el
+entorno con exactitud. Conviene distinguir dos contextos de ejecución con necesidades
+distintas:
+
+\begin{itemize}
+  \item \textbf{Entrenamiento:} se realizó con \textbf{PyTorch} sobre GPU (una NVIDIA
+        RTX 4060 de 8\,GB con CUDA), aprovechando la aceleración por hardware y la
+        precisión mixta automática para reducir el tiempo de cómputo.
+  \item \textbf{Inferencia y despliegue:} se ejecutan sobre \textbf{CPU} de forma
+        deliberada. La imagen de despliegue instala las versiones de PyTorch 2.12 y
+        torchvision 0.27 para CPU, lo que maximiza la portabilidad —el sistema puede
+        ejecutarse en cualquier máquina, incluso sin tarjeta gráfica— a costa de una
+        latencia mayor, perfectamente asumible para el uso interactivo previsto.
+\end{itemize}
 
 \section{Contenedorización}
 \label{sec::repro_docker}
 
-Para eliminar la dependencia del entorno local, el sistema se distribuye como imagen
-Docker. Existen dos vías de despliegue: la construcción desde el código fuente
-(Anexo~\ref{anexo::docker-local}) y la descarga de la imagen prepublicada en GitHub
-Container Registry (Anexo~\ref{anexo::docker-ghcr}).
+Para eliminar la dependencia del entorno local —la causa más frecuente de los problemas
+de reproducibilidad—, el sistema se distribuye como una imagen Docker construida sobre
+\texttt{python:3.12-slim}, que empaqueta el código y todas sus dependencias. Existen,
+además, dos vías de despliegue complementarias: la \textbf{construcción desde el código
+fuente} (descrita en el Anexo~\ref{anexo::docker-local}) y la \textbf{descarga de la
+imagen ya publicada} en GitHub Container Registry (Anexo~\ref{anexo::docker-ghcr}). Esta
+última se publica de forma automática mediante un flujo de trabajo de GitHub Actions, de
+modo que la imagen disponible siempre corresponde al estado actual del repositorio.
 
 \section{Control de la aleatoriedad}
 \label{sec::repro_semilla}
 
-Todos los experimentos emplean una \textbf{semilla fija (42)} que controla la
-inicialización de los pesos, el orden de los datos y demás fuentes de aleatoriedad.
-% [PENDIENTE: detallar el alcance del determinismo (cuDNN, workers) y sus límites.]
+El entrenamiento de redes neuronales incorpora numerosas fuentes de aleatoriedad —la
+inicialización de los pesos, el barajado de los datos o el comportamiento de ciertas
+operaciones en la GPU— que, sin control, harían que dos ejecuciones idénticas
+produjeran resultados distintos. Para evitarlo, todos los experimentos emplean una
+\textbf{semilla fija (42)} que inicializa de forma determinista los generadores de
+números aleatorios de Python, NumPy y PyTorch. Asimismo, la carga de datos se realiza en
+un único hilo (\texttt{num\_workers=0}), decisión que, además de ser más robusta en
+Windows, elimina la variabilidad introducida por la concurrencia. No obstante, conviene
+ser honesto sobre sus límites: un determinismo \textbf{exacto a nivel de bits} no está
+garantizado entre distintas máquinas o versiones de las bibliotecas de cálculo (cuDNN),
+por lo que la reproducibilidad debe entenderse en términos prácticos —resultados
+equivalentes dentro del margen de la incertidumbre estadística reportada— y no como una
+igualdad binaria perfecta.
 
 \section{Trazabilidad de los experimentos}
 \label{sec::repro_trazabilidad}
 
-Cada ejecución genera una carpeta autocontenida (\texttt{experiments/<run\_id>/}) con
-la configuración, las métricas, las curvas, las predicciones y un informe. Un fichero
-\texttt{manifest.json} registra el \textit{hash} de Git, el entorno, el hardware y la
-suma de verificación SHA-256 del \textit{checkpoint}, lo que vincula cada resultado con
-el estado exacto del código que lo produjo. El índice \texttt{experiments/leaderboard.csv}
-agrega todas las ejecuciones, y \texttt{leaderboard\_ci.csv} sus intervalos de confianza.
+Más allá de la semilla, cada ejecución de entrenamiento genera una carpeta
+autocontenida (\texttt{experiments/<run\_id>/}) que reúne toda la información necesaria
+para auditarla: la configuración empleada, las métricas de validación y prueba, las
+curvas de aprendizaje, las predicciones y un informe. La pieza central de la
+trazabilidad es el fichero \texttt{manifest.json}, que registra el \textit{hash} de Git
+del código, el entorno y las versiones de las bibliotecas, el hardware utilizado, el
+número de parámetros del modelo y la suma de verificación SHA-256 del
+\textit{checkpoint}. De este modo, cada resultado queda vinculado de forma inequívoca al
+estado exacto del código que lo produjo. A su vez, el índice
+\texttt{experiments/leaderboard.csv} agrega todas las ejecuciones en una única tabla, y
+\texttt{leaderboard\_ci.csv} añade sus intervalos de confianza, lo que constituye la
+fuente autoritativa de los resultados presentados en el Capítulo~\ref{sec::capitulo4}.
 
 \section{Integración continua y pruebas}
 \label{sec::repro_ci}
 
-El repositorio incorpora una batería de pruebas automatizadas (\textit{pytest}) y un
-flujo de integración continua en GitHub Actions que las ejecuta en cada cambio,
-garantizando que el código permanece funcional.
-% [PENDIENTE: indicar el número de pruebas (153) y el alcance de la cobertura.]
+Para garantizar que el código permanece funcional a lo largo del desarrollo, el
+repositorio incorpora una batería de \textbf{153 pruebas automatizadas} (con
+\textit{pytest}) que cubren los módulos críticos —el procesamiento de datos, los
+modelos, la evaluación, el registro de experimentos y la API—. Estas pruebas se ejecutan
+de forma automática mediante un flujo de \textbf{integración continua} en GitHub Actions
+con cada cambio enviado al repositorio, de modo que cualquier regresión se detecta de
+inmediato. La integración continua se ejecuta sobre CPU de forma intencionada, para
+verificar que el sistema funciona también en el entorno de despliegue.
 
 \section{Comandos de uso}
 \label{sec::repro_comandos}
 
-% [PENDIENTE: incluir aquí la relación completa de comandos de docs/GUIA_USO.md
-%  (entrenamiento con sus opciones, evaluación, pre-resize, bootstrap, arranque de la
-%  API y de la web), o remitir a los anexos B y C donde corresponda.]
+Por último, y con el fin de facilitar la reproducción del trabajo, se recogen los
+comandos principales. El detalle de uso de la interfaz se encuentra en los
+Anexos~\ref{anexo::web} a~\ref{anexo::docker-ghcr}.
+
+\begin{verbatim}
+# Preprocesado (una sola vez): pre-redimensionado del dataset a 224x224
+python -m src.preprocess_resize
+
+# Entrenamiento de un modelo (arquitectura y configuracion de clases)
+python -m src.main --model densenet121 --class-config nofracture12
+
+# Evaluacion sobre el test silver-standard
+python -m src.evaluate
+
+# Intervalos de confianza bootstrap del leaderboard
+python -m src.bootstrap_ci --n-boot 2000 --seed 42
+
+# Arranque de la API REST y de la interfaz web
+uvicorn src.api:app --host 0.0.0.0 --port 8000
+streamlit run src/app.py
+\end{verbatim}
