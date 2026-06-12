@@ -147,7 +147,7 @@ por su prevalencia extremadamente baja, que no aporta señal estadística
 suficiente para un aprendizaje fiable; la categoría \textit{No Finding} se
 conserva para que el modelo pueda indicar explícitamente la ausencia de
 hallazgos. En segundo lugar, se utiliza el conjunto de validación oficial como
-conjunto de prueba \textit{silver standard}: al estar anotado por radiólogos y
+conjunto de prueba \textit{silver-standard}: al estar anotado por radiólogos y
 ser independiente del entrenamiento (pacientes disjuntos), proporciona una
 estimación realista del rendimiento sin contaminar la selección del modelo. El
 tratamiento concreto aplicado sobre los datos se detalla en la
@@ -364,7 +364,7 @@ configuraciones reducidas. Los experimentos realizados son los siguientes:
 \textbf{Experimento 2 — Todas las arquitecturas con 12 clases (\texttt{nofracture12}).}
 \begin{itemize}
   \item \textit{Objetivo:} comparar el rendimiento de las cinco arquitecturas
-        (DenseNet-121, ResNet-50, VGG16-BN, ConvNeXt-Tiny y Swin-T) sobre la
+        (DenseNet-121, ResNet-50, VGG16-BN, ConvNeXt-Tiny y Swin-Tiny) sobre la
         configuración sin \textit{Fracture}.
   \item \textit{Configuración:} \texttt{nofracture12}.
   \item \textit{Motivo:} se detectó que \textit{Fracture} no dispone de muestras
@@ -471,7 +471,7 @@ intercambiables mediante configuración:
         rendimiento destacado en radiografía de tórax (CheXNet).
   \item \textbf{ConvNeXt-Tiny}~\cite{liuConvNet2020s2022}: CNN moderna que
         incorpora decisiones de diseño propias de los transformers.
-  \item \textbf{Swin-T}~\cite{liuSwinTransformer2021}: transformer de visión
+  \item \textbf{Swin-Tiny}~\cite{liuSwinTransformer2021}: transformer de visión
         jerárquico, representante del paradigma basado en atención.
 \end{itemize}
 
