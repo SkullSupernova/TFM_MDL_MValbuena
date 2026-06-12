@@ -8,8 +8,8 @@ adquiere valor si un tercero puede recrearlo a partir de los mismos datos, el mi
 código y el mismo procedimiento. Por este motivo, el proyecto se ha diseñado desde el
 principio para ser reproducible y trazable. Este capítulo documenta los elementos que
 lo hacen posible: el repositorio de código, el entorno de ejecución, la
-contenedorización, el control de la aleatoriedad, la trazabilidad de los experimentos,
-la integración continua y los comandos necesarios para reproducir el trabajo.
+contenedorización, el control de la aleatoriedad, la trazabilidad de los experimentos
+y la integración continua.
 
 \section{Repositorio y estructura del proyecto}
 \label{sec::repro_repo}
@@ -121,28 +121,3 @@ de forma automática mediante un flujo de \textbf{integración continua} en GitH
 con cada cambio enviado al repositorio, de modo que cualquier regresión se detecta de
 inmediato. La integración continua se ejecuta sobre CPU de forma intencionada, para
 verificar que el sistema funciona también en el entorno de despliegue.
-
-\section{Comandos de uso}
-\label{sec::repro_comandos}
-
-Por último, y con el fin de facilitar la reproducción del trabajo, se recogen los
-comandos principales. El detalle de uso de la interfaz se encuentra en los
-Anexos~\ref{anexo::web} a~\ref{anexo::docker-ghcr}.
-
-\begin{verbatim}
-# Preprocesado (una sola vez): pre-redimensionado del dataset a 224x224
-python -m src.preprocess_resize
-
-# Entrenamiento de un modelo (arquitectura y configuracion de clases)
-python -m src.main --model densenet121 --class-config nofracture12
-
-# Evaluacion sobre el test silver-standard
-python -m src.evaluate
-
-# Intervalos de confianza bootstrap del leaderboard
-python -m src.bootstrap_ci --n-boot 2000 --seed 42
-
-# Arranque de la API REST y de la interfaz web
-uvicorn src.api:app --host 0.0.0.0 --port 8000
-streamlit run src/app.py
-\end{verbatim}
