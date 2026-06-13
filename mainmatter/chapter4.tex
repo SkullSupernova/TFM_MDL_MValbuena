@@ -311,15 +311,22 @@ al coste, ConvNeXt-Tiny lo encabezaría.
 diferencias notables entre patologías. Las clases bien representadas en el test
 (\textit{Pleural Effusion}, \textit{Edema}, \textit{Cardiomegaly}) alcanzan AUROC
 elevadas y estables, mientras que las clases con muy pocos positivos resultan poco
-fiables o directamente no evaluables (\textit{Fracture}, \textit{Lung Lesion}). La
-Figura~\ref{fig::matriz_confusion} muestra las matrices de confusión por patología de la
-arquitectura de referencia.
+fiables o directamente no evaluables (\textit{Fracture}, \textit{Lung Lesion}). Conviene
+recordar que, al tratarse de un problema \textbf{multietiqueta}, no existe una única
+matriz de confusión global: cada patología constituye una tarea de clasificación
+binaria independiente, por lo que el rendimiento se desglosa \textbf{por patología}. La
+Figura~\ref{fig::auroc_patologia} muestra el AUROC de cada una de las doce clases
+evaluables de la arquitectura de referencia, lo que evidencia esa heterogeneidad: junto
+a patologías bien detectadas (\textit{Consolidation}, \textit{Pleural Effusion}) conviven
+otras claramente más difíciles (\textit{Enlarged Cardiomediastinum}, \textit{Atelectasis}).
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.72\textwidth]{figures/results/matriz-confusion.png}
-\caption{Matrices de confusión por patología (DenseNet-121, \texttt{nofracture12}).}
-\label{fig::matriz_confusion}
+\includegraphics[width=0.78\textwidth]{figures/results/auroc-por-patologia.png}
+\caption{AUROC por patología de la arquitectura de referencia (DenseNet-121,
+\texttt{nofracture12}). Cada barra corresponde a una de las patologías evaluables del
+problema multietiqueta.}
+\label{fig::auroc_patologia}
 \end{figure}
 
 
