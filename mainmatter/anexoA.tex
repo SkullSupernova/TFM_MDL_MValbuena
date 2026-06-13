@@ -113,39 +113,11 @@ misma radiografía.}
 \label{anexo::web_informe}
 
 La aplicación genera un informe PDF descargable que recoge, de forma estructurada, todos
-los resultados de la sesión. Las Figuras~\ref{fig::anexo_informe1}
-a~\ref{fig::anexo_informe4} reproducen un ejemplo completo (ocho páginas) correspondiente
-a una comparación de dos modelos: metadatos de la predicción, tablas y gráficas de
-probabilidades de cada modelo, comparación sobre las patologías comunes, explicabilidad
-Grad-CAM por patología y un bloque final de métricas de fiabilidad validadas, cerrado con
-una advertencia explícita sobre su carácter de herramienta de apoyo y no de diagnóstico.
+los resultados de la sesión. A continuación se reproduce \textbf{íntegro} un ejemplo
+completo (ocho páginas) correspondiente a una comparación de dos modelos: metadatos de la
+predicción, tablas y gráficas de probabilidades de cada modelo, comparación sobre las
+patologías comunes, explicabilidad Grad-CAM por patología y un bloque final de métricas
+de fiabilidad validadas, cerrado con una advertencia explícita sobre su carácter de
+herramienta de apoyo y no de diagnóstico.
 
-\newcommand{\pdfinforme}[1]{\includegraphics[page=#1,width=0.47\textwidth]{figures/annexes/Informe_radiologico_torax_20260613_011921.pdf}}
-
-\begin{figure}[ht]
-\centering
-\pdfinforme{1}\hfill\pdfinforme{2}
-\caption{Informe PDF generado por la aplicación (páginas 1 y 2 de 8).}
-\label{fig::anexo_informe1}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\pdfinforme{3}\hfill\pdfinforme{4}
-\caption{Informe PDF generado por la aplicación (páginas 3 y 4 de 8).}
-\label{fig::anexo_informe2}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\pdfinforme{5}\hfill\pdfinforme{6}
-\caption{Informe PDF generado por la aplicación (páginas 5 y 6 de 8).}
-\label{fig::anexo_informe3}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\pdfinforme{7}\hfill\pdfinforme{8}
-\caption{Informe PDF generado por la aplicación (páginas 7 y 8 de 8).}
-\label{fig::anexo_informe4}
-\end{figure}
+\includepdf[pages=-,scale=0.92,pagecommand={\thispagestyle{plain}}]{figures/annexes/Informe_radiologico_torax_20260613_011921.pdf}
