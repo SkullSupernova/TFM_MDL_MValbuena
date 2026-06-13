@@ -457,32 +457,81 @@ tres canales para ser compatibles con la entrada que esperan los modelos
 preentrenados en ImageNet. Con el fin de no limitar el estudio a una única
 familia de arquitecturas, se evalúan de forma comparativa cinco \textit{backbones}
 representativos de la evolución descrita en el Capítulo~\ref{ch::capitulo2},
-intercambiables mediante configuración:
+intercambiables mediante configuración. A continuación se describe cada una atendiendo
+a su estructura, su mecanismo de extracción de características y sus ventajas e
+inconvenientes.
 
-\begin{itemize}
-  \item \textbf{VGG16-BN}~\cite{simonyanVeryDeepConvolutional2015}: CNN secuencial
-        clásica, con normalización por lotes; representa el paradigma de redes
-        profundas homogéneas ($\sim$138\,M de parámetros).
-  \item \textbf{ResNet-50}~\cite{heDeepResidualLearning2016}: introduce las
-        conexiones residuales que permiten entrenar redes muy profundas; es una
-        referencia casi universal ($\sim$25\,M de parámetros).
-  \item \textbf{DenseNet-121}~\cite{huangDenselyConnectedConvolutional2017}:
-        conecta densamente las capas, reutilizando características; ha mostrado un
-        rendimiento destacado en radiografía de tórax (CheXNet) ($\sim$7\,M de
-        parámetros).
-  \item \textbf{ConvNeXt-Tiny}~\cite{liuConvNet2020s2022}: CNN moderna que
-        incorpora decisiones de diseño propias de los transformers ($\sim$28\,M de
-        parámetros).
-  \item \textbf{Swin-Tiny}~\cite{liuSwinTransformer2021}: transformer de visión
-        jerárquico, representante del paradigma basado en atención ($\sim$28\,M de
-        parámetros).
-\end{itemize}
+\textbf{VGG16-BN}~\cite{simonyanVeryDeepConvolutional2015} representa el paradigma de las
+CNN secuenciales homogéneas. Su estructura apila 16 capas con parámetros (13
+convolucionales y 3 totalmente conectadas), organizadas en bloques de convoluciones de
+tamaño reducido ($3\times3$) seguidos de \textit{max-pooling}, con un número de canales
+que se duplica al profundizar (64, 128, 256 y 512); la variante \textit{BN} añade
+normalización por lotes tras cada convolución para estabilizar el entrenamiento. La
+extracción de características se basa en encadenar muchas convoluciones pequeñas, lo que
+amplía progresivamente el campo receptivo con pocos parámetros por capa, si bien las tres
+capas totalmente conectadas finales concentran la inmensa mayoría de sus $\sim$138
+millones de parámetros. Su principal ventaja es la simplicidad y la regularidad del
+diseño, que la han consolidado como extractor de características genérico de referencia;
+sus inconvenientes son el enorme coste en memoria y cómputo, la propensión al sobreajuste
+y la degradación del gradiente en redes muy profundas, una limitación que motivó la
+aparición de las redes residuales.
 
-Esta selección abarca desde las CNN clásicas hasta los transformers de visión,
-lo que permite comparar familias arquitectónicas distintas bajo un mismo
-protocolo. La principal ventaja de este enfoque comparativo es la robustez de las
-conclusiones; su inconveniente es el elevado coste de cómputo, que condiciona el
-alcance final del estudio.
+\textbf{ResNet-50}~\cite{heDeepResidualLearning2016} introduce las \textbf{conexiones
+residuales} (\textit{skip connections}), que suman la entrada de un bloque a su salida.
+Se organiza en 50 capas agrupadas en bloques \textit{bottleneck} ($1\times1$, $3\times3$
+y $1\times1$), en los que las convoluciones $1\times1$ reducen y después restauran la
+dimensionalidad para abaratar la convolución $3\times3$ intermedia. Al aprender un
+residuo $F(x)$ en lugar del mapeo completo, el gradiente fluye sin atenuarse a través de
+los atajos, lo que permite entrenar de forma estable redes mucho más profundas y resuelve
+el problema de degradación de VGG. Su ventaja es ese equilibrio entre profundidad y
+entrenabilidad que la ha convertido en una referencia casi universal; como inconveniente,
+emplea más parámetros que DenseNet ($\sim$25 millones) y la combinación por suma reutiliza
+las características de forma menos eficiente que la concatenación.
+
+\textbf{DenseNet-121}~\cite{huangDenselyConnectedConvolutional2017} lleva al extremo la
+idea de conexión directa mediante la \textbf{conectividad densa}: dentro de cada bloque
+denso, cada capa recibe como entrada la \textit{concatenación} de los mapas de
+características de todas las capas anteriores, y unas capas de transición ($1\times1$ y
+\textit{pooling}) reducen la dimensión entre bloques. Esta reutilización explícita de
+características maximiza el flujo de información y de gradientes y, sobre todo, reduce de
+forma drástica el número de parámetros, hasta apenas $\sim$7 millones, el menor de las
+cinco arquitecturas. Sus ventajas son esa eficiencia paramétrica y un rendimiento
+sobresaliente en radiografía de tórax, donde su variante CheXNet~\cite{rajpurkarCheXNetRadiologistLevel2017}
+marcó un hito; su inconveniente es un elevado consumo de memoria en tiempo de ejecución,
+derivado de las numerosas concatenaciones intermedias. Por su acreditado rendimiento en
+este dominio y su eficiencia, se adopta como \textbf{arquitectura de referencia} del
+trabajo.
+
+\textbf{ConvNeXt-Tiny}~\cite{liuConvNet2020s2022} es una CNN \textbf{moderna} que
+reformula la ResNet incorporando decisiones de diseño tomadas de los transformers:
+convoluciones \textit{depthwise} de núcleo grande ($7\times7$), normalización por capas
+(\textit{LayerNorm}) en lugar de por lotes, función de activación GELU y un uso más parco
+de normalizaciones y activaciones. Las convoluciones \textit{depthwise} de gran núcleo
+capturan un contexto espacial amplio, de forma análoga a la atención, pero conservando la
+eficiencia de la convolución. Su ventaja es alcanzar un rendimiento de primer nivel con
+un coste puramente convolucional; como inconvenientes, es una arquitectura reciente y
+menos validada de forma específica en imagen médica, y casi cuadruplica los parámetros de
+DenseNet ($\sim$28 millones).
+
+\textbf{Swin-Tiny}~\cite{liuSwinTransformer2021} es un \textbf{transformer de visión
+jerárquico}. Divide la imagen en parches y aplica \textbf{auto-atención dentro de ventanas
+locales}, desplazándolas entre capas sucesivas (\textit{shifted windows}) para conectar
+regiones vecinas, mientras que las operaciones de fusión de parches (\textit{patch
+merging}) construyen una jerarquía de resoluciones similar a la de una CNN. La
+auto-atención modela dependencias de largo alcance entre regiones de la imagen, y la
+restricción a ventanas locales evita el coste cuadrático de la atención global. Sus
+ventajas son la capacidad de capturar relaciones globales y su naturaleza multiescala,
+útil en tareas densas; sus inconvenientes son una mayor necesidad de datos para entrenar,
+un coste computacional superior y un menor sesgo inductivo local que el de las CNN, con
+$\sim$28 millones de parámetros.
+
+La justificación de esta selección es la \textbf{representatividad}: se ha escogido un
+exponente de cada gran paradigma de la visión por computador (secuencial, residual,
+denso, moderno y transformer), de modo que las conclusiones de la comparación no
+dependan de una única familia arquitectónica. Todas se emplean preentrenadas en ImageNet
+y se adaptan mediante ajuste fino, como se ha descrito. La principal ventaja de este
+enfoque comparativo es la robustez de las conclusiones; su inconveniente es el elevado
+coste de cómputo, que condiciona el alcance final del estudio.
 
 
 \section{Función de pérdida y protocolo de entrenamiento}
